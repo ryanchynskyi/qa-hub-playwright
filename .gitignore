@@ -1,0 +1,9 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.stack/
+.auth/
+.env
+.env.*
+!.env.example
