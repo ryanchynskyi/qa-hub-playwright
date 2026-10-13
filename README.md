@@ -1,70 +1,83 @@
 # qa-hub-playwright
 
-Playwright + TypeScript test framework for [QA Interview Hub](https://ryanchynskyi.github.io/qa-interview-tests/).
-Built step by step as a learning project; see `learning/ROADMAP.md`.
+Playwright + TypeScript test framework for [QA Interview Hub](https://qa-interview.com/): API
+contract and security tests, UI flows on desktop/tablet/phone, a read-only production smoke.
+Learning materials built on this code live in [`learning/`](learning/README.md).
 
 ## Setup
 
-Requirements: Node.js 22+ (developed on 24), a local clone of the app repo after `npm ci` there.
+Requirements: Node.js 22+, a local clone of the app repo after `npm ci` there.
 
 ```bash
 npm ci
 npx playwright install chromium
+cp .env.example .env   # set APP_DIR to the app clone
 ```
 
-### Browsers
+On the dev machine browsers live on drive D: (`PLAYWRIGHT_BROWSERS_PATH=D:\ms-playwright`, a
+Windows user variable). Playwright reads it in `install` and in test runs alike, from any
+terminal or the VS Code extension; CI does not set it and uses the default cache.
 
-Only Chromium is installed. On the dev machine browsers live on drive D:, set once as a Windows
-user environment variable:
+## Running
+
+```bash
+npm test                 # everything; starts the local stack if it is not running
+npm run test:api         # API project only
+npm run test:ui          # desktop UI only
+npm run test:smoke       # @smoke
+npm run test:debug       # UI mode
+npm run report           # last HTML report
+npm run check            # typecheck + lint + format
+```
+
+`playwright.config.ts` starts `scripts/stack.mjs` through `webServer` and reuses a stack that is
+already up. For debugging keep one running in a separate terminal: `npm run stack` (or
+`npm run stack:reset` for an empty database: no leaderboard rows, no chat).
+
+Local stack: web http://localhost:4273 · API http://127.0.0.1:3200 (tests use the same-origin
+proxy http://localhost:4273/api/) · DB `qahub_pw` on the shared local Postgres (:5433).
+
+### Production
 
 ```powershell
-[Environment]::SetEnvironmentVariable('PLAYWRIGHT_BROWSERS_PATH', 'D:\ms-playwright', 'User')
+$env:TARGET = 'prod'; npx playwright test; Remove-Item Env:TARGET
 ```
 
-Why a user variable and not `.env` or an npm script: Playwright reads it both in
-`npx playwright install` (which never loads the config or `.env`) and in test runs, from any
-terminal or the VS Code extension, with no shell-specific syntax. CI does not set it and uses the
-default cache. Restart VS Code after setting it.
+`TARGET=prod` runs only tests tagged `@prod-safe` (read-only) against https://qa-interview.com and
+skips the local stack. Any non-local `BASE_URL`/`API_URL` without `TARGET=prod` stops the run at
+config load.
 
-## Local stack
-
-The tests run against a local copy of the app with its own ports and database
-(`docs/brief.md` §2.1). Start it in a separate terminal before running tests:
-
-```bash
-cp .env.example .env   # set APP_DIR to the app clone
-node scripts/stack.mjs --reset
-```
-
-Web http://localhost:4273 · API http://127.0.0.1:3200 · DB `qahub_pw` on the shared local Postgres (:5433).
-
-Flags: `--reset` drops the database first (empty leaderboard and chat), `--no-build` reuses the
-existing web build, `--build` forces a rebuild, `--no-db` uses an external Postgres (`DB_URL`).
-
-## Project structure
+## Structure
 
 ```
-src/                  framework code, imported by tests (no specs here)
-  config/             env resolution: TARGET, BASE_URL, API_URL, prod guard
-  fixtures/           test.extend: guestPage, lang, apiClient, catalog, user, authedPage
-  api/                typed API client, response types and schemas
-  pages/              page objects: DashboardPage, QuizPage, KbPage, ...
-  components/         shared UI parts: Shell (nav, level, lang switch, More sheet)
-  helpers/            byTestId, numberValue, uniqueEmail, xpToNext, ...
-tests/                specs only
-  smoke/              @smoke / @prod-safe: the app is up and renders
-  api/                API contracts, validation, security invariants
-  e2e/                UI flows by feature
-  unit/               pure helpers (e.g. XP math) without a browser
+playwright.config.ts   projects (api, desktop, tablet, phone), tags, webServer, prod guard
+src/
+  config/env.ts        TARGET, BASE_URL, API_URL, the production guard
+  setup/               global setup: wait for API /health (cold start in prod)
+  api/                 ApiClient over APIRequestContext + zod schemas (types = contracts)
+  fixtures/            test.extend: lang, device, api, catalog, user, newCredentials, authedPage, page objects
+  components/shell.ts  navigation, XP, language, account; hides desktop/tablet/phone differences
+  pages/               DashboardPage, QuizPage, AuthPage, KbPage
+  helpers/             byTestId, numberValue, uniqueEmail
+tests/
+  api/                 contracts, validation, auth, security invariants (no answers, no ids)
+  e2e/                 UI flows: shell, quiz, auth, i18n, knowledge base
+  smoke/               @smoke @prod-safe: the app is up and renders
 ```
 
-## Running tests
+## Tags
 
-```bash
-npx playwright test                 # all tests
-npx playwright test --grep @smoke   # smoke only
-npx playwright test --ui            # UI mode for debugging
-npx playwright show-report          # last HTML report
-```
+| Tag           | Meaning                                                   |
+| ------------- | --------------------------------------------------------- |
+| `@smoke`      | fastest "is it alive" checks                              |
+| `@prod-safe`  | read-only, allowed against production (`TARGET=prod`)     |
+| `@responsive` | runs on tablet and phone too (desktop runs every UI test) |
 
-Production is never a target by default; only the `@prod-safe` smoke may run with `TARGET=prod`.
+## Conventions
+
+- Locators: test ids only (`getByTestId`, `byTestId(scope, id, key)`); state from ARIA or
+  `data-state`; numbers from `data-value`. ESLint forbids raw locators in specs.
+- No sleeps: web-first assertions and `expect.poll`. XP is asserted as a delta, never exactly.
+- Every test makes its own data (`user`, `newCredentials`) and cleans it up; nothing is shared
+  between tests, so they run fully parallel.
+- Page-object assertion methods are named `expect*()`.
