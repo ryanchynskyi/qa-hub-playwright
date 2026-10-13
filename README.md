@@ -41,6 +41,23 @@ Web http://localhost:4273 · API http://127.0.0.1:3200 · DB `qahub_pw` on the s
 Flags: `--reset` drops the database first (empty leaderboard and chat), `--no-build` reuses the
 existing web build, `--build` forces a rebuild, `--no-db` uses an external Postgres (`DB_URL`).
 
+## Project structure
+
+```
+src/                  framework code, imported by tests (no specs here)
+  config/             env resolution: TARGET, BASE_URL, API_URL, prod guard
+  fixtures/           test.extend: guestPage, lang, apiClient, catalog, user, authedPage
+  api/                typed API client, response types and schemas
+  pages/              page objects: DashboardPage, QuizPage, KbPage, ...
+  components/         shared UI parts: Shell (nav, level, lang switch, More sheet)
+  helpers/            byTestId, numberValue, uniqueEmail, xpToNext, ...
+tests/                specs only
+  smoke/              @smoke / @prod-safe: the app is up and renders
+  api/                API contracts, validation, security invariants
+  e2e/                UI flows by feature
+  unit/               pure helpers (e.g. XP math) without a browser
+```
+
 ## Running tests
 
 ```bash
