@@ -47,8 +47,13 @@ export default defineConfig(
       'playwright/no-element-handle': 'error',
       'playwright/no-page-pause': 'error',
       'playwright/no-force-option': 'error',
-      // Locators come from test ids (docs/brief.md §5), not CSS/XPath strings.
+      // Locators come from test ids (docs/brief.md §5), not CSS/XPath strings. Anything else
+      // (data-key, data-state, <html>) is built in src/ by page objects and helpers.
       'playwright/no-raw-locators': 'error',
+      // Page-object methods named expect*() (shell.expectSignedIn) count as assertions.
+      'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect[A-Z]'] }],
+      // `test.skip(condition, reason)` is a documented decision; a bare skip still fails lint.
+      'playwright/no-skipped-test': ['error', { allowConditional: true }],
     },
   },
 
