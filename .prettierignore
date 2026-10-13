@@ -1,0 +1,11 @@
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.stack/
+package-lock.json
+
+# Hand-written prose and mentor notes: keep their line breaks as written.
+docs/
+learning/
+.claude/
