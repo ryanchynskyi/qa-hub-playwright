@@ -8,7 +8,6 @@ export class DashboardPage {
   readonly topics: Locator;
   readonly ready: Locator;
   readonly quickstart: Locator;
-  readonly quickstartTrack: Locator;
   readonly topicsLock: Locator;
   /** Blocks a new visitor's short dashboard leaves out until the tour (DASH-020). */
   readonly fullOnly: Locator[];
@@ -20,7 +19,6 @@ export class DashboardPage {
     this.topics = page.getByTestId('topics');
     this.ready = page.getByTestId('dash-ready');
     this.quickstart = page.getByTestId('dash-quickstart');
-    this.quickstartTrack = page.getByTestId('dash-quickstart-track');
     this.topicsLock = page.getByTestId('topics-lock');
     this.fullOnly = [
       'dash-ready',

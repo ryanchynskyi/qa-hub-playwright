@@ -8,7 +8,6 @@ import { byTestId } from '../helpers/locators';
  */
 export class FocusWizard {
   readonly gate: Locator;
-  readonly setup: Locator;
   readonly step: Locator;
   readonly next: Locator;
   readonly back: Locator;
@@ -19,10 +18,17 @@ export class FocusWizard {
   readonly summary: Locator;
   readonly skipped: Locator;
   readonly topics: Locator;
+  /** Topics ticked on the topics step (`data-state` = on). */
+  readonly ticked: Locator;
+  readonly setupOpen: Locator;
+  /** Theme step options: the current one (`selected`) and the other one (`off`). */
+  readonly currentTheme: Locator;
+  readonly otherTheme: Locator;
+  /** `<html>`: `data-theme` appears once a theme is picked (before that, the system one). */
+  readonly html: Locator;
 
   constructor(readonly page: Page) {
     this.gate = page.getByTestId('focus-gate');
-    this.setup = page.getByTestId('focus-setup');
     this.step = page.getByTestId('focus-step');
     this.next = page.getByTestId('focus-next');
     this.back = page.getByTestId('focus-back');
@@ -33,6 +39,11 @@ export class FocusWizard {
     this.summary = page.getByTestId('focus-summary');
     this.skipped = page.getByTestId('focus-skipped');
     this.topics = page.getByTestId('focus-topic');
+    this.ticked = page.locator('[data-testid="focus-topic"][data-state="on"]');
+    this.setupOpen = page.getByTestId('focus-setup-open');
+    this.currentTheme = page.locator('[data-testid="focus-theme"][data-state="selected"]');
+    this.otherTheme = page.locator('[data-testid="focus-theme"][data-state="off"]');
+    this.html = page.locator('html');
   }
 
   track = (key: 'manual' | 'auto' | 'all') => byTestId(this.page, 'focus-track', key);
