@@ -23,3 +23,17 @@ workflow; `docs/WORKFLOW.md` is that explanation.
 - Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
   tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
   is a decision for the user, not a fix.
+
+## ub-mode (Uncle Bob)
+
+`.claude/skills/ub-mode/SKILL.md` is a verbatim copy of `unclebob/ub-mode` at `57a8bdd`; update
+it by re-copying, never edit it. `/ub-mode` turns it on. Where it differs from this project, this
+project wins:
+
+- Commit and Push: a branch and a PR; merge only with a green `e2e` check. `main` is protected,
+  nothing is pushed to it directly.
+- Crapper, Dryer, Mutator: not installed here; skip those steps and say so. Adding them is a
+  separate decision for the user.
+- TDD on tests: "see it fail" means break the app's behaviour (or the assertion) once and watch
+  the test go red, then restore it.
+- Keep a Log: report the decisions and their reasons, not every tool call.
