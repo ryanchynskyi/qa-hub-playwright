@@ -16,6 +16,8 @@
     "test:smoke": "playwright test --grep @smoke",
     "test:debug": "playwright test --ui",
     "report": "playwright show-report",
+    "perf:smoke": "k6 run perf/smoke.js",
+    "perf:load": "k6 run perf/load.js",
     "typecheck": "tsc",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",

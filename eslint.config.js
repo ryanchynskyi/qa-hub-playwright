@@ -35,6 +35,12 @@ export default defineConfig(
     languageOptions: { globals: globals.node },
   },
 
+  // k6 scripts run in k6's own JS runtime, not Node: its globals instead of Node's.
+  {
+    files: ['perf/**/*.js'],
+    languageOptions: { globals: { __ENV: 'readonly', __VU: 'readonly', __ITER: 'readonly' } },
+  },
+
   // Playwright rules only where tests live: page objects and fixtures legitimately call expect
   // outside a test body, which no-standalone-expect would flag.
   {
