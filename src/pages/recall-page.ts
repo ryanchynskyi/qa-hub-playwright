@@ -11,6 +11,7 @@ export class RecallPage {
   readonly hero: Locator;
   readonly caughtUp: Locator;
   readonly know: Locator;
+  readonly pool: Locator;
   readonly progress: Locator;
   readonly bar: Locator;
   readonly card: Locator;
@@ -27,6 +28,7 @@ export class RecallPage {
     this.hero = page.getByTestId('recall-hero');
     this.caughtUp = page.getByTestId('recall-caught-up');
     this.know = page.getByTestId('recall-know');
+    this.pool = page.getByTestId('recall-pool');
     this.progress = page.getByTestId('recall-progress');
     this.bar = page.getByTestId('recall-bar').locator('span');
     this.card = page.getByTestId('recall-card');
@@ -68,14 +70,14 @@ export class RecallPage {
 
   /**
    * Rates the shown answer (button, or digit key with `byKey`) and waits for the next card, or
-   * for the result view after the last one. Rating 1 puts the card back at the end of the queue,
-   * so a session never ends on it.
+   * for the result view after the last one. The first rating 1 of a card puts it back three places
+   * later (Recall.tsx `rate()`), so the session goes on; pass `requeued: false` for a second 1.
    */
-  async rateCard(rating: number, byKey = false): Promise<void> {
+  async rateCard(rating: number, byKey = false, requeued = rating === 1): Promise<void> {
     const position = await numberValue(this.progress);
     const total = await numberValue(this.progress, 'data-total');
     await (byKey ? this.page.keyboard.press(String(rating)) : this.rate(rating).click());
-    if (position < total || rating === 1) {
+    if (position < total || requeued) {
       await expect(this.progress).toHaveAttribute('data-value', String(position + 1));
     } else {
       await expect(this.done).toBeVisible();

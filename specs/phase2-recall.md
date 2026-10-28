@@ -28,7 +28,7 @@ card: {id, state}}`, `state` = `CardState` `{rating, reviews, dueAt, history, la
 ## Ambiguities
 
 1. "Card n of N": the UI shows "1 / 10" (recall-progress, `data-v`=n, `data-t`=N), not the words "Card n of N". Tests assert v/t, not text. Source: live UI, test-ids.md (recall-progress).
-2. Rating 1 and the counter: after rating a card 1 in a 10-card session the counter becomes "2 / 11" (N grows by one) and the bar gets 11 segments; the returned card is appended at the end of the queue. The requirement says only "comes back in the same session"; the N+1 behaviour is app behaviour and the scenario asserts N = 11. Source: live UI.
+2. Rating 1 and the counter: after rating a card 1 in a 10-card session the counter becomes "2 / 11" (N grows by one) and the bar gets 11 segments; the card is put back three places later (position n+3; Recall.tsx `rate()`: `at = i + 4`), and only once per session (`requeued`). Corrected after the generator run: the planner first wrote "appended at the end", the live run showed it at 5 / 11. The requirement says only "comes back in the same session"; the N+1 behaviour is app behaviour and the scenario asserts N = 11. Source: live UI.
 3. Rating labels: UI hints are 1 "Не знаю", 2 "Слабко", 3 "Частково", 4 "Добре", 5 "Як на співбесіді". The setup hint says "1 і нижче повертається в цій же сесії, 2 через 1 день, 3 через 3 дні, 4 через тиждень, 5 через два тижні". So the requirement's intervals 1/3/7/14 map to ratings 2/3/4/5; rating 1 = 0 days (due at once). Source: shared engine RECALL_INTERVAL_DAYS = [0,1,3,7,14]; setup page text.
 4. "XP at most once per card per local day": the engine (packages/shared engine/items.ts) grants XP when the card is new or due AND `lastXpDate` is not today. So a card rated 1 (due at once) and rated again the same day gives 0 XP the second time. The requirement wording ("a card that is not due gives 0") covers only the not-due case; the same-day case is a separate rule. "Local day" uses the account `timeZone` (set at register, default in ApiClient Europe/Kyiv).
 5. Server clock cannot be controlled from a test: `rate()` uses the server's `now()`. So an API test cannot prove "XP again the next local day" or "card due after N days". It proves only: dueAt - at = interval * 86400000 (the response gives both the server time `at` and `dueAt`), and same-day behaviour. Next-day XP can be proved only for a guest (client-side engine) with `page.clock`; see Ideas.
@@ -97,11 +97,11 @@ card: {id, state}}`, `state` = `CardState` `{rating, reviews, dueAt, history, la
 **Steps:**
 
 1. Open /recall, click `recall-start`, remember card id A, reveal, rate 1.
-2. Rate the following cards 5 (reveal + rate) until the counter shows the last position (`data-v` = `data-t`).
+2. Rate the next three cards 5 (reveal + rate).
    **Expected:**
 
 - After step 1: `recall-progress` is `data-v=2`, `data-t=11` (N grows by one), the first bar segment is `bad`, and the bar has 11 segments.
-- On the last position `recall-card[data-key]` equals A and `data-state=front`.
+- At position 5 / 11 `recall-card[data-key]` equals A and `data-state=front`.
 - (If 10 reveal-and-rate rounds are too slow for the 5-step limit, loop in a helper `rateThrough(page, n)`; the scenario still proves one requirement.)
 
 ### 6. Rating 1 does not mark the card "known" (UI side of the 1 vs 2 difference)
@@ -125,7 +125,7 @@ card: {id, state}}`, `state` = `CardState` `{rating, reviews, dueAt, history, la
    **Expected:**
 
 - GET /me/progress (via `api.progress(user.token)`) has an xpLog entry `reason: 'recall'`, `refId` = A.
-- After the reload the recall scope shows `recall-hero` is absent or does not count A as due (A is due in 14 days); `recall-know` is above 0%.
+- After the reload the recall scope shows `recall-hero` is absent or does not count A as due (A is due in 14 days); `recall-pool` has `data-later=1`, `data-due=0`. (`recall-know` stays 0%: one card of 310 rounds down.)
 - Why UI + account: it proves that the UI sends the rating to the server, which the guest scenarios cannot.
 
 ## API tests
@@ -184,7 +184,7 @@ Beyond the requirements; the user decides.
 - Rating button `disabled` while saving (`recall-rate` disabled on a slow response with route delay); `recall-error` (`role=alert`) when POST /me/recall/rate fails for an account (route mock 500) and the card does not advance.
 - Keys 1-5 with the front shown do nothing; Space on the front while the focus is in the comments tab input must not reveal.
 - Phone viewport: `recall-reveal` and `recall-rates` are in a sticky bar (project phone).
-- Rating 1 returns the card at the end of the queue: check that it is the last position and that the same card rated again 1 comes back once more (infinite loop guard).
+- Rating 1 returns a card only once per session: rate A 1 again at 5 / 11 and check N stays 11 (infinite loop guard).
 - Order of cards in a session (due first with the lowest rating, then new, then the rest) is stated in the `recall-pool` aria-label; the "Усі теми" session here started with a non-first topic, so the order needs a separate requirement.
 
 ## Test Scenarios
