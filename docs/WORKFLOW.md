@@ -207,6 +207,8 @@ Umami під Playwright не шле нічого двічі: апка вимик
 
 Згенеровані `npx playwright init-agents --loop=claude`. Працюють через MCP-сервер
 `playwright-test` (`.mcp.json`), який дає їм браузер і раннер тестів.
+Planner і generator стартують з seed лише з `project: "desktop"`: без нього MCP бере перший
+проєкт конфігу (`api`), а там seed немає ("seed test not found", агент лишається без браузера).
 
 | Агент | Вхід | Вихід |
 |---|---|---|

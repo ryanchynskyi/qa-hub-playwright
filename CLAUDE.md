@@ -20,6 +20,8 @@ workflow; `docs/WORKFLOW.md` is that explanation.
   `npx playwright init-agents --loop=claude`; re-running it overwrites them, so project rules live
   here and in `test-reviewer`, not in those files. They start from `tests/seed.spec.ts`; plans go
   to `specs/`.
+- Their `*_setup_page` tools need `project: "desktop"`: without it they take the first project
+  (`api`), which does not include the seed, and fail with "seed test not found".
 - Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
   tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
   is a decision for the user, not a fix.
