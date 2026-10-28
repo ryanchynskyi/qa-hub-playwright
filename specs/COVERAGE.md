@@ -280,7 +280,9 @@ GEN-05, 08, 09 · KB-02, 03, 05, 06 (KB-02 і на tablet: 800 px ≤ 860) · PR
 
 Готово, коли: зранку за посиланням на Pages є звіт з трендом за кілька ночей для обох гілок.
 
-#### I-3. Тригери з апки
+#### I-3. Тригери з апки (крок 8; ✅ після першого прогону від коміту апки)
+
+Прогін тестує `client_payload.sha` (точний коміт), гілка — у summary. Деталі в `docs/WORKFLOW.md`.
 
 1. У workflow апки після push у `develop`/`main` і після деплою проду — крок
    `gh api repos/ryanchynskyi/qa-hub-playwright/dispatches -f event_type=<app-updated|prod-deployed>`

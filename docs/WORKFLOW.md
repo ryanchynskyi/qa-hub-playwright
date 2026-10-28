@@ -99,8 +99,19 @@
 | Тригер | Навіщо |
 |---|---|
 | push у `main`, pull request | не пустити зламаний фреймворк |
-| `repository_dispatch: app-updated` | апка після деплою сама запускає тести |
+| `repository_dispatch: app-updated` | зелений push апки в `main`/`develop` запускає повний набір проти саме цього коміту апки (`client_payload.sha`) |
 | `workflow_dispatch` | ручний запуск, input `app_ref` (гілка, тег чи SHA апки, за замовчуванням `main`) |
+
+**Тригери з апки (I-3).** Апка шле `repository_dispatch` двома кроками у своїх workflow:
+job `notify-tests` у `ci.yml` після зеленого `check` (push у `main`/`develop`, подія `app-updated`)
+і крок у `pages.yml` після деплою (`prod-deployed`). Токен — секрет `QA_HUB_DISPATCH_TOKEN` у репо
+апки: fine-grained, лише `qa-hub-playwright`, Contents: read and write (цього вимагає
+`dispatches`). Без секрету крок пропускається, а CI апки не падає.
+*Чому після зеленого `check`, а не на кожен push:* червону апку e2e не скажуть нічого нового.
+*Чому SHA, а не гілка:* поки наш прогін стартує, у гілку апки може прийти наступний коміт; SHA
+тестує рівно той, що запустив прогін. Гілка йде в summary.
+*Чому окрема `concurrency`-група на гілку апки:* GitHub тримає один pending-прогін на групу, тож
+спільна з push у `main` група дала б app-коміту витіснити прогін фреймворку (і навпаки).
 
 **Кроки job `e2e`:**
 1. checkout фреймворку і апки (приватне репо, токен `APP_REPO_TOKEN`); SHA апки йде в summary
@@ -164,7 +175,7 @@
 
 **Workflow `prod-smoke`** (`.github/workflows/prod-smoke.yml`): `TARGET=prod`, лише
 `@prod-safe` (read-only), без копії апки і без секретів, `--workers=2`, timeout 10 хв.
-Тригери: cron `17 */3 * * *`, `repository_dispatch: prod-deployed` (апка після деплою) і ручний.
+Тригери: cron `17 */3 * * *`, `repository_dispatch: prod-deployed` (крок у `pages.yml` апки після деплою) і ручний.
 Падіння відкриває issue «Prod smoke failing» або коментує вже відкрите; перший зелений прогін
 його закриває (`scripts/prod-alert.sh`, `permissions: issues: write`). Звіт зберігається лише
 при падінні. Відкрите issue скрипт шукає в повному списку, а не через `--search`: пошуковий
