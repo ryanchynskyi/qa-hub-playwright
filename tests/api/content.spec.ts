@@ -6,6 +6,12 @@ test.describe('content API', { tag: ['@prod-safe'] }, () => {
     expect(health.content.questions).toBeGreaterThan(0);
   });
 
+  test('ping answers ok', { tag: ['@smoke', '@REQ-NFR-09'] }, async ({ api }) => {
+    const res = await api.raw.get('ping');
+    expect(res.status()).toBe(200);
+    expect(await res.json()).toEqual({ status: 'ok' });
+  });
+
   test('catalog is consistent with health counts and itself', async ({ api, catalog }) => {
     const health = await api.health();
     // Volumes change with content edits: compare two sources, never hard-code a number.
