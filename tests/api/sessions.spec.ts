@@ -1,8 +1,9 @@
 import type { APIRequestContext } from '@playwright/test';
-import { bearer, type ApiClient } from '../../src/api/client';
+import { ApiClient, bearer } from '../../src/api/client';
 import { AuthResponse } from '../../src/api/schemas';
 import { env } from '../../src/config/env';
 import { expect, test } from '../../src/fixtures';
+import { googleCode, googleLogin, newNonce } from '../../src/helpers/google';
 
 // Refresh tokens travel in the body ("remember me"): the cookie would win over it, so each call
 // gets a new cookie-less context and the test controls exactly which token is presented.
@@ -115,6 +116,106 @@ test.describe('sessions', () => {
         await api.login({ email: user.email, password: newPassword });
       } finally {
         await api.deleteAccount(user.token, user.email);
+      }
+    },
+  );
+
+  test(
+    'logout ends only the session family it is given',
+    { tag: ['@REQ-AUTH-08'] },
+    async ({ api, user }) => {
+      const first = await rememberedLogin(newContext, user.email, user.password);
+      const second = await rememberedLogin(newContext, user.email, user.password);
+
+      const request = await newContext();
+      await new ApiClient(request).logout(first.refresh).finally(() => request.dispose());
+
+      expect((await call(newContext, 'auth/refresh', { refreshToken: first.refresh })).status).toBe(
+        401,
+      );
+      expect(await sessionIsLive(api, first.access)).toBe(false);
+      // Another device stays signed in.
+      expect(
+        (await call(newContext, 'auth/refresh', { refreshToken: second.refresh })).status,
+      ).toBe(200);
+    },
+  );
+
+  test(
+    'remember me decides between a persistent and a session refresh cookie',
+    { tag: ['@REQ-AUTH-06'] },
+    async ({ user }) => {
+      for (const remember of [true, false]) {
+        const request = await newContext();
+        try {
+          const res = await request.post('auth/login', { data: { ...user, remember } });
+          expect(res.status()).toBe(200);
+          const cookie = res
+            .headersArray()
+            .find((h) => /^set-cookie$/i.test(h.name) && h.value.startsWith('qa_rt='));
+          expect(cookie, 'qa_rt cookie').toBeDefined();
+          // 30 days; without Max-Age the browser drops the cookie when it closes.
+          expect(cookie!.value.includes('Max-Age=2592000'), `remember ${remember}`).toBe(remember);
+          // The app keeps the body token in `qa-hub-rt` only for "remember me".
+          const { refreshToken } = AuthResponse.parse(await res.json());
+          expect(refreshToken !== undefined, `remember ${remember}`).toBe(remember);
+        } finally {
+          await request.dispose();
+        }
+      }
+    },
+  );
+
+  test(
+    'Google sign-in with the email of an unverified account ends its sessions and drops the password',
+    { tag: ['@REQ-AUTH-09'] },
+    async ({ api, user }) => {
+      const other = await rememberedLogin(newContext, user.email, user.password);
+      const request = await newContext();
+      const google = await googleLogin(request, user.email).finally(() => request.dispose());
+      // The fixture cleans up with the password, which is gone now.
+      try {
+        expect(google.user.email).toBe(user.email);
+        expect(
+          (await call(newContext, 'auth/refresh', { refreshToken: other.refresh })).status,
+        ).toBe(401);
+        expect((await api.raw.post('auth/login', { data: user })).status()).toBe(401);
+      } finally {
+        await api.deleteAccount(google.accessToken, user.email);
+      }
+    },
+  );
+
+  test(
+    'a Google login code is redeemed only with the nonce of the browser that started sign-in',
+    { tag: ['@REQ-AUTH-11'] },
+    async ({ api, googleEmail }) => {
+      // `nonce` gets the browser's own nonce and returns the one to send (undefined: none).
+      const exchange = async (nonce: (own: string) => string | undefined) => {
+        const started = newNonce();
+        const code = await googleCode(api.raw, googleEmail, started.nonceHash);
+        return api.raw.post('auth/google/exchange', {
+          data: { code, remember: true, nonce: nonce(started.nonce) },
+        });
+      };
+
+      const another = newNonce().nonce;
+      for (const res of [await exchange(() => another), await exchange(() => undefined)]) {
+        expect(res.status()).toBe(401);
+        expect(await res.json()).toMatchObject({ error: 'google_state' });
+      }
+      expect((await exchange((own) => own)).status()).toBe(200);
+    },
+  );
+
+  test(
+    'Google sign-in does not start without a nonce hash',
+    { tag: ['@REQ-AUTH-11'] },
+    async ({ api }) => {
+      for (const query of ['', '?nonceHash=not-a-hash']) {
+        const res = await api.raw.get(`auth/google${query}`, { maxRedirects: 0 });
+        expect(res.status()).toBe(302);
+        expect(res.headers().location).toContain('/login?error=google_state');
       }
     },
   );
