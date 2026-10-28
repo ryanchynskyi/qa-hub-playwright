@@ -1,9 +1,10 @@
-import { test as base, expect, type Page } from '@playwright/test';
+import { createHash, randomBytes } from 'node:crypto';
+import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
 import { Shell } from '../components/shell';
 import { env } from '../config/env';
-import { DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
+import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { AuthPage } from '../pages/auth-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { KbPage } from '../pages/kb-page';
@@ -41,6 +42,8 @@ interface TestFixtures {
   newCredentials: Credentials;
   /** A page signed in as `user` (API login inside the test's own browser context). */
   authedPage: Page;
+  /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
+  adminPage: Page;
   shell: Shell;
   dashboard: DashboardPage;
   quiz: QuizPage;
@@ -119,6 +122,17 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await use(page);
   },
 
+  // One shared owner account for all workers: fine while admin tests only read; tests that
+  // reply, ban or toggle need their own data.
+  adminPage: async ({ page }, use) => {
+    // The fake Google exists only on the e2e server.
+    assertNotProd('adminPage');
+    await googleLogin(page.request, ADMIN_EMAIL);
+    await page.goto('admin');
+    await expect(page.getByTestId('admin')).toBeVisible();
+    await use(page);
+  },
+
   shell: async ({ page, device }, use) => use(new Shell(page, device)),
   dashboard: async ({ page }, use) => use(new DashboardPage(page)),
   quiz: async ({ page }, use) => use(new QuizPage(page)),
@@ -132,6 +146,36 @@ export { expect };
 function assertNotProd(fixture: string): void {
   if (env.isProd)
     throw new Error(`The "${fixture}" fixture creates accounts; it never runs on prod.`);
+}
+
+/**
+ * Google sign-in without the UI, through the fake consent screen of the e2e API
+ * ($APP_DIR/apps/api/scripts/e2e-server.ts). It runs on the page's own request context, so the
+ * session cookie lands in that browser, as in `authedPage`.
+ */
+async function googleLogin(request: APIRequestContext, email: string): Promise<void> {
+  // The app keeps the nonce and sends its hash; only the holder can redeem the login code.
+  const nonce = randomBytes(16).toString('hex');
+  const nonceHash = createHash('sha256').update(nonce).digest('hex');
+  // Each step is a 302; following them by hand keeps the last one, which carries the code.
+  const redirect = async (url: string): Promise<string> => {
+    const res = await request.get(url, { maxRedirects: 0 });
+    await expectStatus(res, 302);
+    return res.headers().location!;
+  };
+  const chooser = await redirect(`${env.apiURL}auth/google?nonceHash=${nonceHash}`);
+  // Submitting the fake consent form is a GET of .../consent with the state and the email.
+  const consent = new URL(chooser.replace('/__e2e/google?', '/__e2e/google/consent?'));
+  consent.searchParams.set('email', email);
+  const callback = await redirect(consent.toString());
+  // The callback sends the browser to the app with ?code= inside its hash route.
+  const location = await redirect(callback);
+  const code = /[?&]code=([^&]+)/.exec(location)?.[1];
+  expect(code, `no login code in ${location}`).toBeTruthy();
+  const res = await request.post(`${env.apiURL}auth/google/exchange`, {
+    data: { code, remember: true, nonce },
+  });
+  await expectStatus(res, 200);
 }
 
 /** Teardown helper: a test may have deleted the account itself or never created it. */
