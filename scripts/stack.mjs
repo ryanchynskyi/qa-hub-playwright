@@ -151,6 +151,17 @@ const httpOk = (url) =>
     () => false,
   );
 
+/**
+ * An open port is not enough: after an unclean stop Postgres accepts connections while it
+ * recovers and answers "the database system is starting up", and the API dies on its first query.
+ */
+const dbAcceptsQueries = () =>
+  spawnSync(process.execPath, [prismaBin, 'db', 'execute', '--url', adminUrl, '--stdin'], {
+    cwd: apiDir,
+    input: 'SELECT 1;',
+    encoding: 'utf8',
+  }).status === 0;
+
 async function waitFor(what, check, timeoutMs = READY_TIMEOUT_MS) {
   const deadline = Date.now() + timeoutMs;
   while (!(await check())) {
@@ -163,7 +174,10 @@ async function waitFor(what, check, timeoutMs = READY_TIMEOUT_MS) {
 
 async function ensureDatabaseServer() {
   if (flags.noDb) return log('database: external server (--no-db / DB_URL)');
-  if (await isPortOpen(DB_PORT)) return log(`database: Postgres already listens on :${DB_PORT}`);
+  if (await isPortOpen(DB_PORT)) {
+    log(`database: Postgres already listens on :${DB_PORT}`);
+    return waitFor('Postgres to accept queries', dbAcceptsQueries);
+  }
 
   // Detached on purpose: the server is shared with the app's own e2e and the Cypress stack, so
   // it keeps running after this stack stops.
@@ -176,6 +190,7 @@ async function ensureDatabaseServer() {
   });
   db.unref();
   await waitFor(`Postgres on :${DB_PORT}`, () => isPortOpen(DB_PORT));
+  await waitFor('Postgres to accept queries', dbAcceptsQueries);
   log(
     `database: Postgres is up (pid ${db.pid}; it keeps running, stop it via taskkill /pid ${db.pid} /T /F)`,
   );
@@ -246,11 +261,27 @@ log('api: ready');
 
 // The web starts last, so "web answers" means the whole stack is ready. Playwright's webServer
 // only polls one URL, and this makes that one URL enough.
-run('web', [viteBin, 'preview', '--port', String(WEB_PORT), '--strictPort', '--outDir', distDir], {
-  cwd: webDir,
-  env: { API_PROXY_TARGET: apiOrigin },
-  service: true,
-});
+// --host 127.0.0.1: vite's default "localhost" binds only ::1 on Windows. Browsers and Node fall
+// back between IPv6 and IPv4, k6 does not: it dials 127.0.0.1 and gets "connection refused".
+run(
+  'web',
+  [
+    viteBin,
+    'preview',
+    '--host',
+    '127.0.0.1',
+    '--port',
+    String(WEB_PORT),
+    '--strictPort',
+    '--outDir',
+    distDir,
+  ],
+  {
+    cwd: webDir,
+    env: { API_PROXY_TARGET: apiOrigin },
+    service: true,
+  },
+);
 await waitFor(webOrigin, () => httpOk(webOrigin));
 
 log('ready:');
