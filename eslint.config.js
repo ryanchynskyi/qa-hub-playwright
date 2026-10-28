@@ -11,6 +11,8 @@ export default defineConfig(
     'test-results/',
     'playwright-report/',
     'blob-report/',
+    'allure-results/',
+    'allure-report/',
     '.stack/',
     // CI checks the app out here (APP_DIR=app); it has its own lint setup.
     'app/',

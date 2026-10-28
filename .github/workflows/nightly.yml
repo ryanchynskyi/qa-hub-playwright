@@ -1,0 +1,163 @@
+# Nightly run with the Allure report on GitHub Pages (specs/COVERAGE.md, I-2; docs/WORKFLOW.md,
+# "Nightly"). Both app branches, each night on one browser picked by SEED (src/config/run-factory.ts).
+# Needs the secret APP_REPO_TOKEN, as e2e.yml.
+name: nightly
+
+on:
+  schedule:
+    # :23, not :00: GitHub delays or drops cron jobs at the start of the hour.
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Two runs would push to gh-pages at once; the later one waits.
+concurrency:
+  group: nightly
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        app_ref: [main, develop]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_DIR: app
+      DB_URL: postgresql://postgres:postgres@localhost:5432/qahub_pw
+      APP_REF: ${{ matrix.app_ref }}
+      # One seed per night for both branches: the same browser, comparable reports. A re-run
+      # gets a new seed (run_attempt), so a browser-only failure shows up as such.
+      SEED: ${{ github.run_id }}${{ github.run_attempt }}
+      GH_TOKEN: ${{ github.token }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      ALERT_TITLE: Nightly failing (${{ matrix.app_ref }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ryanchynskyi/qa-interview-tests
+          ref: ${{ matrix.app_ref }}
+          path: app
+          token: ${{ secrets.APP_REPO_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      - run: npm ci
+      - name: App SHA and the night's browser
+        run: |
+          echo "APP_SHA=$(git -C app rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          browser=$(node --input-type=module -e "const { browserFor } = await import('./src/config/run-factory.ts'); console.log(browserFor(process.env.SEED))")
+          echo "BROWSER=$browser" >> "$GITHUB_ENV"
+          echo "App \`$(git -C app rev-parse --short HEAD)\` ($APP_REF), SEED=$SEED → $browser" >> "$GITHUB_STEP_SUMMARY"
+      - id: pw
+        run: echo "version=$(node -p "require('./node_modules/@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}-${{ env.BROWSER }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps "$BROWSER"
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps "$BROWSER"
+      # A test that passes only on retry fails the night: flaky is a finding, not noise.
+      - run: npx playwright test --fail-on-flaky-tests
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: allure-results-${{ matrix.app_ref }}
+          path: allure-results/
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-${{ matrix.app_ref }}
+          path: playwright-report/
+          retention-days: 14
+      # Issues only from main: a manual run from a branch is a trial, not an alert.
+      - if: failure() && github.ref == 'refs/heads/main'
+        run: scripts/prod-alert.sh failure
+      - if: success() && github.ref == 'refs/heads/main'
+        run: scripts/prod-alert.sh success
+
+  # One job builds both reports and pushes gh-pages once; two matrix jobs would race on the push.
+  # Only main publishes: a manual run from a branch must not overwrite the reports or the trend.
+  publish:
+    needs: test
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: allure-results-*
+          path: results
+      # gh-pages holds the published reports and each branch's history.jsonl (the trend source).
+      - name: Check out gh-pages
+        run: |
+          if git fetch --depth=1 origin gh-pages; then
+            git worktree add -B gh-pages pages origin/gh-pages
+          else
+            git worktree add --orphan -b gh-pages pages
+          fi
+      - name: Build the reports
+        run: |
+          for ref in main develop; do
+            [ -d "results/allure-results-$ref" ] || continue
+            mkdir -p "pages/$ref"
+            find "pages/$ref" -mindepth 1 -maxdepth 1 ! -name history.jsonl -exec rm -rf {} +
+            APP_REF=$ref ALLURE_HISTORY="pages/$ref/history.jsonl" \
+              npx allure generate "results/allure-results-$ref" -o "pages/$ref"
+          done
+          touch pages/.nojekyll
+          cat > pages/index.html <<'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>QA Hub nightly</title>
+          <h1>QA Hub nightly</h1>
+          <ul><li><a href="main/">app main</a></li><li><a href="develop/">app develop</a></li></ul>
+          HTML
+      - name: Push gh-pages
+        working-directory: pages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "nightly ${{ github.run_id }}"
+          git push origin gh-pages

@@ -10,9 +10,9 @@
             │            ↓                                 │
             │ test-reviewer (правила фреймворку) → commit  │
             └──────────────────────┬───────────────────────┘
-                                   ↓ push / PR / nightly / app-updated
-                          GitHub Actions (e2e.yml)
-          check → локальна копія апки + Postgres → playwright test → HTML-звіт
+                                   ↓ push / PR / app-updated      ↓ щоночі
+                          GitHub Actions (e2e.yml)          nightly.yml
+          check → локальна копія апки + Postgres → playwright test → HTML / Allure на Pages
 ```
 
 ## 1. Локальний запуск: що відбувається після `npm test`
@@ -99,7 +99,6 @@
 | Тригер | Навіщо |
 |---|---|
 | push у `main`, pull request | не пустити зламаний фреймворк |
-| `schedule` щоночі о 04:00 UTC | апка змінюється незалежно від фреймворку; вранці вже видно, що зламалось |
 | `repository_dispatch: app-updated` | апка після деплою сама запускає тести |
 | `workflow_dispatch` | ручний запуск, input `app_ref` (гілка, тег чи SHA апки, за замовчуванням `main`) |
 
@@ -121,11 +120,47 @@
 коли поспішають.
 
 *Чому `concurrency`:* новий push у PR скасовує старий прогін того ж PR, бо його результат уже
-нікому не потрібен. Прогони на `main` (push, nightly) не скасовуються: їхня історія і є
+нікому не потрібен. Прогони на `main` не скасовуються: їхня історія і є
 сигналом, коли щось зламалось.
 
 *Чому один job, а не `gate` + `full`:* увесь набір іде ~1,5 хв, окремий швидкий gate нічого не
 виграє. Ділимо і шардимо (`--shard` + `merge-reports`), коли набір перевалить за ~10 хв.
+
+**Workflow `nightly`** (`.github/workflows/nightly.yml`): щоночі о 03:23 UTC (не :00, як і prod-smoke) і вручну. Апка
+змінюється незалежно від фреймворку, тож вранці вже видно, що зламалось.
+1. Job `test`, matrix `app_ref: [main, develop]`. У `develop` немає PR-прогонів фреймворку, тож
+   nightly — єдине, що її перевіряє.
+2. **Браузер ночі.** `SEED` = id прогону + номер спроби (повторний запуск бере новий seed); фабрика `src/config/run-factory.ts` перетворює його на
+   браузер (chromium / firefox / webkit), і api + усі три пристрої йдуть на ньому. Seed і браузер
+   видно в summary прогону, у лозі (`SEED=… → firefox`) і в Allure environment. Відтворити ніч:
+   `SEED=<n> npx playwright test` (спершу `npx playwright install <браузер>`). Без `SEED`
+   (локально, PR) усе як було: chromium. Firefox не має `isMobile`, тому його phone — лише
+   viewport 390 px; webkit phone — профіль iPhone. Ці правила живуть лише у фабриці, а
+   `npm run test:unit` (частина `check`) перевіряє, що кожна пара валідна.
+   *Чому випадковий браузер, а не всі три щоночі:* утричі довший прогін заради відмінностей, які
+   рідкісні; за тиждень кожен браузер проходить кілька разів, а seed робить будь-яку ніч
+   відтворюваною. *Чому всі пристрої, а не одна пара:* інакше ніч покриває третину UI, а для
+   `develop` інших прогонів немає.
+3. `--fail-on-flaky-tests`: тест, що пройшов лише з повтору, валить ніч. Flaky — знахідка.
+4. Тест, що падає лише в одному браузері, — баг апки (рішення користувача 2026-10-28): він іде в
+   issue, а не в healer.
+5. Падіння відкриває issue «Nightly failing (main|develop)» або коментує відкрите; зелена ніч його
+   закриває (той самий `scripts/prod-alert.sh` з `ALERT_TITLE`). Лише для прогонів з `main`
+   фреймворку: ручний прогін з гілки — це проба, а не тривога.
+6. Job `publish` будує Allure Report 3 (`allurerc.mjs`, пакет `allure` з npm, без Java) для
+   кожної гілки апки і пушить у гілку `gh-pages`:
+   `https://ryanchynskyi.github.io/qa-hub-playwright/main/` і `/develop/`. Публікує лише прогін
+   з `main` фреймворку: проба з гілки не перезаписує звіти й тренд. Історія
+   (`<ref>/history.jsonl`, останні 30 ночей) лежить поруч зі звітом і дає тренди, flaky і
+   тривалість. *Чому один publish-job:* два job matrix, що пушать у `gh-pages` одночасно,
+   конфліктують. *Чому `gh-pages`, а не `actions/deploy-pages`:* deploy-pages не зберігає
+   нічого між прогонами, а історії потрібне місце.
+7. Categories в `allurerc.mjs` ділять падіння за текстом помилки: Infrastructure (з'єднання,
+   5xx), Test defect (strict mode, TypeError), решта — Product bug.
+
+Локально Allure пише в `allure-results/` при кожному прогоні; `npm run report:allure` будує і
+відкриває звіт. Результати не чистяться між прогонами: перед звітом за один прогін видаліть
+`allure-results/`.
 
 **Workflow `prod-smoke`** (`.github/workflows/prod-smoke.yml`): `TARGET=prod`, лише
 `@prod-safe` (read-only), без копії апки і без секретів, `--workers=2`, timeout 10 хв.

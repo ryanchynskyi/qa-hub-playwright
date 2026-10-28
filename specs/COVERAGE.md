@@ -234,7 +234,7 @@ GEN-05, 08, 09 · KB-02, 03, 05, 06 (KB-02 і на tablet: 800 px ≤ 860) · PR
 | 1. PR gate          | `main`             | check + guard test id + api + `@smoke` | кожен PR, обов'язковий             | не пустити зламаний фреймворк       |
 | 2. Push у `main`    | `main`             | усе                                    | push                               | фреймворк зелений після merge       |
 | 3. App trigger      | ref з події        | усе                                    | `repository_dispatch: app-updated` | поломка ловиться на коміті апки     |
-| 4. Nightly          | `main` і `develop` | усе + Allure з історією                | cron 03:00 UTC                     | страховка й тренди, flaky = червоне |
+| 4. Nightly          | `main` і `develop` | усе + Allure з історією                | cron 03:23 UTC                     | страховка й тренди, flaky = червоне |
 | 5. Prod smoke       | прод               | `@prod-safe`                           | кожні 3 год + `prod-deployed`      | прод живий; падіння → issue         |
 | 6. (пізніше) App PR | гілка PR апки      | усе                                    | PR в апці                          | поломка ловиться до merge в апку    |
 
@@ -259,22 +259,24 @@ GEN-05, 08, 09 · KB-02, 03, 05, 06 (KB-02 і на tablet: 800 px ≤ 860) · PR
 
 Готово, коли: PR без зеленого `e2e` не мерджиться.
 
-#### I-2. Nightly з Allure
+#### I-2. Nightly з Allure ✅ (крок 7)
+
+Зроблено в `nightly.yml`; рішення 2026-10-28: випадковий лише браузер, api + усі три пристрої
+на ньому; падіння лише в одному браузері — баг апки (issue). Деталі в `docs/WORKFLOW.md`.
 
 1. `allure-playwright` поруч з HTML-репортером; Allure Report 3 (`allure` з npm, без Java).
-2. Job `nightly`: matrix `app_ref: [main, develop]`, `failOnFlakyTests: true`.
+2. Job `nightly`: matrix `app_ref: [main, develop]`, `--fail-on-flaky-tests`.
 3. Звіт на GitHub Pages: окремий шлях на кожен `app_ref`. Історія переноситься між прогонами
    через `historyPath` (файл історії зберігається в гілці `gh-pages`). Це дає тренди, flaky і
    тривалість.
 4. `allurerc.mjs`: environment (SHA апки, ref, ціль), categories (product bug / test defect /
    infra за текстом помилки).
 5. Падіння nightly → issue (як у I-4).
-6. **Випадкова конфігурація (запит користувача 2026-10-28).** Нічний прогін бере випадкову
-   комбінацію пристрою (desktop / tablet / phone) і браузера (chromium / firefox / webkit).
-   Конфігурацію збирає фабрика (патерн Factory, `src/config/run-factory.ts`): з `seed` вона
-   будує `projects` для `playwright.config.ts`. `seed` пишеться в лог і в Allure environment, щоб
-   падіння можна було відтворити (`SEED=<n>`). Без `seed` конфігурація лишається як зараз.
-   Робиться в тому ж PR, що й Allure (рішення користувача 2026-10-28).
+6. **Випадковий браузер (запит користувача 2026-10-28).** Нічний прогін бере випадковий
+   браузер (chromium / firefox / webkit), і api + усі три пристрої йдуть на ньому. Фабрика
+   (`src/config/run-factory.ts`) з `SEED` вибирає браузер і будує `use` кожного UI-проєкту.
+   `SEED` пишеться в лог, summary і Allure environment, падіння відтворюється через
+   `SEED=<n>`. Без `SEED` усе як раніше (chromium).
 
 Готово, коли: зранку за посиланням на Pages є звіт з трендом за кілька ночей для обох гілок.
 
