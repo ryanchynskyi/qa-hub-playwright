@@ -217,6 +217,10 @@ Planner отримує завдання за шаблоном зі [specs/README
 `browser_run_code_unsafe` (непрозоро, просить дозволу й може повісити фонового агента);
 сценарій = одна вимога, ≤ 5 кроків; зайве в «Ideas».
 
+`.claude/settings.json` дозволяє безпечні інструменти MCP (snapshot, click, navigate, press_key,
+verify_*, planner_*, generator_*, `test_run`, `test_list`), щоб фоновий агент не чекав на діалог
+дозволу, якого ти не бачиш, і забороняє `browser_run_code_unsafe` (рішення користувача).
+
 | Агент | Вхід | Вихід |
 |---|---|---|
 | `playwright-test-planner` | фіча апки + `tests/seed.spec.ts` | план сценаріїв у `specs/*.md` |

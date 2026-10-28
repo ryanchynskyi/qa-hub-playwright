@@ -1,4 +1,25 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__playwright-test__planner_setup_page",
+      "mcp__playwright-test__planner_save_plan",
+      "mcp__playwright-test__generator_setup_page",
+      "mcp__playwright-test__generator_read_log",
+      "mcp__playwright-test__generator_write_test",
+      "mcp__playwright-test__browser_snapshot",
+      "mcp__playwright-test__browser_click",
+      "mcp__playwright-test__browser_navigate",
+      "mcp__playwright-test__browser_press_key",
+      "mcp__playwright-test__browser_wait_for",
+      "mcp__playwright-test__browser_verify_element_visible",
+      "mcp__playwright-test__browser_verify_list_visible",
+      "mcp__playwright-test__browser_verify_text_visible",
+      "mcp__playwright-test__browser_verify_value",
+      "mcp__playwright-test__test_run",
+      "mcp__playwright-test__test_list"
+    ],
+    "deny": ["mcp__playwright-test__browser_run_code_unsafe"]
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
