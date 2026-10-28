@@ -1,0 +1,50 @@
+{
+  "name": "qa-hub-playwright",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript test framework for [QA Interview Hub](https://ryanchynskyi.github.io/qa-interview-tests/).",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "stack": "node scripts/stack.mjs",
+    "stack:reset": "node scripts/stack.mjs --reset",
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=desktop",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:debug": "playwright test --ui",
+    "report": "playwright show-report",
+    "perf:smoke": "k6 run perf/smoke.js",
+    "perf:load": "k6 run perf/load.js",
+    "typecheck": "tsc",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run typecheck && npm run lint && npm run format:check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryanchynskyi/qa-hub-playwright.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryanchynskyi/qa-hub-playwright/issues"
+  },
+  "homepage": "https://github.com/ryanchynskyi/qa-hub-playwright#readme",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^26.6.5",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.12.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "zod": "^4.6.7"
+  }
+}
