@@ -68,10 +68,18 @@ export const Question = z.object({
 });
 export type Question = z.infer<typeof Question>;
 
+/** The app shows the correct-answer share from this many first answers ($APP_DIR packages/shared). */
+export const QUESTION_STAT_MIN = 5;
+
+export const RecallCard = z.object({ id: z.string(), chapterId: z.string() });
+export type RecallCard = z.infer<typeof RecallCard>;
+
 export const CheckResult = z.object({
   outcome: z.enum(['correct', 'wrong', 'skipped']),
   correctIndex: z.number().int().min(0),
   explanation: z.string(),
+  /** Share of first answers that were correct; absent below QUESTION_STAT_MIN first answers. */
+  stat: z.object({ answered: z.number().int(), pct: z.number().int() }).optional(),
 });
 export type CheckResult = z.infer<typeof CheckResult>;
 
@@ -119,6 +127,14 @@ export type SearchHit = z.infer<typeof SearchHit>;
 
 /** GET /me/progress: only the parts tests read; zod drops the rest. */
 export const Progress = z.object({
+  /** questionId → latest answer: lastResult 1 = correct; a skip is 0 with `skipped: true`. */
+  questions: z.record(
+    z.string(),
+    z.object({
+      lastResult: z.union([z.literal(0), z.literal(1)]),
+      skipped: z.boolean().optional(),
+    }),
+  ),
   stats: z.object({ totalXp: z.number().int().nonnegative() }),
   /** sectionId → finished runs, newest first. */
   attempts: z.record(

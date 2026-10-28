@@ -22,6 +22,15 @@ export class QuizPage {
   readonly results: Locator;
   readonly resultPercent: Locator;
   readonly resultBonus: Locator;
+  readonly feedback: Locator;
+  readonly stat: Locator;
+  readonly commentsOpen: Locator;
+  readonly finish: Locator;
+  readonly counts: Locator;
+  readonly redo: Locator;
+  readonly resultRows: Locator;
+  readonly resultMisses: Locator;
+  readonly resultRecall: Locator;
 
   constructor(readonly page: Page) {
     this.start = page.getByTestId('quiz-start');
@@ -35,6 +44,15 @@ export class QuizPage {
     this.results = page.getByTestId('results');
     this.resultPercent = page.getByTestId('quiz-result-percent');
     this.resultBonus = page.getByTestId('quiz-result-bonus');
+    this.feedback = page.getByTestId('quiz-feedback');
+    this.stat = this.feedback.getByTestId('quiz-stat');
+    this.commentsOpen = page.getByTestId('comments-open');
+    this.finish = page.getByTestId('quiz-finish');
+    this.counts = page.getByTestId('quiz-counts');
+    this.redo = page.getByTestId('quiz-redo');
+    this.resultRows = page.getByTestId('quiz-result-row');
+    this.resultMisses = page.getByTestId('quiz-result-miss');
+    this.resultRecall = page.getByTestId('quiz-result-recall');
   }
 
   section(sectionId: string): Locator {
@@ -43,6 +61,19 @@ export class QuizPage {
 
   option(index: number): Locator {
     return byTestId(this.question, 'quiz-option', index);
+  }
+
+  /** Option at a screen position, 1-based: the order digit keys use (stored keys are shuffled). */
+  optionAt(position: number): Locator {
+    return this.options.nth(position - 1);
+  }
+
+  resultScale(key: 'pass' | 'fail' | 'skipped'): Locator {
+    return byTestId(this.page, 'quiz-result-scale', key);
+  }
+
+  resultMiss(questionId: string): Locator {
+    return byTestId(this.page, 'quiz-result-miss', questionId);
   }
 
   /** Options of the current question in a state: `idle` before the verdict, then `correct|wrong`. */
@@ -80,6 +111,25 @@ export class QuizPage {
     await expect.soft(this.option(index)).toHaveAttribute('data-state', 'idle');
     const verdict = await this.answer(index);
     expect(verdict, 'verdict after the correct option').toBe('correct');
+  }
+
+  /** Answers the current question wrong; returns the stored index of the chosen option. */
+  async answerWrong(api: ApiClient): Promise<number> {
+    const index = (await api.correctIndex(await this.currentQuestionId())) === 0 ? 1 : 0;
+    const verdict = await this.answer(index);
+    expect(verdict, 'verdict after a wrong option').toBe('wrong');
+    return index;
+  }
+
+  async skipQuestion(): Promise<void> {
+    await this.skip.click();
+    await expect(this.verdict).toHaveAttribute('data-state', 'skipped');
+  }
+
+  /** Ends the run early: the results count only the questions answered so far. */
+  async finishRun(): Promise<void> {
+    await this.finish.click();
+    await expect(this.results).toBeVisible();
   }
 
   /** XP shown for the current answer; the element exists only when the gain is above 0. */

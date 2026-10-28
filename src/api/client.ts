@@ -11,6 +11,7 @@ import {
   Leaderboard,
   Progress,
   Question,
+  RecallCard,
   SearchHits,
   User,
   type Lang,
@@ -59,14 +60,24 @@ export class ApiClient {
   /**
    * Checks an answer. Without a token nothing is recorded, so `choice: null` is a safe way to
    * learn the correct option of a question for a deterministic UI test. With a token the answer
-   * counts for that user (progress and XP).
+   * counts for that user (progress and XP). `first` marks a guest's first answer: the server
+   * trusts it and counts it into the question's correct-answer share (`stat`).
    */
-  checkAnswer(questionId: string, choice: number | null, token?: string): Promise<CheckResult> {
-    return this.postJson('quiz/check', { questionId, choice }, CheckResult, token);
+  checkAnswer(
+    questionId: string,
+    choice: number | null,
+    token?: string,
+    first?: boolean,
+  ): Promise<CheckResult> {
+    return this.postJson('quiz/check', { questionId, choice, first }, CheckResult, token);
   }
 
   async correctIndex(questionId: string): Promise<number> {
     return (await this.checkAnswer(questionId, null)).correctIndex;
+  }
+
+  recallCards(lang: Lang = 'uk'): Promise<RecallCard[]> {
+    return this.getJson(`recall/cards?lang=${lang}`, RecallCard.array());
   }
 
   search(q: string, limit?: number): Promise<z.infer<typeof SearchHits>> {
