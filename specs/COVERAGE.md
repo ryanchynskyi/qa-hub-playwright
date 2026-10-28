@@ -244,15 +244,15 @@ GEN-05, 08, 09 · KB-02, 03, 05, 06 (KB-02 і на tablet: 800 px ≤ 860) · PR
 
 #### I-1. PR gate і повний набір
 
-1. Розділити `e2e.yml` на job `gate` (PR) і `full` (push, schedule, dispatch). Повний набір у PR —
+1. ⏸ (відкладено, поки набір ~1,5 хв: один job `e2e` і є gate) Розділити `e2e.yml` на job `gate` (PR) і `full` (push, schedule, dispatch). Повний набір у PR —
    лише за міткою `full-e2e`.
-2. Branch protection на `main`: `gate` обов'язковий.
-3. `concurrency` з `cancel-in-progress` для того самого ref.
-4. Кеш браузерів за версією `@playwright/test`.
-5. Input `app_ref` у `workflow_dispatch` (за замовчуванням `main`). SHA апки — в job summary і звіт.
+2. Branch protection на `main`: `e2e` обов'язковий.
+3. ✅ `concurrency` з `cancel-in-progress` для того самого ref.
+4. ✅ Кеш браузерів за версією `@playwright/test`.
+5. ✅ Input `app_ref` у `workflow_dispatch` (за замовчуванням `main`). SHA апки — в job summary.
 6. Шардинг (`--shard` + blob + `merge-reports`), коли `full` перевищить ~10 хв.
 
-Готово, коли: PR без зеленого `gate` не мерджиться.
+Готово, коли: PR без зеленого `e2e` не мерджиться.
 
 #### I-2. Nightly з Allure
 
