@@ -54,6 +54,19 @@
 | `src/fixtures` | збирає все для тесту | спеки імпортують `test` звідси, не з `@playwright/test` |
 | `tests/` | сценарії | без `if (device)`: різницю між пристроями ховає `Shell` |
 
+**Трасування вимог.** Кожен тест, що перевіряє вимогу, має тег `@REQ-<розділ>-<nn>` з [specs/COVERAGE.md](../specs/COVERAGE.md).
+`npm run coverage` показує «вимога → тести» з `playwright test --list` і падає, якщо матриця
+бреше: ✅/🟡 без жодного тесту, ❌ з тестом, тег неіснуючої вимоги. `npx playwright test --grep
+@REQ-AUTH` запускає розділ. Тести без тегу (інфраструктурні: health, каталог) скрипт лише перелічує.
+*Чому теги, а не таблиця вручну:* таблицю забувають оновити, а тег живе поруч із тестом, і CI
+перевіряє, що вони сходяться. Статус ✅ чи 🟡 лишається рішенням людини: скрипт не знає, чи тест
+перевіряє вимогу повністю.
+
+**Guard для test id.** `npm run check:ids` звіряє кожен `getByTestId` / `byTestId` /
+`data-testid` у `src/` і `tests/` з каталогом апки.
+*Чому:* апка перейменовує чи прибирає id незалежно від фреймворку. Guard падає за секунду з
+назвою id, а не через 30 с таймауту локатора в кожному тесті.
+
 Ці правила перевіряє `test-reviewer` ([.claude/agents/test-reviewer.md](../.claude/agents/test-reviewer.md)).
 
 ## 3. CI (`.github/workflows/e2e.yml`)
@@ -70,7 +83,9 @@
 **Кроки job `e2e`:**
 1. checkout фреймворку і апки (приватне репо, токен `APP_REPO_TOKEN`);
 2. Postgres як service;
-3. `npm run check` (types, lint, format);
+3. `npm run check`: types, lint, format, `check:ids` (кожен test id фреймворку є в
+   `$APP_DIR/docs/test-ids.md` апки) і `coverage` (теги `@REQ-*` сходяться з матрицею в
+   `specs/COVERAGE.md`);
 4. браузер;
 5. `playwright test` (той самий `webServer` піднімає стек);
 6. HTML-звіт як артефакт на 14 днів.
@@ -93,7 +108,7 @@
 | `playwright-test-healer` | червоний тест | діагноз і виправлення |
 | `test-reviewer` (наш) | diff | список порушень правил фреймворку + `check` і `--repeat-each=3` |
 
-**Нова фіча:** беремо фазу з [specs/COVERAGE.md](../specs/COVERAGE.md) (матриця вимог REQ-* → тести, гепи, пріоритети) → planner → (ти читаєш план) → generator → test-reviewer → виправлення → commit → статус у матриці.
+**Нова фіча:** беремо фазу з [specs/COVERAGE.md](../specs/COVERAGE.md) (матриця вимог REQ-* → тести, гепи, пріоритети) → planner → (ти читаєш план) → generator → test-reviewer → виправлення → тег `@REQ-*` і статус у матриці (`npm run coverage` перевіряє, що вони сходяться) → commit.
 
 **Червоний тест:** healer → test-reviewer.
 

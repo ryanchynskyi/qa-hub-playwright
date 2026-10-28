@@ -27,7 +27,7 @@ npm run test:ui          # desktop UI only
 npm run test:smoke       # @smoke
 npm run test:debug       # UI mode
 npm run report           # last HTML report
-npm run check            # typecheck + lint + format
+npm run check            # typecheck, lint, format, test ids vs the app catalog, REQ coverage (needs APP_DIR)
 npm run perf:smoke       # k6: 1 user, 30s (stack must be running)
 npm run perf:load        # k6: ramp to 20 users, ~2 min
 ```

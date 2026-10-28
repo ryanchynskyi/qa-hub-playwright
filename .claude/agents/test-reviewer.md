@@ -28,8 +28,10 @@ Check, in this order:
    (`sql`), never as a stand-in for "all of them".
 6. **Isolation.** Every test makes its own data (`user`, `uniqueEmail`); nothing depends on
    order or on another test's account. Shared worker fixtures are read-only.
-7. **Tags and projects.** Layout checks carry `@responsive`; smoke carries `@smoke`. Device
-   differences live in `Shell`, not in `if (device)` inside specs.
+7. **Tags and projects.** Every test that checks a requirement carries its `@REQ-<AREA>-<nn>` tags
+   (specs/COVERAGE.md; infrastructure checks like health are exempt); a new tag on a ❌ row means the row's status changes too.
+   Layout checks carry `@responsive`; smoke carries `@smoke`. Device differences live in
+   `Shell`, not in `if (device)` inside specs.
 8. **Docs.** If framework behaviour changed, `docs/WORKFLOW.md` is updated (CLAUDE.md rule).
 
 Then run `npm run check` and the touched specs with `--repeat-each=3`, and report the result.
