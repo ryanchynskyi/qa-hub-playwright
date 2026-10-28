@@ -12,14 +12,16 @@ on:
       app_ref:
         description: App branch, tag or SHA to test against
         default: main
-  # The app repo can trigger a run after its deploy:
-  # gh api repos/ryanchynskyi/qa-hub-playwright/dispatches -f event_type=app-updated
+  # The app's CI sends this after a green push to main or develop (specs/COVERAGE.md, I-3), with
+  # client_payload {ref, sha}; the run then tests that exact app commit.
   repository_dispatch:
     types: [app-updated]
 
 # A new push to a PR cancels its older run; runs on main always finish. Nightly: nightly.yml.
+# App-triggered runs queue per app branch: GitHub keeps one pending run per group, so sharing the
+# group with pushes to main would let an app commit replace a framework run (or the reverse).
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.client_payload.ref && format('app-{0}', github.event.client_payload.ref) || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -42,6 +44,9 @@ jobs:
           --health-retries 10
     env:
       APP_DIR: app
+      # Manual input, else the app commit that triggered the run, else the app's main.
+      APP_REF: ${{ inputs.app_ref || github.event.client_payload.sha || 'main' }}
+      APP_BRANCH: ${{ github.event.client_payload.ref || inputs.app_ref || 'main' }}
       # stack.mjs: an external Postgres (no embedded server); the API creates and seeds the DB.
       DB_URL: postgresql://postgres:postgres@localhost:5432/qahub_pw
     steps:
@@ -49,7 +54,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ryanchynskyi/qa-interview-tests
-          ref: ${{ inputs.app_ref || 'main' }}
+          ref: ${{ env.APP_REF }}
           path: app
           token: ${{ secrets.APP_REPO_TOKEN }}
       - uses: actions/setup-node@v4
@@ -62,7 +67,7 @@ jobs:
       - run: npm ci
         working-directory: app
       - name: App version to the job summary
-        run: echo "App \`$(git -C app rev-parse --short HEAD)\` (${{ inputs.app_ref || 'main' }})" >> "$GITHUB_STEP_SUMMARY"
+        run: echo "App \`$(git -C app rev-parse --short HEAD)\` ($APP_BRANCH, ${{ github.event_name }})" >> "$GITHUB_STEP_SUMMARY"
       - run: npm ci
       - run: npm run check
       # Browsers are cached per Playwright version; system libraries are installed every time.
