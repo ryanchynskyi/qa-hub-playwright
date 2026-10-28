@@ -80,6 +80,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ],
 
   user: async ({ api }, use) => {
+    assertNotProd('user');
     const credentials = { email: uniqueEmail(), password: DEFAULT_PASSWORD };
     const { accessToken, user } = await api.register({ ...credentials, displayName: 'PW Tester' });
     await use({ ...credentials, displayName: user.displayName, token: accessToken });
@@ -87,6 +88,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   },
 
   newCredentials: async ({ api }, use) => {
+    assertNotProd('newCredentials');
     const credentials = { email: uniqueEmail('pw-ui'), password: DEFAULT_PASSWORD };
     await use(credentials);
     await deleteAccountIfExists(api, credentials);
@@ -113,6 +115,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 });
 
 export { expect };
+
+/** Second line of defence after the @prod-safe grep: a mis-tagged test fails, no account is made. */
+function assertNotProd(fixture: string): void {
+  if (env.isProd)
+    throw new Error(`The "${fixture}" fixture creates accounts; it never runs on prod.`);
+}
 
 /** Teardown helper: a test may have deleted the account itself or never created it. */
 async function deleteAccountIfExists(api: ApiClient, credentials: Credentials): Promise<void> {

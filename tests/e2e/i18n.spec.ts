@@ -1,7 +1,7 @@
 import { expect, test } from '../../src/fixtures';
 import { CYRILLIC } from '../../src/helpers/data';
 
-test.describe('language', () => {
+test.describe('language', { tag: ['@prod-safe'] }, () => {
   test(
     'the UA/EN switch moves to /en/ and survives a reload',
     { tag: ['@REQ-GEN-04'] },
