@@ -11,6 +11,8 @@ export class AuthPage {
   readonly remember: Locator;
   readonly submit: Locator;
   readonly error: Locator;
+  /** Shown only when the API reports Google configured. */
+  readonly google: Locator;
 
   constructor(readonly page: Page) {
     this.name = page.getByTestId('auth-name');
@@ -19,6 +21,7 @@ export class AuthPage {
     this.remember = page.getByTestId('auth-remember');
     this.submit = page.getByTestId('auth-submit');
     this.error = page.getByTestId('auth-error');
+    this.google = page.getByTestId('google-signin');
   }
 
   /** `next`: where the app goes after signing in (`?next=`). */

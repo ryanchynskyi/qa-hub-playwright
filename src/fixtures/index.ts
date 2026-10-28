@@ -1,8 +1,8 @@
-import { createHash, randomBytes } from 'node:crypto';
 import {
   test as base,
   expect,
   type APIRequestContext,
+  type Browser,
   type BrowserContext,
   type Page,
 } from '@playwright/test';
@@ -14,9 +14,12 @@ import { Shell } from '../components/shell';
 import { Tour } from '../components/tour';
 import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
+import { googleLogin } from '../helpers/google';
 import { AuthPage } from '../pages/auth-page';
 import { DashboardPage } from '../pages/dashboard-page';
+import { FakeGoogle } from '../pages/fake-google-page';
 import { KbPage } from '../pages/kb-page';
+import { ProfilePage } from '../pages/profile-page';
 import { QuizPage } from '../pages/quiz-page';
 import { RecallPage } from '../pages/recall-page';
 
@@ -56,6 +59,13 @@ interface TestFixtures {
   secondPage: Page;
   /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
   adminPage: Page;
+  /** An unused email for a Google-only account; the account is deleted after the test. */
+  googleEmail: string;
+  /**
+   * Models a browser restart: a new context with the page's cookies and localStorage, minus the
+   * session cookies (`expires: -1`) and sessionStorage, as a real browser drops them.
+   */
+  restartBrowser: (page: Page) => Promise<Page>;
   shell: Shell;
   importBanner: ImportBanner;
   focus: FocusWizard;
@@ -65,6 +75,8 @@ interface TestFixtures {
   recall: RecallPage;
   auth: AuthPage;
   kb: KbPage;
+  profile: ProfilePage;
+  fakeGoogle: FakeGoogle;
 }
 
 interface WorkerFixtures {
@@ -127,15 +139,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await use(page);
   },
 
-  // browser.newContext() does not get the config's `use`, so the options the app depends on are
-  // repeated here (playwright.config.ts).
   secondPage: async ({ browser, lang, visitor, user }, use) => {
-    const context = await browser.newContext({
-      baseURL: env.baseURL,
-      timezoneId: 'Europe/Kyiv',
-      locale: 'uk-UA',
-    });
-    await prepareContext(context, lang, visitor);
+    const context = await newContext(browser, lang, visitor);
     const page = await context.newPage();
     await apiLogin(page.request, user);
     await use(page);
@@ -153,6 +158,32 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await use(page);
   },
 
+  googleEmail: async ({ api }, use) => {
+    // The fake Google exists only on the e2e server.
+    assertNotProd('googleEmail');
+    const email = uniqueEmail('pw-google');
+    await use(email);
+    // No password to log in with: sign in through Google again (it re-creates a deleted account)
+    // and delete with that session.
+    const { accessToken } = await googleLogin(api.raw, email);
+    await api.deleteAccount(accessToken, email);
+  },
+
+  restartBrowser: async ({ browser, lang, visitor }, use) => {
+    const contexts: BrowserContext[] = [];
+    await use(async (page) => {
+      const state = await page.context().storageState();
+      const context = await newContext(browser, lang, visitor, {
+        ...state,
+        cookies: state.cookies.filter((cookie) => cookie.expires !== -1),
+      });
+      contexts.push(context);
+      await page.context().close();
+      return context.newPage();
+    });
+    for (const context of contexts) await context.close();
+  },
+
   shell: async ({ page, device }, use) => use(new Shell(page, device)),
   importBanner: async ({ page }, use) => use(new ImportBanner(page)),
   dashboard: async ({ page }, use) => use(new DashboardPage(page)),
@@ -160,6 +191,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   recall: async ({ page }, use) => use(new RecallPage(page)),
   auth: async ({ page }, use) => use(new AuthPage(page)),
   kb: async ({ page }, use) => use(new KbPage(page)),
+  profile: async ({ page }, use) => use(new ProfilePage(page)),
+  fakeGoogle: async ({ page }, use) => use(new FakeGoogle(page)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),
   tour: async ({ page }, use) => use(new Tour(page)),
 });
@@ -188,6 +221,26 @@ async function prepareContext(
   );
 }
 
+/**
+ * A context outside the test's own: browser.newContext() does not get the config's `use`, so the
+ * options the app depends on are repeated here (playwright.config.ts).
+ */
+async function newContext(
+  browser: Browser,
+  lang: Lang,
+  visitor: Visitor,
+  storageState?: Awaited<ReturnType<BrowserContext['storageState']>>,
+): Promise<BrowserContext> {
+  const context = await browser.newContext({
+    baseURL: env.baseURL,
+    timezoneId: 'Europe/Kyiv',
+    locale: 'uk-UA',
+    storageState,
+  });
+  await prepareContext(context, lang, visitor);
+  return context;
+}
+
 /** API login on a page's own request context: the refresh cookie lands in that browser. */
 async function apiLogin(request: APIRequestContext, user: Credentials): Promise<void> {
   const res = await request.post(`${env.apiURL}auth/login`, {
@@ -200,36 +253,6 @@ async function apiLogin(request: APIRequestContext, user: Credentials): Promise<
 function assertNotProd(fixture: string): void {
   if (env.isProd)
     throw new Error(`The "${fixture}" fixture creates accounts; it never runs on prod.`);
-}
-
-/**
- * Google sign-in without the UI, through the fake consent screen of the e2e API
- * ($APP_DIR/apps/api/scripts/e2e-server.ts). It runs on the page's own request context, so the
- * session cookie lands in that browser, as in `authedPage`.
- */
-async function googleLogin(request: APIRequestContext, email: string): Promise<void> {
-  // The app keeps the nonce and sends its hash; only the holder can redeem the login code.
-  const nonce = randomBytes(16).toString('hex');
-  const nonceHash = createHash('sha256').update(nonce).digest('hex');
-  // Each step is a 302; following them by hand keeps the last one, which carries the code.
-  const redirect = async (url: string): Promise<string> => {
-    const res = await request.get(url, { maxRedirects: 0 });
-    await expectStatus(res, 302);
-    return res.headers().location!;
-  };
-  const chooser = await redirect(`${env.apiURL}auth/google?nonceHash=${nonceHash}`);
-  // Submitting the fake consent form is a GET of .../consent with the state and the email.
-  const consent = new URL(chooser.replace('/__e2e/google?', '/__e2e/google/consent?'));
-  consent.searchParams.set('email', email);
-  const callback = await redirect(consent.toString());
-  // The callback sends the browser to the app with ?code= inside its hash route.
-  const location = await redirect(callback);
-  const code = /[?&]code=([^&]+)/.exec(location)?.[1];
-  expect(code, `no login code in ${location}`).toBeTruthy();
-  const res = await request.post(`${env.apiURL}auth/google/exchange`, {
-    data: { code, remember: true, nonce },
-  });
-  await expectStatus(res, 200);
 }
 
 /** Teardown helper: a test may have deleted the account itself or never created it. */
