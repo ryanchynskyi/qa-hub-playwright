@@ -62,7 +62,8 @@ const prismaBin = resolve(appDir, 'node_modules/prisma/build/index.js');
 // The build lives in this repo, not in the app clone, so the app's git status stays clean.
 const distDir = resolve(import.meta.dirname, '../.stack/dist-pw');
 
-const dbUrl = process.env.DB_URL ?? `postgresql://postgres:postgres@localhost:${DB_PORT}/${DB_NAME}`;
+const dbUrl =
+  process.env.DB_URL ?? `postgresql://postgres:postgres@localhost:${DB_PORT}/${DB_NAME}`;
 const dbTarget = new URL(dbUrl);
 const dbName = dbTarget.pathname.slice(1);
 const adminUrl = Object.assign(new URL(dbUrl), { pathname: '/postgres' }).toString();
@@ -144,7 +145,22 @@ async function isPortOpen(port) {
   return (await tryHost('127.0.0.1')) || (await tryHost('::1'));
 }
 
-const httpOk = (url) => fetch(url).then((r) => r.ok, () => false);
+const httpOk = (url) =>
+  fetch(url).then(
+    (r) => r.ok,
+    () => false,
+  );
+
+/**
+ * An open port is not enough: after an unclean stop Postgres accepts connections while it
+ * recovers and answers "the database system is starting up", and the API dies on its first query.
+ */
+const dbAcceptsQueries = () =>
+  spawnSync(process.execPath, [prismaBin, 'db', 'execute', '--url', adminUrl, '--stdin'], {
+    cwd: apiDir,
+    input: 'SELECT 1;',
+    encoding: 'utf8',
+  }).status === 0;
 
 async function waitFor(what, check, timeoutMs = READY_TIMEOUT_MS) {
   const deadline = Date.now() + timeoutMs;
@@ -158,7 +174,10 @@ async function waitFor(what, check, timeoutMs = READY_TIMEOUT_MS) {
 
 async function ensureDatabaseServer() {
   if (flags.noDb) return log('database: external server (--no-db / DB_URL)');
-  if (await isPortOpen(DB_PORT)) return log(`database: Postgres already listens on :${DB_PORT}`);
+  if (await isPortOpen(DB_PORT)) {
+    log(`database: Postgres already listens on :${DB_PORT}`);
+    return waitFor('Postgres to accept queries', dbAcceptsQueries);
+  }
 
   // Detached on purpose: the server is shared with the app's own e2e and the Cypress stack, so
   // it keeps running after this stack stops.
@@ -171,7 +190,10 @@ async function ensureDatabaseServer() {
   });
   db.unref();
   await waitFor(`Postgres on :${DB_PORT}`, () => isPortOpen(DB_PORT));
-  log(`database: Postgres is up (pid ${db.pid}; it keeps running, stop it via taskkill /pid ${db.pid} /T /F)`);
+  await waitFor('Postgres to accept queries', dbAcceptsQueries);
+  log(
+    `database: Postgres is up (pid ${db.pid}; it keeps running, stop it via taskkill /pid ${db.pid} /T /F)`,
+  );
 }
 
 function resetDatabase() {
@@ -199,7 +221,7 @@ function buildWeb() {
     return Promise.resolve(0);
   }
   if (!flags.forceBuild && buildIsFresh()) {
-    log('web build: up to date (newer than the app\'s last commit; --build forces it)');
+    log("web build: up to date (newer than the app's last commit; --build forces it)");
     return Promise.resolve(0);
   }
   log(`web build: building into ${distDir}`);
@@ -214,7 +236,9 @@ function buildWeb() {
 
 for (const port of [API_PORT, WEB_PORT]) {
   if (await isPortOpen(port)) {
-    fail(`port ${port} is busy. Is the stack already running? Stop it first (or let Playwright reuse it).`);
+    fail(
+      `port ${port} is busy. Is the stack already running? Stop it first (or let Playwright reuse it).`,
+    );
   }
 }
 
@@ -230,17 +254,34 @@ run('api', ['--import', 'tsx', 'scripts/e2e-server.ts'], {
 });
 
 if ((await build) !== 0) fail('web build failed');
-if (!existsSync(resolve(distDir, 'index.html'))) fail(`no web build in ${distDir}; drop --no-build`);
+if (!existsSync(resolve(distDir, 'index.html')))
+  fail(`no web build in ${distDir}; drop --no-build`);
 await waitFor(`${apiOrigin}/health`, () => httpOk(`${apiOrigin}/health`));
 log('api: ready');
 
 // The web starts last, so "web answers" means the whole stack is ready. Playwright's webServer
 // only polls one URL, and this makes that one URL enough.
-run('web', [viteBin, 'preview', '--port', String(WEB_PORT), '--strictPort', '--outDir', distDir], {
-  cwd: webDir,
-  env: { API_PROXY_TARGET: apiOrigin },
-  service: true,
-});
+// --host 127.0.0.1: vite's default "localhost" binds only ::1 on Windows. Browsers and Node fall
+// back between IPv6 and IPv4, k6 does not: it dials 127.0.0.1 and gets "connection refused".
+run(
+  'web',
+  [
+    viteBin,
+    'preview',
+    '--host',
+    '127.0.0.1',
+    '--port',
+    String(WEB_PORT),
+    '--strictPort',
+    '--outDir',
+    distDir,
+  ],
+  {
+    cwd: webDir,
+    env: { API_PROXY_TARGET: apiOrigin },
+    service: true,
+  },
+);
 await waitFor(webOrigin, () => httpOk(webOrigin));
 
 log('ready:');

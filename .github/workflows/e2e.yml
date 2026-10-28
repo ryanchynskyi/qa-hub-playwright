@@ -1,0 +1,90 @@
+# Full suite against a local copy of the app (docs/brief.md §2.1, "CI").
+# Needs the secret APP_REPO_TOKEN: a fine-grained token with Contents: read on
+# ryanchynskyi/qa-interview-tests (the app repo is private).
+name: e2e
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  # The app changes on its own schedule: a nightly run catches UI changes the next morning.
+  schedule:
+    - cron: '0 4 * * *'
+  # The app repo can trigger a run after its deploy:
+  # gh api repos/ryanchynskyi/qa-hub-playwright/dispatches -f event_type=app-updated
+  repository_dispatch:
+    types: [app-updated]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_DIR: app
+      # stack.mjs: an external Postgres (no embedded server); the API creates and seeds the DB.
+      DB_URL: postgresql://postgres:postgres@localhost:5432/qahub_pw
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: ryanchynskyi/qa-interview-tests
+          ref: main
+          path: app
+          token: ${{ secrets.APP_REPO_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      - run: npm ci
+      - run: npm run check
+      - run: npx playwright install --with-deps chromium
+      # webServer in playwright.config.ts starts scripts/stack.mjs (API + built web app).
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  # Read-only smoke against production, by hand only. No app checkout, no secrets.
+  prod-smoke:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: prod-smoke-report
+          path: playwright-report/
