@@ -8,6 +8,7 @@ import {
 } from '@playwright/test';
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
+import { ImportBanner } from '../components/import-banner';
 import { Shell } from '../components/shell';
 import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
@@ -53,6 +54,7 @@ interface TestFixtures {
   /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
   adminPage: Page;
   shell: Shell;
+  importBanner: ImportBanner;
   dashboard: DashboardPage;
   quiz: QuizPage;
   auth: AuthPage;
@@ -146,6 +148,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   },
 
   shell: async ({ page, device }, use) => use(new Shell(page, device)),
+  importBanner: async ({ page }, use) => use(new ImportBanner(page)),
   dashboard: async ({ page }, use) => use(new DashboardPage(page)),
   quiz: async ({ page }, use) => use(new QuizPage(page)),
   auth: async ({ page }, use) => use(new AuthPage(page)),

@@ -121,6 +121,20 @@ export class QuizPage {
     return index;
   }
 
+  /**
+   * Answers the questions of a started run one after another, `true` = correct, and returns their
+   * ids. Stays on the last verdict, so the caller decides whether to go on or finish.
+   */
+  async answerSeries(api: ApiClient, correct: boolean[]): Promise<string[]> {
+    const ids: string[] = [];
+    for (const [i, right] of correct.entries()) {
+      if (i > 0) await this.goNext();
+      ids.push(await this.currentQuestionId());
+      await (right ? this.answerCorrectly(api) : this.answerWrong(api));
+    }
+    return ids;
+  }
+
   async skipQuestion(): Promise<void> {
     await this.skip.click();
     await expect(this.verdict).toHaveAttribute('data-state', 'skipped');
