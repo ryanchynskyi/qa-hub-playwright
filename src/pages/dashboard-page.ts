@@ -6,12 +6,31 @@ export class DashboardPage {
   readonly title: Locator;
   readonly today: Locator;
   readonly topics: Locator;
+  readonly ready: Locator;
+  readonly quickstart: Locator;
+  readonly quickstartTrack: Locator;
+  readonly topicsLock: Locator;
+  /** Blocks a new visitor's short dashboard leaves out until the tour (DASH-020). */
+  readonly fullOnly: Locator[];
 
   constructor(readonly page: Page) {
     this.root = page.getByTestId('dash');
     this.title = page.getByTestId('dash-title');
     this.today = page.getByTestId('today');
     this.topics = page.getByTestId('topics');
+    this.ready = page.getByTestId('dash-ready');
+    this.quickstart = page.getByTestId('dash-quickstart');
+    this.quickstartTrack = page.getByTestId('dash-quickstart-track');
+    this.topicsLock = page.getByTestId('topics-lock');
+    this.fullOnly = [
+      'dash-ready',
+      'dash-summary-quiz',
+      'dash-summary-recall',
+      'dash-leaderboard',
+      'dash-chat',
+      'today',
+      'weak',
+    ].map((id) => page.getByTestId(id));
   }
 
   async goto(): Promise<void> {

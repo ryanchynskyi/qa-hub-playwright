@@ -8,8 +8,10 @@ import {
 } from '@playwright/test';
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
+import { FocusWizard } from '../components/focus-wizard';
 import { ImportBanner } from '../components/import-banner';
 import { Shell } from '../components/shell';
+import { Tour } from '../components/tour';
 import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { AuthPage } from '../pages/auth-page';
@@ -55,6 +57,8 @@ interface TestFixtures {
   adminPage: Page;
   shell: Shell;
   importBanner: ImportBanner;
+  focus: FocusWizard;
+  tour: Tour;
   dashboard: DashboardPage;
   quiz: QuizPage;
   auth: AuthPage;
@@ -153,6 +157,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   quiz: async ({ page }, use) => use(new QuizPage(page)),
   auth: async ({ page }, use) => use(new AuthPage(page)),
   kb: async ({ page }, use) => use(new KbPage(page)),
+  focus: async ({ page }, use) => use(new FocusWizard(page)),
+  tour: async ({ page }, use) => use(new Tour(page)),
 });
 
 export { expect };

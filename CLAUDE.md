@@ -25,6 +25,8 @@ workflow; `docs/WORKFLOW.md` is that explanation.
 - Brief every planner run from the template in `specs/README.md`. Planner rules (lessons from step
   9.1; add a rule when `test-reviewer` traces a problem back to a plan):
   - setup page fails → stop and report; never plan from source code alone;
+  - first visit (focus wizard, short dashboard, tour) → `seedFile: "tests/seed-new.spec.ts"`:
+    the default seed re-writes the focus and tour keys on every load;
   - explore step by step (snapshot, click, press_key), never `browser_run_code_unsafe`: one
     opaque script, it asks for approval and can hang a background agent;
   - one scenario proves one requirement in at most 5 steps; checks beyond the requirement go to
