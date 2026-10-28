@@ -1,13 +1,13 @@
 import { request } from '@playwright/test';
 import { env } from '../config/env';
 
-const TIMEOUT_MS = env.isProd ? 120_000 : 60_000;
+const TIMEOUT_MS = 30_000;
 const POLL_MS = 2_000;
 
 /**
- * Waits until the API answers /health with a live database. Locally webServer only waits for the
- * web port; in prod the Render free plan sleeps and the first request can take about a minute.
- * Without this, the first tests of a run fail on a cold API instead of on a real bug.
+ * Waits until the API answers /health with a live database, so a down API or database fails the
+ * run once, with the reason, instead of failing every test. Prod runs on a Render plan without
+ * sleep (REQ-NFR-09), so no cold-start allowance is needed.
  */
 export default async function globalSetup(): Promise<void> {
   const api = await request.newContext({ baseURL: env.apiURL });
