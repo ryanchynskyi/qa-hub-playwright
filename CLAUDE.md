@@ -37,3 +37,16 @@ project wins:
 - TDD on tests: "see it fail" means break the app's behaviour (or the assertion) once and watch
   the test go red, then restore it.
 - Keep a Log: report the decisions and their reasons, not every tool call.
+
+## Context budget
+
+One chat stays under 150k tokens of context. `.claude/hooks/context-guard.mjs` warns from 120k
+(UserPromptSubmit) and loads `.claude/handoff.md` into a new chat (SessionStart). On the warning:
+finish the current step, write the handoff, propose a new chat, start nothing new.
+
+`.claude/handoff.md` (gitignored, overwritten each time), short, in Ukrainian:
+
+- where we are: plan step, branch, open PR and its CI state, uncommitted changes;
+- decisions made in this chat and why (anything not yet in docs, memory or git);
+- the next action, concrete enough to start without re-reading the old chat;
+- open questions waiting for the user.
