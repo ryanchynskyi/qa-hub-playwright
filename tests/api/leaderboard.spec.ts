@@ -8,7 +8,7 @@ test.describe('leaderboard API', () => {
     await api.checkAnswer(questionId, correct, user.token);
   });
 
-  test('the caller sees their own row', async ({ api, user }) => {
+  test('the caller sees their own row', { tag: ['@REQ-SOC-02'] }, async ({ api, user }) => {
     const board = await api.leaderboard('all', user.token);
     expect(board.me).toMatchObject({ isMe: true, name: user.displayName });
     expect(board.me!.xp).toBeGreaterThan(0);
@@ -17,7 +17,7 @@ test.describe('leaderboard API', () => {
   // Security invariant: the public ranking never exposes who is behind a row. Raw JSON on purpose:
   // the zod schema would drop an unexpected field instead of showing it.
   for (const period of ['all', 'week'] as const) {
-    test(`${period} rows carry no ids or emails`, async ({ api }) => {
+    test(`${period} rows carry no ids or emails`, { tag: ['@REQ-SOC-01'] }, async ({ api }) => {
       const res = await api.raw.get(`leaderboard?period=${period}`);
       expect(res.status()).toBe(200);
       const body = (await res.json()) as { top: Record<string, unknown>[] };

@@ -26,34 +26,42 @@ test.describe('content API', { tag: ['@prod-safe'] }, () => {
 
   // Security invariant: the quiz client must not be able to read answers before checking.
   // Raw JSON on purpose: the zod schema would silently drop a leaked field.
-  test('questions of every section carry no answers', async ({ api, catalog }) => {
-    for (const section of catalog.sections) {
-      await test.step(section.id, async () => {
-        const res = await api.raw.get(`sections/${section.id}/questions`);
-        expect(res.status()).toBe(200);
-        const questions = (await res.json()) as Record<string, unknown>[];
-        expect(questions).toHaveLength(section.questionCount);
-        for (const q of questions) {
-          expect.soft(q, `question ${String(q.id)}`).not.toHaveProperty('correctIndex');
-          expect.soft(q, `question ${String(q.id)}`).not.toHaveProperty('explanation');
-        }
-      });
-    }
-  });
+  test(
+    'questions of every section carry no answers',
+    { tag: ['@REQ-QUIZ-07', '@REQ-NFR-03'] },
+    async ({ api, catalog }) => {
+      for (const section of catalog.sections) {
+        await test.step(section.id, async () => {
+          const res = await api.raw.get(`sections/${section.id}/questions`);
+          expect(res.status()).toBe(200);
+          const questions = (await res.json()) as Record<string, unknown>[];
+          expect(questions).toHaveLength(section.questionCount);
+          for (const q of questions) {
+            expect.soft(q, `question ${String(q.id)}`).not.toHaveProperty('correctIndex');
+            expect.soft(q, `question ${String(q.id)}`).not.toHaveProperty('explanation');
+          }
+        });
+      }
+    },
+  );
 
-  test('English content is served with lang=en', async ({ api, catalog }) => {
-    const sectionId = catalog.sections[0]!.id;
-    const [uk, en] = await Promise.all([
-      api.questions(sectionId, 'uk'),
-      api.questions(sectionId, 'en'),
-    ]);
-    expect(en.map((q) => q.id)).toEqual(uk.map((q) => q.id));
-    expect(en[0]!.text).not.toBe(uk[0]!.text);
-  });
+  test(
+    'English content is served with lang=en',
+    { tag: ['@REQ-GEN-04'] },
+    async ({ api, catalog }) => {
+      const sectionId = catalog.sections[0]!.id;
+      const [uk, en] = await Promise.all([
+        api.questions(sectionId, 'uk'),
+        api.questions(sectionId, 'en'),
+      ]);
+      expect(en.map((q) => q.id)).toEqual(uk.map((q) => q.id));
+      expect(en[0]!.text).not.toBe(uk[0]!.text);
+    },
+  );
 });
 
 test.describe('knowledge base search', { tag: ['@prod-safe'] }, () => {
-  test('finds articles for a 2+ character query', async ({ api }) => {
+  test('finds articles for a 2+ character query', { tag: ['@REQ-KB-05'] }, async ({ api }) => {
     const hits = await api.search('join', 5);
     expect(hits.length).toBeGreaterThan(0);
     expect(hits.length).toBeLessThanOrEqual(5);
@@ -64,7 +72,7 @@ test.describe('knowledge base search', { tag: ['@prod-safe'] }, () => {
     { name: 'limit above 50', query: 'q=join&limit=51' },
   ];
   for (const { name, query } of invalid) {
-    test(`rejects a ${name} with 400`, async ({ api }) => {
+    test(`rejects a ${name} with 400`, { tag: ['@REQ-KB-05', '@REQ-NFR-05'] }, async ({ api }) => {
       const res = await api.raw.get(`kb/search?${query}`);
       expect(res.status()).toBe(400);
       expect(await res.json()).toMatchObject({ error: 'bad_request' });
