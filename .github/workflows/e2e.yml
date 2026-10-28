@@ -8,6 +8,10 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      app_ref:
+        description: App branch, tag or SHA to test against
+        default: main
   # The app changes on its own schedule: a nightly run catches UI changes the next morning.
   schedule:
     - cron: '0 4 * * *'
@@ -15,6 +19,11 @@ on:
   # gh api repos/ryanchynskyi/qa-hub-playwright/dispatches -f event_type=app-updated
   repository_dispatch:
     types: [app-updated]
+
+# A new push to a PR cancels its older run; runs on main (push, nightly) always finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   e2e:
@@ -43,7 +52,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ryanchynskyi/qa-interview-tests
-          ref: main
+          ref: ${{ inputs.app_ref || 'main' }}
           path: app
           token: ${{ secrets.APP_REPO_TOKEN }}
       - uses: actions/setup-node@v4
@@ -55,9 +64,22 @@ jobs:
             app/package-lock.json
       - run: npm ci
         working-directory: app
+      - name: App version to the job summary
+        run: echo "App \`$(git -C app rev-parse --short HEAD)\` (${{ inputs.app_ref || 'main' }})" >> "$GITHUB_STEP_SUMMARY"
       - run: npm ci
       - run: npm run check
-      - run: npx playwright install --with-deps chromium
+      # Browsers are cached per Playwright version; system libraries are installed every time.
+      - id: pw
+        run: echo "version=$(node -p "require('./node_modules/@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browsers
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+      - if: steps.browsers.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - if: steps.browsers.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
       # webServer in playwright.config.ts starts scripts/stack.mjs (API + built web app).
       - run: npx playwright test
       - uses: actions/upload-artifact@v4
