@@ -7,3 +7,6 @@ blob-report/
 .env
 .env.*
 !.env.example
+
+# Claude Code: the previous chat's summary (CLAUDE.md, "Context budget")
+.claude/handoff.md
