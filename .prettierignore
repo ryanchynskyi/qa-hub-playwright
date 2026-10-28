@@ -7,5 +7,4 @@ package-lock.json
 
 # Hand-written prose and mentor notes: keep their line breaks as written.
 docs/
-learning/
 .claude/

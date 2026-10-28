@@ -1,7 +1,7 @@
 {
   "name": "qa-hub-playwright",
   "version": "1.0.0",
-  "description": "Playwright + TypeScript test framework for [QA Interview Hub](https://ryanchynskyi.github.io/qa-interview-tests/). Built step by step as a learning project; see `learning/ROADMAP.md`.",
+  "description": "Playwright + TypeScript test framework for [QA Interview Hub](https://ryanchynskyi.github.io/qa-interview-tests/).",
   "private": true,
   "type": "module",
   "engines": {

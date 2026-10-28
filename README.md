@@ -2,7 +2,7 @@
 
 Playwright + TypeScript test framework for [QA Interview Hub](https://qa-interview.com/): API
 contract and security tests, UI flows on desktop/tablet/phone, a read-only production smoke.
-Learning materials built on this code live in [`learning/`](learning/README.md).
+How it works end to end (stack, CI, agents): [`docs/WORKFLOW.md`](docs/WORKFLOW.md).
 
 ## Setup
 
