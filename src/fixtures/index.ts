@@ -1,5 +1,11 @@
 import { createHash, randomBytes } from 'node:crypto';
-import { test as base, expect, type APIRequestContext, type Page } from '@playwright/test';
+import {
+  test as base,
+  expect,
+  type APIRequestContext,
+  type BrowserContext,
+  type Page,
+} from '@playwright/test';
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
 import { Shell } from '../components/shell';
@@ -42,6 +48,8 @@ interface TestFixtures {
   newCredentials: Credentials;
   /** A page signed in as `user` (API login inside the test's own browser context). */
   authedPage: Page;
+  /** A page in a second browser context (another device) signed in as the same `user`. */
+  secondPage: Page;
   /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
   adminPage: Page;
   shell: Shell;
@@ -63,19 +71,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   // Every page of every test starts with the same browser state, set before the app's own code
   // runs: no analytics, the chosen language and, for a returning visitor, no first-visit focus
-  // wizard (it replaces the whole shell) and no dashboard tour covering the UI.
+  // wizard (it replaces the whole shell), no dashboard tour covering the UI and no sheets after
+  // a finished quiz.
   // Keys: $APP_DIR/docs/test-ids.md.
   context: async ({ context, lang, visitor }, use) => {
-    await context.addInitScript(
-      ({ language, returning }) => {
-        localStorage.setItem('umami.disabled', '1');
-        localStorage.setItem('qa-hub-lang', language);
-        if (!returning) return;
-        localStorage.setItem('qa-hub-focus', 'skipped');
-        localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
-      },
-      { language: lang, returning: visitor === 'returning' },
-    );
+    await prepareContext(context, lang, visitor);
     await use(context);
   },
 
@@ -113,13 +113,25 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     // page.request shares the cookie jar with the page: the refresh cookie (qa_rt) set by the
     // login lands in this context, and the app restores the session from it on load. Each test
     // gets its own user and session, so refresh-token rotation never logs out another test.
-    const res = await page.request.post(`${env.apiURL}auth/login`, {
-      data: { email: user.email, password: user.password },
-    });
-    await expectStatus(res, 200);
+    await apiLogin(page.request, user);
     await page.goto('dash');
     await shell.expectSignedIn(user.email);
     await use(page);
+  },
+
+  // browser.newContext() does not get the config's `use`, so the options the app depends on are
+  // repeated here (playwright.config.ts).
+  secondPage: async ({ browser, lang, visitor, user }, use) => {
+    const context = await browser.newContext({
+      baseURL: env.baseURL,
+      timezoneId: 'Europe/Kyiv',
+      locale: 'uk-UA',
+    });
+    await prepareContext(context, lang, visitor);
+    const page = await context.newPage();
+    await apiLogin(page.request, user);
+    await use(page);
+    await context.close();
   },
 
   // One shared owner account for all workers: fine while admin tests only read; tests that
@@ -141,6 +153,36 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 });
 
 export { expect };
+
+/** Browser state set before the app's own code runs (keys: $APP_DIR/docs/test-ids.md). */
+async function prepareContext(
+  context: BrowserContext,
+  lang: Lang,
+  visitor: Visitor,
+): Promise<void> {
+  await context.addInitScript(
+    ({ language, returning }) => {
+      localStorage.setItem('umami.disabled', '1');
+      localStorage.setItem('qa-hub-lang', language);
+      if (!returning) return;
+      localStorage.setItem('qa-hub-focus', 'skipped');
+      localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
+      // Sheets after a finished quiz cover the result buttons: the content note, then the donate
+      // offer (a signed-in user's first quiz gets it once the note is handled).
+      localStorage.setItem('qa-hub-content-note', 'dismissed');
+      localStorage.setItem('qa-hub-donate-offer', 'dismissed');
+    },
+    { language: lang, returning: visitor === 'returning' },
+  );
+}
+
+/** API login on a page's own request context: the refresh cookie lands in that browser. */
+async function apiLogin(request: APIRequestContext, user: Credentials): Promise<void> {
+  const res = await request.post(`${env.apiURL}auth/login`, {
+    data: { email: user.email, password: user.password },
+  });
+  await expectStatus(res, 200);
+}
 
 /** Second line of defence after the @prod-safe grep: a mis-tagged test fails, no account is made. */
 function assertNotProd(fixture: string): void {
