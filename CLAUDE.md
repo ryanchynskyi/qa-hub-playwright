@@ -22,6 +22,15 @@ workflow; `docs/WORKFLOW.md` is that explanation.
   to `specs/`.
 - Their `*_setup_page` tools need `project: "desktop"`: without it they take the first project
   (`api`), which does not include the seed, and fail with "seed test not found".
+- Brief every planner run from the template in `specs/README.md`. Planner rules (lessons from step
+  9.1; add a rule when `test-reviewer` traces a problem back to a plan):
+  - setup page fails → stop and report; never plan from source code alone;
+  - explore step by step (snapshot, click, press_key), never `browser_run_code_unsafe`: one
+    opaque script, it asks for approval and can hang a background agent;
+  - one scenario proves one requirement in at most 5 steps; checks beyond the requirement go to
+    an "Ideas" section, not into steps;
+  - a missing `ApiClient` method or page-object locator goes to "Prerequisites"; never
+    `page.request` in a step.
 - Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
   tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
   is a decision for the user, not a fix.
