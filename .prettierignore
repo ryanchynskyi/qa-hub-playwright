@@ -4,6 +4,8 @@ playwright-report/
 blob-report/
 .stack/
 package-lock.json
+# CI checks the app out here (APP_DIR=app).
+app/
 
 # Hand-written prose and mentor notes: keep their line breaks as written.
 docs/

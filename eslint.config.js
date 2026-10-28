@@ -12,6 +12,8 @@ export default defineConfig(
     'playwright-report/',
     'blob-report/',
     '.stack/',
+    // CI checks the app out here (APP_DIR=app); it has its own lint setup.
+    'app/',
   ]),
 
   js.configs.recommended,
