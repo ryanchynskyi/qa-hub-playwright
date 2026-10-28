@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# One issue per prod outage (docs/WORKFLOW.md, "Prod smoke"):
+# One issue per outage (docs/WORKFLOW.md, "Prod smoke" and "Nightly"):
 #   prod-alert.sh failure  opens the issue, or comments on the open one;
 #   prod-alert.sh success  closes the open issue, if any.
-# Needs GH_TOKEN (issues: write) and RUN_URL; ALERT_TITLE overrides the title (for a dry run).
+# Needs GH_TOKEN (issues: write) and RUN_URL; ALERT_TITLE overrides the title (nightly, a dry run).
 set -euo pipefail
 title="${ALERT_TITLE:-Prod smoke failing}"
 # No --search: the search index lags, and a second failure minutes later opened a duplicate.
@@ -14,7 +14,7 @@ case "$1" in
     if [ -n "$number" ]; then
       gh issue comment "$number" --body "Failed again: $RUN_URL"
     else
-      gh issue create --title "$title" --body "Prod smoke failed: $RUN_URL
+      gh issue create --title "$title" --body "$title: $RUN_URL
 
 The report is attached to the run. The next green run closes this issue."
     fi ;;

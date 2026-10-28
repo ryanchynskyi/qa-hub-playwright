@@ -1,5 +1,6 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import { env } from './src/config/env';
+import { browserFor, deviceUse } from './src/config/run-factory';
 import type { Device, FrameworkOptions } from './src/fixtures';
 
 /**
@@ -15,13 +16,19 @@ function grepFor(device?: Device): RegExp | undefined {
   return required.length ? new RegExp(required.map((tag) => `(?=.*${tag})`).join('')) : undefined;
 }
 
-/** A UI project per layout of the app (docs/brief.md §10). */
-function uiProject(device: Device, use: FrameworkOptions & Record<string, unknown>) {
+const browser = browserFor(process.env.SEED);
+// The config loads in every worker too; log the run's config once, from the main process.
+if (process.env.SEED && process.env.TEST_WORKER_INDEX === undefined) {
+  console.log(`SEED=${process.env.SEED} → ${browser}`);
+}
+
+/** A UI project per layout of the app (docs/brief.md §10), on the run's browser. */
+function uiProject(device: Device) {
   return {
     name: device,
     testIgnore: 'api/**',
     grep: grepFor(device),
-    use: { ...use, device },
+    use: { ...deviceUse(browser, device), device },
   };
 }
 
@@ -30,7 +37,24 @@ export default defineConfig<FrameworkOptions>({
   fullyParallel: true,
   forbidOnly: env.isCI,
   retries: env.isCI ? 1 : 0,
-  reporter: [[env.isCI ? 'github' : 'list'], ['html', { open: 'never' }]],
+  reporter: [
+    [env.isCI ? 'github' : 'list'],
+    ['html', { open: 'never' }],
+    // Raw results for the Allure report (allurerc.mjs); APP_* come from the CI workflow.
+    [
+      'allure-playwright',
+      {
+        resultsDir: 'allure-results',
+        environmentInfo: {
+          target: env.target,
+          browser,
+          seed: process.env.SEED ?? 'none',
+          app_ref: process.env.APP_REF ?? 'local',
+          app_sha: process.env.APP_SHA ?? 'local',
+        },
+      },
+    ],
+  ],
   globalSetup: './src/setup/global-setup.ts',
 
   use: {
@@ -44,9 +68,9 @@ export default defineConfig<FrameworkOptions>({
 
   projects: [
     { name: 'api', testDir: './tests/api', grep: grepFor() },
-    uiProject('desktop', { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }),
-    uiProject('tablet', { ...devices['Desktop Chrome'], viewport: { width: 800, height: 800 } }),
-    uiProject('phone', { ...devices['Pixel 7'], viewport: { width: 390, height: 800 } }),
+    uiProject('desktop'),
+    uiProject('tablet'),
+    uiProject('phone'),
   ],
 
   // The local stack: Postgres, the app's e2e API (:3200) and the built web app (:4273).

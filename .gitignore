@@ -2,6 +2,9 @@ node_modules/
 test-results/
 playwright-report/
 blob-report/
+allure-results/
+allure-report/
+allure-history.jsonl
 .stack/
 .auth/
 .env
