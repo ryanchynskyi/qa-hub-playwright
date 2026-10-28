@@ -6,14 +6,24 @@ Active Recall at /recall. Explored live as a guest (uk UI, desktop, seed tests/s
 
 ## Prerequisites
 
-Missing, to be added before the generator runs (the plan never uses page.request in a step):
+Done before the generator runs (checked against the live API and a full 10-card session):
 
-1. `src/pages/recall-page.ts` (RecallPage extends the existing page-object pattern, see quiz-page.ts): `goto()` (/recall), `start()` (recall-start), `card` (recall-card), `currentCardId()` (recall-card `data-key`), `cardState()` (`data-state` front|back), `question` (recall-front), `answer` (recall-answer), `reveal()` (recall-reveal click), `revealWithKey('Space'|'Enter')`, `rate(n)` (recall-rate[data-key=n] click), `rateWithKey(n)`, `progress` (recall-progress, `data-v` = n, `data-t` = N), `bar` (recall-bar > span, states), `rates` (recall-rate, all 5).
-2. `ApiClient.recallCards()` returns only `{id, chapterId}` because the zod `RecallCard` drops the rest. Extend `RecallCard` in src/api/schemas.ts with `topicId`, `question`, `answer`, `core` (GET /recall/cards returns them; confirmed in apps/api routes/content.ts). Needed to compare the UI question/answer with the API text.
-3. `ApiClient.rateCard(token, cardId, rating)`: POST `me/recall/rate`, body `{cardId, rating}`, 200, returns the ProgressUpdate. Add a `RateResult` schema with at least `result.xpGained` (number), `card.state` = `{rating, reviews, dueAt, history, lastXpDate}`, `at` (server time, ms). Verify the exact response field names against apps/api/src/progress/service.ts (`rate()` returns `{result, at, card: {id, state}}`; `result.xpGained` is set in `record()`); check once with a real response before writing the schema. A `raw` call is enough for negative tests.
-4. `Progress` schema (src/api/schemas.ts) has no `cards`; `xpLog` and `stats.totalXp` exist and are enough for REC-06. Add `cards` (cardId -> state) only if the generator wants to read dueAt from GET /me/progress.
-5. `src/helpers/guest-storage.ts`: `GuestState.cards` is `Record<string, unknown>`; if a UI test reads the stored rating, type it as `{rating, reviews, dueAt, history, lastXpDate}`.
-6. A helper to pick a card id: `(await api.recallCards())[0].id` is enough; no new helper.
+1. `src/pages/recall-page.ts`, fixture `recall`: `goto()`, `startSession()`, `currentCardId()`,
+   `showAnswer(key?)` (button, `Space` or `Enter`), `rateCard(n, byKey?)` (waits for the next card,
+   or for `done` after the last), locators `card`, `question`, `reveal`, `back`, `answer`, `rates`,
+   `rate(n)`, `progress`, `bar` (segments), `hero`, `caughtUp`, `know`, `finish`, `done`.
+   The counters use `data-value` / `data-total` (test-ids.md "v" / "t"); read them with
+   `numberValue` or `toHaveAttribute`, never `data-v`.
+2. `RecallCard` has `topicId`, `question`, `answer`, `core`. `question` is plain text and equals
+   the UI front; `answer` is markdown (backticks), so compare the UI answer with
+   `toContainText` on a fragment without markup, or with the first plain words, not equality.
+3. `ApiClient.rateCard(token, cardId, rating)` → `RateResult` `{result: {xpGained, grants}, at,
+card: {id, state}}`, `state` = `CardState` `{rating, reviews, dueAt, history, lastXpDate}`.
+   Live: rating 1 → `dueAt = at`, +3 XP; then 5 the same day → 0 XP, `dueAt - at` = exactly
+   14 × 86400000, `history` [1, 5]. Errors: rating 0, 2.5, "3", missing → 400 `bad_request`;
+   unknown card → 404 `not_found`; no token → 401 `unauthorized`. Negative tests use `api.raw`.
+4. `Progress` is unchanged (GET /me/progress has `cards`, add it only if a test reads it).
+5. `GuestState.cards` is `Record<string, CardState>` for `readGuest` (read with `expect.poll`).
 
 ## Ambiguities
 

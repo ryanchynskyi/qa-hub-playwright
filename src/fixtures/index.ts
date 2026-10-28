@@ -18,6 +18,7 @@ import { AuthPage } from '../pages/auth-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { KbPage } from '../pages/kb-page';
 import { QuizPage } from '../pages/quiz-page';
+import { RecallPage } from '../pages/recall-page';
 
 export type Device = 'desktop' | 'tablet' | 'phone';
 
@@ -61,6 +62,7 @@ interface TestFixtures {
   tour: Tour;
   dashboard: DashboardPage;
   quiz: QuizPage;
+  recall: RecallPage;
   auth: AuthPage;
   kb: KbPage;
 }
@@ -155,6 +157,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   importBanner: async ({ page }, use) => use(new ImportBanner(page)),
   dashboard: async ({ page }, use) => use(new DashboardPage(page)),
   quiz: async ({ page }, use) => use(new QuizPage(page)),
+  recall: async ({ page }, use) => use(new RecallPage(page)),
   auth: async ({ page }, use) => use(new AuthPage(page)),
   kb: async ({ page }, use) => use(new KbPage(page)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),

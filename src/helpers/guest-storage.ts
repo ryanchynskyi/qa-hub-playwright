@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import type { CardState } from '../api/schemas';
 
 /** Keys of the app's guest store ($APP_DIR apps/web/src/progress/guest-store.ts). */
 const GUEST_KEY = 'qa-hub-guest-v1';
@@ -8,7 +9,7 @@ const BACKUP_KEY = 'qa-hub-guest-v1.imported';
 /** Only the parts tests read; the store is app-internal JSON, never written by hand. */
 export interface GuestState {
   questions: Record<string, unknown>;
-  cards: Record<string, unknown>;
+  cards: Record<string, CardState>;
 }
 
 const read = (page: Page, key: string): Promise<GuestState | null> =>
