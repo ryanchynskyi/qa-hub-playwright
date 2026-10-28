@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 const MATRIX = 'specs/COVERAGE.md';
-const IGNORED_FILES = new Set(['seed.spec.ts']); // the agents' starting point, not a test
+const IGNORED_FILES = new Set(['seed.spec.ts', 'seed-new.spec.ts']); // the agents' starting point, not a test
 
 /** First cell of a matrix row → ids: `REC-01…03` → REC-01..03, `PROG-07, 08` → PROG-07, PROG-08. */
 function expandIds(cell) {
