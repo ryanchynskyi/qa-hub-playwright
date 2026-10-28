@@ -12,6 +12,7 @@ import {
   Leaderboard,
   Progress,
   Question,
+  RateResult,
   RecallCard,
   SearchHits,
   User,
@@ -88,6 +89,11 @@ export class ApiClient {
 
   recallCards(lang: Lang = 'uk'): Promise<RecallCard[]> {
     return this.getJson(`recall/cards?lang=${lang}`, RecallCard.array());
+  }
+
+  /** Rates a card 1..5 for the account; XP only for a new or due card, once per local day. */
+  rateCard(token: string, cardId: string, rating: number): Promise<RateResult> {
+    return this.postJson('me/recall/rate', { cardId, rating }, RateResult, token);
   }
 
   search(q: string, limit?: number): Promise<z.infer<typeof SearchHits>> {

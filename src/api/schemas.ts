@@ -71,8 +71,39 @@ export type Question = z.infer<typeof Question>;
 /** The app shows the correct-answer share from this many first answers ($APP_DIR packages/shared). */
 export const QUESTION_STAT_MIN = 5;
 
-export const RecallCard = z.object({ id: z.string(), chapterId: z.string() });
+/** GET /recall/cards; `question` and `answer` are markdown, the UI renders them. */
+export const RecallCard = z.object({
+  id: z.string(),
+  topicId: z.string(),
+  chapterId: z.string(),
+  question: z.string().min(1),
+  answer: z.string().min(1),
+  core: z.boolean(),
+});
 export type RecallCard = z.infer<typeof RecallCard>;
+
+/** Spaced-repetition state of one card ($APP_DIR packages/shared engine); `dueAt` in ms. */
+export const CardState = z.object({
+  rating: z.number().int().min(1).max(5),
+  reviews: z.number().int().positive(),
+  dueAt: z.number(),
+  history: z.array(z.number().int()),
+  lastXpDate: z.string().nullable(),
+});
+export type CardState = z.infer<typeof CardState>;
+
+/** POST /me/recall/rate: `at` is the server time the interval counts from. */
+export const RateResult = z.object({
+  result: z.object({
+    xpGained: z.number().int().nonnegative(),
+    grants: z.array(
+      z.object({ amount: z.number(), reason: z.string(), refId: z.string().optional() }),
+    ),
+  }),
+  at: z.number(),
+  card: z.object({ id: z.string(), state: CardState }),
+});
+export type RateResult = z.infer<typeof RateResult>;
 
 export const CheckResult = z.object({
   outcome: z.enum(['correct', 'wrong', 'skipped']),
