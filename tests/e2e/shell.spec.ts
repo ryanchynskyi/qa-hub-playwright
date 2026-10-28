@@ -2,7 +2,7 @@ import { expect, test } from '../../src/fixtures';
 
 // Runs on desktop, tablet and phone (tag @responsive): the Shell component hides where each
 // link lives, the tests below only describe what the user can do.
-test.describe('shell navigation', { tag: '@responsive' }, () => {
+test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => {
   test.beforeEach(async ({ dashboard }) => {
     await dashboard.goto();
     await expect(dashboard.root).toBeVisible();
@@ -54,4 +54,27 @@ test.describe('shell navigation', { tag: '@responsive' }, () => {
       await expect(shell.moreButton).toBeFocused();
     },
   );
+});
+
+// Routing, not layout: one viewport is enough. Checklist SHELL-016 (no REQ row): prod serves a
+// prerendered shell for every route, never a 404 page.
+test.describe('deep links', { tag: ['@prod-safe'] }, () => {
+  test('deep links load their view directly and after a reload', async ({ page }) => {
+    const views = [
+      { path: 'kb/sql', testId: 'kb' }, // redirects to a chapter: the reload hits that deep link
+      { path: 'quiz/sql', testId: 'quiz-view' },
+      { path: 'leaderboard', testId: 'leaderboard' },
+    ];
+    for (const { path, testId } of views) {
+      await test.step(path, async () => {
+        await page.goto(path);
+        await expect(page.getByTestId(testId)).toBeVisible();
+        // GitHub Pages adds a trailing slash on reload (a directory redirect); same route.
+        const route = page.url().replace(/\/$/, '');
+        await page.reload();
+        await expect(page.getByTestId(testId)).toBeVisible();
+        expect(page.url().replace(/\/$/, '')).toBe(route);
+      });
+    }
+  });
 });

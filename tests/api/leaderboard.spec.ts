@@ -1,27 +1,40 @@
-import { expect, test } from '../../src/fixtures';
+import type { ApiClient } from '../../src/api/client';
+import type { Catalog } from '../../src/api/schemas';
+import { env } from '../../src/config/env';
+import { expect, test, type TestUser } from '../../src/fixtures';
+
+/** One correct answer gives XP, so the user gets a row (the board lists users with XP only). */
+async function earnXp(api: ApiClient, user: TestUser, catalog: Catalog): Promise<void> {
+  const questionId = catalog.questions[0]!.id;
+  const correct = await api.correctIndex(questionId);
+  await api.checkAnswer(questionId, correct, user.token);
+}
 
 test.describe('leaderboard API', () => {
-  test.beforeEach(async ({ api, user, catalog }) => {
-    // Earn XP with one correct answer, so the user has a row (the board lists users with XP only).
-    const questionId = catalog.questions[0]!.id;
-    const correct = await api.correctIndex(questionId);
-    await api.checkAnswer(questionId, correct, user.token);
-  });
+  test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user, catalog));
 
   test('the caller sees their own row', { tag: ['@REQ-SOC-02'] }, async ({ api, user }) => {
     const board = await api.leaderboard('all', user.token);
     expect(board.me).toMatchObject({ isMe: true, name: user.displayName });
     expect(board.me!.xp).toBeGreaterThan(0);
   });
+});
+
+test.describe('public leaderboard', { tag: ['@prod-safe'] }, () => {
+  // Prod has real players; the local board is empty until a fresh user earns XP.
+  if (!env.isProd) test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user, catalog));
 
   // Security invariant: the public ranking never exposes who is behind a row. Raw JSON on purpose:
   // the zod schema would drop an unexpected field instead of showing it.
   for (const period of ['all', 'week'] as const) {
+    // On prod the weekly board can be empty right after the weekly reset.
+    const minRows = period === 'week' && env.isProd ? 0 : 1;
+
     test(`${period} rows carry no ids or emails`, { tag: ['@REQ-SOC-01'] }, async ({ api }) => {
       const res = await api.raw.get(`leaderboard?period=${period}`);
       expect(res.status()).toBe(200);
       const body = (await res.json()) as { top: Record<string, unknown>[] };
-      expect(body.top.length).toBeGreaterThan(0);
+      expect(body.top.length).toBeGreaterThanOrEqual(minRows);
       for (const row of body.top) {
         expect(Object.keys(row).sort()).toEqual(['isMe', 'level', 'name', 'rank', 'xp']);
       }
