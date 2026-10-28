@@ -28,7 +28,13 @@ npm run test:smoke       # @smoke
 npm run test:debug       # UI mode
 npm run report           # last HTML report
 npm run check            # typecheck + lint + format
+npm run perf:smoke       # k6: 1 user, 30s (stack must be running)
+npm run perf:load        # k6: ramp to 20 users, ~2 min
 ```
+
+Perf tests need [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) on PATH
+(`winget install k6`) and a running `npm run stack`: k6 does not start it. They run only against
+localhost, never production.
 
 `playwright.config.ts` starts `scripts/stack.mjs` through `webServer` and reuses a stack that is
 already up. For debugging keep one running in a separate terminal: `npm run stack` (or
@@ -63,6 +69,7 @@ tests/
   api/                 contracts, validation, auth, security invariants (no answers, no ids)
   e2e/                 UI flows: shell, quiz, auth, i18n, knowledge base
   smoke/               @smoke @prod-safe: the app is up and renders
+perf/                  k6 load tests (plain JS, k6 runtime): guest read path, smoke and load
 ```
 
 ## Tags
