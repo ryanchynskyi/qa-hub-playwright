@@ -5,7 +5,8 @@
 # Needs GH_TOKEN (issues: write) and RUN_URL; ALERT_TITLE overrides the title (for a dry run).
 set -euo pipefail
 title="${ALERT_TITLE:-Prod smoke failing}"
-number=$(gh issue list --state open --search "in:title \"$title\"" --json number,title \
+# No --search: the search index lags, and a second failure minutes later opened a duplicate.
+number=$(gh issue list --state open --limit 500 --json number,title \
   --jq "map(select(.title == \"$title\"))[0].number // empty")
 
 case "$1" in
