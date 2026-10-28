@@ -30,7 +30,9 @@ workflow; `docs/WORKFLOW.md` is that explanation.
   - one scenario proves one requirement in at most 5 steps; checks beyond the requirement go to
     an "Ideas" section, not into steps;
   - a missing `ApiClient` method or page-object locator goes to "Prerequisites"; never
-    `page.request` in a step.
+    `page.request` in a step;
+  - API first (test pyramid): a UI scenario only for what the user sees; a requirement the API
+    alone proves goes to "API tests" (for `tests/api`), not into a UI scenario.
 - Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
   tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
   is a decision for the user, not a fix.

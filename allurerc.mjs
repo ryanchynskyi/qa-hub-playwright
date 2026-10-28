@@ -6,7 +6,7 @@
 import { defineConfig } from 'allure';
 
 export default defineConfig({
-  name: `QA Hub e2e${process.env.APP_REF ? ` · app ${process.env.APP_REF}` : ''}`,
+  name: `QA Hub tests${process.env.APP_REF ? ` · app ${process.env.APP_REF}` : ''}`,
   output: 'allure-report',
   historyPath: process.env.ALLURE_HISTORY ?? 'allure-history.jsonl',
   historyLimit: 30,
