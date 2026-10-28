@@ -3,9 +3,13 @@ import type { z } from 'zod';
 import {
   AuthResponse,
   Catalog,
+  ChatFeed,
+  ChatMessage,
   CheckResult,
+  Comments,
   Health,
   Leaderboard,
+  Progress,
   Question,
   SearchHits,
   User,
@@ -91,6 +95,50 @@ export class ApiClient {
 
   me(token: string): Promise<User> {
     return this.getJson('auth/me', User, token);
+  }
+
+  progress(token: string): Promise<Progress> {
+    return this.getJson('me/progress', Progress, token);
+  }
+
+  /** Records a finished run; every question must have been answered in this sitting. */
+  async finishQuiz(token: string, sectionId: string, questionIds: string[]): Promise<void> {
+    const res = await this.raw.post('me/quiz/finish', {
+      data: { sectionId, questionIds },
+      headers: bearer(token),
+    });
+    await expectStatus(res, 200);
+  }
+
+  /** POST /me/password (204); other sessions of the account end, this one stays. */
+  async changePassword(token: string, currentPassword: string, newPassword: string): Promise<void> {
+    const res = await this.raw.post('me/password', {
+      data: { currentPassword, newPassword },
+      headers: bearer(token),
+    });
+    await expectStatus(res, 204);
+  }
+
+  postChat(token: string, text: string): Promise<ChatMessage> {
+    return this.postJson('chat/messages', { text }, ChatMessage, token, 201);
+  }
+
+  async chatMessages(): Promise<ChatMessage[]> {
+    return (await this.getJson('chat/messages', ChatFeed)).messages;
+  }
+
+  /** Comments target a question (or another `targetType`) by id. */
+  async postComment(token: string, targetId: string, text: string): Promise<void> {
+    const res = await this.raw.post('comments', {
+      data: { targetType: 'question', targetId, text },
+      headers: bearer(token),
+    });
+    await expectStatus(res, 201);
+  }
+
+  async comments(targetId: string): Promise<Comments['items']> {
+    const params = new URLSearchParams({ targetType: 'question', targetId });
+    return (await this.getJson(`comments?${params}`, Comments)).items;
   }
 
   /** Deletes the account the token belongs to (DELETE /me, 204). */
