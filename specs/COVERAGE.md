@@ -152,20 +152,20 @@
 
 ### NFR
 
-| REQ    | Статус | Де / чого бракує                                                             | Шар                       |
-| ------ | ------ | ---------------------------------------------------------------------------- | ------------------------- |
-| NFR-01 | 🟡     | httpOnly cookie є; SameSite/Partitioned, відмова чужому Origin — ні          | API                       |
-| NFR-02 | ❌     | **паралельні запити не подвоюють XP**                                        | API (`Promise.all`)       |
-| NFR-03 | 🟡     | API і DOM до вердикту є; пререндерений HTML — ні                             | API                       |
-| NFR-04 | ❌     | простий текст у чаті/коментарях/фідбеку; magic bytes, `nosniff`              | API + UI                  |
-| NFR-05 | 🟡     | 400/404 для quiz/check і search; решта ендпоінтів — ні                       | API                       |
-| NFR-06 | ❌     | Umami нічого не шле під WebDriver / localhost                                | UI (`page.on('request')`) |
-| NFR-07 | ❌     | жодних запитів до Google Fonts                                               | UI (`page.on('request')`) |
-| NFR-08 | ⛔     | Lighthouse — окремий CI-job (lhci), не Playwright                            | —                         |
-| NFR-09 | ❌     | `GET /ping`                                                                  | API                       |
-| NFR-10 | 🟡     | More sheet: Escape + фокус; інші діалоги — ні                                | UI                        |
-| NFR-11 | ⛔     | процесна вимога; можна автоматизувати перевіркою test id з каталогу (фаза 0) | скрипт                    |
-| NFR-12 | ⛔     | мета-вимога                                                                  | —                         |
+| REQ    | Статус | Де / чого бракує                                                    | Шар                       |
+| ------ | ------ | ------------------------------------------------------------------- | ------------------------- |
+| NFR-01 | 🟡     | httpOnly cookie є; SameSite/Partitioned, відмова чужому Origin — ні | API                       |
+| NFR-02 | ❌     | **паралельні запити не подвоюють XP**                               | API (`Promise.all`)       |
+| NFR-03 | 🟡     | API і DOM до вердикту є; пререндерений HTML — ні                    | API                       |
+| NFR-04 | ❌     | простий текст у чаті/коментарях/фідбеку; magic bytes, `nosniff`     | API + UI                  |
+| NFR-05 | 🟡     | 400/404 для quiz/check і search; решта ендпоінтів — ні              | API                       |
+| NFR-06 | ❌     | Umami нічого не шле під WebDriver / localhost                       | UI (`page.on('request')`) |
+| NFR-07 | ❌     | жодних запитів до Google Fonts                                      | UI (`page.on('request')`) |
+| NFR-08 | ⛔     | Lighthouse — окремий CI-job (lhci), не Playwright                   | —                         |
+| NFR-09 | ❌     | `GET /ping`                                                         | API                       |
+| NFR-10 | 🟡     | More sheet: Escape + фокус; інші діалоги — ні                       | UI                        |
+| NFR-11 | ⛔     | процесна вимога; з боку фреймворку `npm run check:ids` (фаза 0.7)   | скрипт                    |
+| NFR-12 | ⛔     | мета-вимога                                                         | —                         |
 
 ## План
 
@@ -175,9 +175,11 @@
 
 ### Фаза 0. Інфраструктура (без неї решта не пишеться)
 
-1. **Трасування.** Тег `@REQ-<розділ>-<nn>` на кожному тесті (`tag` у `test()`), а скрипт
-   `npm run coverage` будує цю матрицю з `playwright test --list`. Тоді `--grep @REQ-AUTH`
-   запускає розділ, і матриця не застаріває вручну.
+1. ✅ **Трасування.** Тег `@REQ-<розділ>-<nn>` на тестах (`tag` у `test()`), а скрипт
+   `npm run coverage` (`scripts/coverage.mjs`) з `playwright test --list` виводить «вимога →
+   тести» і падає, якщо статус у матриці не сходиться з тегами (✅/🟡 без тестів, ❌ з тестами,
+   тег без рядка в матриці). Статус ✅ чи 🟡 ставить людина. `--grep @REQ-AUTH` запускає розділ.
+   Без REQ лишились 3 інфраструктурні тести (health, консистентність каталогу, 401 без токена).
 2. **Опція `visitor: 'returning' | 'new'`** у фікстурі `context`. Зараз focus wizard і тур
    вимкнені для всіх, а GEN-10…15 потребують «нового» відвідувача.
 3. **Google і адмін:** хелпер входу через fake Google e2e-сервера; фікстура `adminPage`
@@ -187,8 +189,9 @@
    daily-count, чат, коментарі, фідбек, баг-репорти, admin, `/ping`, `/auth/providers`.
 6. **Page objects:** FocusWizard, Tour, Recall, Profile, Leaderboard, Chat, CommentsSheet,
    FeedbackDialog, Admin, Stats.
-7. **Guard для test id:** скрипт, що перевіряє, що кожен id з `src/` є в
-   `$APP_DIR/docs/test-ids.md` (NFR-11). Ловить дрейф апки до прогону тестів.
+7. ✅ **Guard для test id:** `npm run check:ids` (`scripts/check-test-ids.mjs`) перевіряє, що
+   кожен id з `src/` і `tests/` є в `$APP_DIR/docs/test-ids.md` (NFR-11). Ловить дрейф апки до
+   прогону тестів. Перший запуск знайшов `dash-cta` (апка прибрала його 2026-10-13).
 
 ### Фаза 1. Безпека і цілісність даних (API, ~15 тестів)
 
