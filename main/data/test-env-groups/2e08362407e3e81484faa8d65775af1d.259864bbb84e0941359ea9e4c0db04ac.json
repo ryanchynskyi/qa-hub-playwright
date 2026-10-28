@@ -1,0 +1,1 @@
+{"id":"2e08362407e3e81484faa8d65775af1d.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/quiz-check.spec.ts › POST /quiz/check › a wrong option gets \"wrong\" and reveals the right one","name":"a wrong option gets \"wrong\" and reveals the right one","status":"passed","testResultsByEnv":{"default":"2b31f9d53cd7a2ffdc241f9e9235cd57"}}

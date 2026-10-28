@@ -1,0 +1,1 @@
+{"id":"abe6444d9ab34d86e5bad68984866e1c.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/sessions.spec.ts › sessions › email is case-insensitive for login and for the duplicate check","name":"email is case-insensitive for login and for the duplicate check","status":"passed","testResultsByEnv":{"default":"78b96b1eb68b39c88585015b127f6de3"}}

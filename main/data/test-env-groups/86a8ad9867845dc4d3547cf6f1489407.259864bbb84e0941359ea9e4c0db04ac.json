@@ -1,0 +1,1 @@
+{"id":"86a8ad9867845dc4d3547cf6f1489407.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/auth.spec.ts › auth API › a wrong password is 401 invalid_credentials","name":"a wrong password is 401 invalid_credentials","status":"passed","testResultsByEnv":{"default":"7a28efcf09eed8d715a239a30a1045a0"}}
