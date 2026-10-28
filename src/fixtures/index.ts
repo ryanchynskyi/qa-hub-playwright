@@ -15,7 +15,11 @@ export type Device = 'desktop' | 'tablet' | 'phone';
 export interface FrameworkOptions {
   device?: Device;
   lang?: Lang;
+  visitor?: Visitor;
 }
+
+/** `new`: first visit, with the focus wizard and the dashboard tour; `returning`: neither. */
+export type Visitor = 'returning' | 'new';
 
 export interface TestUser extends Credentials {
   displayName: string;
@@ -26,6 +30,8 @@ export interface TestUser extends Credentials {
 interface TestFixtures {
   /** UI language pinned before the app loads. `test.use({ lang: 'en' })` for English. */
   lang: Lang;
+  /** `test.use({ visitor: 'new' })` keeps the first-visit focus wizard and dashboard tour. */
+  visitor: Visitor;
   /** Layout of the current project; page objects use it to hide desktop/phone differences. */
   device: Device;
   api: ApiClient;
@@ -50,17 +56,23 @@ interface WorkerFixtures {
 export const test = base.extend<TestFixtures, WorkerFixtures>({
   lang: ['uk', { option: true }],
   device: ['desktop', { option: true }],
+  visitor: ['returning', { option: true }],
 
   // Every page of every test starts with the same browser state, set before the app's own code
-  // runs: no analytics, no first-visit focus wizard (it replaces the whole shell), no dashboard
-  // tour covering the UI, and the chosen language. Keys: $APP_DIR/docs/test-ids.md.
-  context: async ({ context, lang }, use) => {
-    await context.addInitScript((language) => {
-      localStorage.setItem('umami.disabled', '1');
-      localStorage.setItem('qa-hub-focus', 'skipped');
-      localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
-      localStorage.setItem('qa-hub-lang', language);
-    }, lang);
+  // runs: no analytics, the chosen language and, for a returning visitor, no first-visit focus
+  // wizard (it replaces the whole shell) and no dashboard tour covering the UI.
+  // Keys: $APP_DIR/docs/test-ids.md.
+  context: async ({ context, lang, visitor }, use) => {
+    await context.addInitScript(
+      ({ language, returning }) => {
+        localStorage.setItem('umami.disabled', '1');
+        localStorage.setItem('qa-hub-lang', language);
+        if (!returning) return;
+        localStorage.setItem('qa-hub-focus', 'skipped');
+        localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
+      },
+      { language: lang, returning: visitor === 'returning' },
+    );
     await use(context);
   },
 
