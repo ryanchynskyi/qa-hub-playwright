@@ -85,7 +85,7 @@
 | QUIZ-08 | ✅     | correct/wrong/skipped в API та UI                                                        |                   |
 | QUIZ-09 | ❌     | «N% відповіли правильно» лише після вердикту                                             | UI                |
 | QUIZ-10 | ❌     | клавіатура 1–9, S/0, Enter                                                               | UI                |
-| QUIZ-11 | ❌     | помилка перевірки залишає питання доступним                                              | UI + `page.route` |
+| QUIZ-11 | 🟡     | `e2e/quiz.spec.ts` (500 і обрив `quiz/check`, потім відповідь проходить)                 | UI + `page.route` |
 | QUIZ-12 | ❌     | відповіді акаунта на іншому пристрої (2 контексти)                                       | UI                |
 | QUIZ-13 | 🟡     | відсоток і бонус є; шкали, таблиця глав, список помилок — ні                             | UI                |
 | QUIZ-14 | ❌     | «Повторити Fail і Skipped», посилання на Recall                                          | UI                |
@@ -185,11 +185,13 @@
    вимкнені для всіх, а GEN-10…15 потребують «нового» відвідувача. `test.use({ visitor: 'new' })`.
 3. ✅ **Google і адмін:** хелпер входу через fake Google e2e-сервера; фікстура `adminPage`
    (`admin@example.test`). Вхід іде через API, без UI (`googleLogin` у `src/fixtures`).
-4. **Збої мережі:** хелпер на `page.route` (затримка, 500, обрив) для GEN-08, AUTH-05/12, QUIZ-11.
-5. **`ApiClient`:** refresh/logout, `/me/progress`, `/me/quiz/finish`, recall cards/rate,
+4. ✅ **Збої мережі:** `breakApi` (`src/helpers/network.ts`) на `page.route`: затримка, 500, обрив.
+   Перший споживач: QUIZ-11. Далі GEN-08, AUTH-05/12.
+5. ⏭ **`ApiClient`:** refresh/logout, `/me/progress`, `/me/quiz/finish`, recall cards/rate,
    daily-count, чат, коментарі, фідбек, баг-репорти, admin, `/ping`, `/auth/providers`.
-6. **Page objects:** FocusWizard, Tour, Recall, Profile, Leaderboard, Chat, CommentsSheet,
-   FeedbackDialog, Admin, Stats.
+   Рішення користувача: методи пишемо разом із тестами, яким вони потрібні (фази 1–2).
+6. ⏭ **Page objects:** FocusWizard, Tour, Recall, Profile, Leaderboard, Chat, CommentsSheet,
+   FeedbackDialog, Admin, Stats. Так само: разом із тестами фази 2.
 7. ✅ **Guard для test id:** `npm run check:ids` (`scripts/check-test-ids.mjs`) перевіряє, що
    кожен id з `src/` і `tests/` є в `$APP_DIR/docs/test-ids.md` (NFR-11). Ловить дрейф апки до
    прогону тестів. Перший запуск знайшов `dash-cta` (апка прибрала його 2026-10-13).

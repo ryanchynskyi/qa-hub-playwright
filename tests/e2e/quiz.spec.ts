@@ -1,4 +1,5 @@
 import { expect, test } from '../../src/fixtures';
+import { breakApi } from '../../src/helpers/network';
 
 const SECTION = 'sql';
 
@@ -80,4 +81,24 @@ test.describe('guest quiz', () => {
       await expect(page).toHaveURL(/\/quiz\/pwfix\/?$/);
     },
   );
+
+  for (const fault of [500, 'abort'] as const) {
+    test(
+      `a failed check (${fault}) shows an error and keeps the question answerable`,
+      { tag: ['@REQ-QUIZ-11'] },
+      async ({ page, quiz }) => {
+        await quiz.startRun('10');
+        const optionCount = await quiz.options.count();
+        const restore = await breakApi(page, 'quiz/check', fault);
+
+        await quiz.option(0).click();
+        await expect(page.getByTestId('quiz-error')).toBeVisible();
+        await expect(quiz.verdict).toBeHidden();
+        await expect(quiz.optionsInState('idle')).toHaveCount(optionCount);
+
+        await restore();
+        expect(['correct', 'wrong']).toContain(await quiz.answer(0));
+      },
+    );
+  }
 });
