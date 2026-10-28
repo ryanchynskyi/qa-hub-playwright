@@ -1,3 +1,4 @@
+import { env } from '../../src/config/env';
 import { expect, test } from '../../src/fixtures';
 
 test.describe('sign-in and sign-up', () => {
@@ -51,4 +52,25 @@ test.describe('sign-in and sign-up', () => {
       await expect(authedPage.getByTestId('profile')).toHaveAttribute('data-state', 'user');
     },
   );
+
+  // Open redirect: a crafted sign-in link must not send a fresh session to another site.
+  for (const next of ['//evil.example/', 'https://evil.example/', '/\\evil.example/']) {
+    test(
+      `?next=${next} falls back to the dashboard`,
+      { tag: ['@REQ-AUTH-04'] },
+      async ({ page, auth, shell, user }) => {
+        await auth.goto('login', next);
+        await auth.login(user);
+        await shell.expectSignedIn(user.email);
+        await expect(page).toHaveURL(`${new URL(env.baseURL).origin}/dash`);
+      },
+    );
+  }
+
+  // Without this, an app that ignored ?next= altogether would pass the cases above.
+  test('an in-app ?next= is followed', { tag: ['@REQ-AUTH-04'] }, async ({ page, auth, user }) => {
+    await auth.goto('login', '/kb');
+    await auth.login(user);
+    await expect(page).toHaveURL(`${new URL(env.baseURL).origin}/kb`);
+  });
 });

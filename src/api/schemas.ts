@@ -116,3 +116,25 @@ export const SearchHit = z.object({
 });
 export const SearchHits = z.array(SearchHit);
 export type SearchHit = z.infer<typeof SearchHit>;
+
+/** GET /me/progress: only the parts tests read; zod drops the rest. */
+export const Progress = z.object({
+  stats: z.object({ totalXp: z.number().int().nonnegative() }),
+  /** sectionId → finished runs, newest first. */
+  attempts: z.record(
+    z.string(),
+    z.array(z.object({ at: z.number(), n: z.number(), y: z.number() })),
+  ),
+  /** XP grants, newest last; `refId` is the question/card/task the grant is for. */
+  xpLog: z.array(
+    z.object({ amount: z.number(), reason: z.string(), refId: z.string().optional() }),
+  ),
+});
+export type Progress = z.infer<typeof Progress>;
+
+/** Chat and comments: only the fields tests read; zod drops the rest. */
+export const ChatMessage = z.object({ id: z.number().int(), text: z.string() });
+export const ChatFeed = z.object({ messages: z.array(ChatMessage) });
+export const Comments = z.object({ items: z.array(z.object({ text: z.string() })) });
+export type ChatMessage = z.infer<typeof ChatMessage>;
+export type Comments = z.infer<typeof Comments>;

@@ -52,3 +52,24 @@ test.describe('prerendered HTML and SEO', { tag: ['@prod-safe', '@REQ-GEN-07'] }
     for (const path of appShells) expect(sitemap).not.toContain(`${SITE}${path}`);
   });
 });
+
+// Plain strings only: HTML escaping would hide a leak of text with & < > or quotes.
+const plain = (text: string) => text.length > 20 && !/[&<>"']/.test(text);
+
+test(
+  'a prerendered quiz section ships no question text and no explanations',
+  { tag: ['@REQ-NFR-03'] },
+  async ({ request, api }) => {
+    const sectionId = 'sql';
+    const html = await (await request.get(`quiz/${sectionId}/`)).text();
+    // The prerendered page, not the bare app shell (which would pass this test vacuously).
+    expect(html).toContain(`<link rel="canonical" href="${SITE}quiz/${sectionId}/"`);
+    const questions = (await api.questions(sectionId)).filter((q) => plain(q.text)).slice(0, 5);
+    expect(questions.length).toBeGreaterThan(0);
+    // choice null records nothing.
+    const checks = await Promise.all(questions.map((q) => api.checkAnswer(q.id, null)));
+    const explanations = checks.map((c) => c.explanation).filter(plain);
+    for (const { text } of questions) expect.soft(html).not.toContain(text);
+    for (const explanation of explanations) expect.soft(html).not.toContain(explanation);
+  },
+);

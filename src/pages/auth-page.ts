@@ -21,8 +21,9 @@ export class AuthPage {
     this.error = page.getByTestId('auth-error');
   }
 
-  async goto(mode: AuthMode): Promise<void> {
-    await this.page.goto(mode);
+  /** `next`: where the app goes after signing in (`?next=`). */
+  async goto(mode: AuthMode, next?: string): Promise<void> {
+    await this.page.goto(next === undefined ? mode : `${mode}?next=${encodeURIComponent(next)}`);
     await expect(this.page.locator(`[data-testid="auth"][data-key="${mode}"]`)).toBeVisible();
   }
 
