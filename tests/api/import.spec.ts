@@ -41,6 +41,20 @@ test.describe('POST /me/import', () => {
     },
   );
 
+  test(
+    'a wrong answer and an unknown id add no XP',
+    { tag: ['@REQ-PROG-13'] },
+    async ({ api, user }) => {
+      const { [right]: correct, ...rest } = payload.questions;
+      await api.importProgress(user.token, { ...payload, questions: { [right]: correct! } });
+
+      const result = await api.importProgress(user.token, { ...payload, questions: rest });
+      expect(result.imported.questions, 'the wrong answer').toBe(1);
+      expect(result.skipped.questions, 'the unknown id').toBe(1);
+      expect(result.xpGained).toBe(0);
+    },
+  );
+
   test('the same payload again adds nothing', { tag: ['@REQ-PROG-14'] }, async ({ api, user }) => {
     await api.importProgress(user.token, payload);
     const xpAfterFirst = (await api.progress(user.token)).stats.totalXp;
