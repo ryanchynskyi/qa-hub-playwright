@@ -1,7 +1,9 @@
 import { ApiError, CheckResult } from '../../src/api/schemas';
 import { expect, test } from '../../src/fixtures';
 
-test.describe('POST /quiz/check', () => {
+// Prod-safe: a guest check without `first: true` only reads the per-question stat (apps/api
+// src/routes/quiz.ts), so these requests leave the "N% answered correctly" numbers untouched.
+test.describe('POST /quiz/check', { tag: ['@prod-safe'] }, () => {
   let questionId: string;
 
   test.beforeAll(({ catalog }) => {

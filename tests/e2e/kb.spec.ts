@@ -1,7 +1,8 @@
 import { expect, test } from '../../src/fixtures';
 import { numberValue } from '../../src/helpers/locators';
 
-test.describe('knowledge base', { tag: ['@REQ-KB-01'] }, () => {
+// Prod-safe: a guest's article reads and XP stay in localStorage, nothing is posted.
+test.describe('knowledge base', { tag: ['@REQ-KB-01', '@prod-safe'] }, () => {
   test.beforeEach(async ({ kb }) => {
     await kb.gotoTopic('sql');
   });
