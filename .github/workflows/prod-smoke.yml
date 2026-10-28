@@ -1,0 +1,52 @@
+# Read-only smoke against production (specs/COVERAGE.md, I-4): only @prod-safe tests, no app
+# checkout, no secrets. A failure opens one "Prod smoke failing" issue; the next green run closes it.
+name: prod-smoke
+
+on:
+  # Every 3 hours, off the top of the hour (GitHub delays jobs queued at :00).
+  schedule:
+    - cron: '17 */3 * * *'
+  # The app repo after a prod deploy:
+  # gh api repos/ryanchynskyi/qa-hub-playwright/dispatches -f event_type=prod-deployed
+  repository_dispatch:
+    types: [prod-deployed]
+  workflow_dispatch:
+
+# A deploy right after a cron run queues behind it instead of cancelling it: both are signals.
+concurrency:
+  group: prod-smoke
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  prod-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TARGET: prod
+      GH_TOKEN: ${{ github.token }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Two workers: enough for ~50 tests, gentle on prod. retries: 1 comes from CI in the config.
+      - run: npx playwright test --workers=2
+      # A green run every 3 hours needs no report; a red one does.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: prod-smoke-report
+          path: playwright-report/
+          retention-days: 14
+      - if: failure()
+        run: scripts/prod-alert.sh failure
+      - if: success()
+        run: scripts/prod-alert.sh success
