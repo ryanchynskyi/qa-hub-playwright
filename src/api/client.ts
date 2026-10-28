@@ -8,6 +8,7 @@ import {
   CheckResult,
   Comments,
   Health,
+  ImportResult,
   Leaderboard,
   Progress,
   Question,
@@ -26,6 +27,15 @@ export interface RegisterInput extends Credentials {
   displayName?: string;
   timeZone?: string;
   remember?: boolean;
+}
+
+/** Body of POST /me/import ($APP_DIR packages/shared/src/import.schema.ts); unused parts stay `{}`. */
+export interface ImportPayload {
+  source: 'guest' | 'legacy';
+  questions: Record<string, { lastResult: 0 | 1; attempts?: number }>;
+  cards: Record<string, never>;
+  articlesRead: Record<string, number>;
+  attempts: Record<string, never>;
 }
 
 /**
@@ -110,6 +120,11 @@ export class ApiClient {
 
   progress(token: string): Promise<Progress> {
     return this.getJson('me/progress', Progress, token);
+  }
+
+  /** Moves guest (or legacy) progress into the account; the server recomputes the XP. */
+  importProgress(token: string, payload: ImportPayload): Promise<ImportResult> {
+    return this.postJson('me/import', payload, ImportResult, token);
   }
 
   /** Records a finished run; every question must have been answered in this sitting. */

@@ -133,6 +133,7 @@ export const Progress = z.object({
     z.object({
       lastResult: z.union([z.literal(0), z.literal(1)]),
       skipped: z.boolean().optional(),
+      attempts: z.number().int().optional(),
     }),
   ),
   stats: z.object({ totalXp: z.number().int().nonnegative() }),
@@ -154,3 +155,20 @@ export const ChatFeed = z.object({ messages: z.array(ChatMessage) });
 export const Comments = z.object({ items: z.array(z.object({ text: z.string() })) });
 export type ChatMessage = z.infer<typeof ChatMessage>;
 export type Comments = z.infer<typeof Comments>;
+
+const ImportCounts = z.object({
+  questions: z.number().int().nonnegative(),
+  cards: z.number().int().nonnegative(),
+  articles: z.number().int().nonnegative(),
+  attempts: z.number().int().nonnegative(),
+});
+
+/** POST /me/import ($APP_DIR packages/shared/src/import.ts). */
+export const ImportResult = z.object({
+  imported: ImportCounts,
+  /** Unknown ids, or items the account already had. */
+  skipped: ImportCounts,
+  xpGained: z.number().int().nonnegative(),
+  levelUp: z.object({ from: z.number().int(), to: z.number().int() }).nullable(),
+});
+export type ImportResult = z.infer<typeof ImportResult>;
