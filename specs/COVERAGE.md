@@ -246,7 +246,7 @@ GEN-05, 08, 09 · KB-02, 03, 05, 06 (KB-02 і на tablet: 800 px ≤ 860) · PR
 
 1. ⏸ (відкладено, поки набір ~1,5 хв: один job `e2e` і є gate) Розділити `e2e.yml` на job `gate` (PR) і `full` (push, schedule, dispatch). Повний набір у PR —
    лише за міткою `full-e2e`.
-2. Branch protection на `main`: `e2e` обов'язковий.
+2. ✅ Branch protection на `main`: `e2e` обов'язковий, і для адмінів теж (2026-10-28).
 3. ✅ `concurrency` з `cancel-in-progress` для того самого ref.
 4. ✅ Кеш браузерів за версією `@playwright/test`.
 5. ✅ Input `app_ref` у `workflow_dispatch` (за замовчуванням `main`). SHA апки — в job summary.
