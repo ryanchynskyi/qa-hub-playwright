@@ -52,11 +52,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   device: ['desktop', { option: true }],
 
   // Every page of every test starts with the same browser state, set before the app's own code
-  // runs: no analytics, no tutorial offer covering the UI, and the chosen language.
+  // runs: no analytics, no first-visit focus wizard (it replaces the whole shell), no dashboard
+  // tour covering the UI, and the chosen language. Keys: $APP_DIR/docs/test-ids.md.
   context: async ({ context, lang }, use) => {
     await context.addInitScript((language) => {
       localStorage.setItem('umami.disabled', '1');
-      localStorage.setItem('qa-hub-tutorial-offer', 'dismissed');
+      localStorage.setItem('qa-hub-focus', 'skipped');
+      localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
       localStorage.setItem('qa-hub-lang', language);
     }, lang);
     await use(context);
