@@ -139,7 +139,7 @@ Plan for quiz requirements not yet covered by tests/e2e/quiz.spec.ts and tests/a
 3. Step through the redo run collecting `quiz.currentQuestionId()` (skip each question).
    - expect: the collected ids as a set equal the ids of the wrong and the skipped question; the correct one never appears
 
-#### 4.3. The Recall link points to the weakest chapter
+#### 4.3. The Recall link leads to the missed chapter's cards
 
 **File:** `tests/e2e/quiz-results.spec.ts`
 

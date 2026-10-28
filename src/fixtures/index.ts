@@ -71,7 +71,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   // Every page of every test starts with the same browser state, set before the app's own code
   // runs: no analytics, the chosen language and, for a returning visitor, no first-visit focus
-  // wizard (it replaces the whole shell) and no dashboard tour covering the UI.
+  // wizard (it replaces the whole shell), no dashboard tour covering the UI and no sheets after
+  // a finished quiz.
   // Keys: $APP_DIR/docs/test-ids.md.
   context: async ({ context, lang, visitor }, use) => {
     await prepareContext(context, lang, visitor);
@@ -166,6 +167,10 @@ async function prepareContext(
       if (!returning) return;
       localStorage.setItem('qa-hub-focus', 'skipped');
       localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
+      // Sheets after a finished quiz cover the result buttons: the content note, then the donate
+      // offer (a signed-in user's first quiz gets it once the note is handled).
+      localStorage.setItem('qa-hub-content-note', 'dismissed');
+      localStorage.setItem('qa-hub-donate-offer', 'dismissed');
     },
     { language: lang, returning: visitor === 'returning' },
   );
