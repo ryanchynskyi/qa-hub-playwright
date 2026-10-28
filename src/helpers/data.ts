@@ -7,5 +7,8 @@ export function uniqueEmail(prefix = 'pw'): string {
 
 export const DEFAULT_PASSWORD = 'correct-horse-battery';
 
+/** The e2e API treats this Google-verified address as the owner ($APP_DIR/apps/api/scripts/e2e-server.ts). */
+export const ADMIN_EMAIL = 'admin@example.test';
+
 /** Cyrillic block: English pages must not contain it (docs/brief.md §11). */
 export const CYRILLIC = /[Ѐ-ӿ]/;
