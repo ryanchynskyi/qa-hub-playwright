@@ -1,0 +1,3 @@
+- [API login, no local token](api-login-no-local-token.md) — tests of qa-hub-rt log in through the UI
+- [Assert right after the action](assert-right-after-action.md) — check state before navigating away
+- [Teardown after credential change](teardown-after-credential-change.md) — delete the account yourself in try/finally

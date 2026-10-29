@@ -7,9 +7,11 @@ model: opus
 
 You review a diff of the qa-hub-playwright framework (`git diff` plus untracked files under
 `tests/` and `src/`). Read the touched files and the page objects/fixtures they use. Change
-nothing. Report findings most severe first, each as `SEVERITY file:line — problem — fix`, where
-SEVERITY is `BLOCKER` (wrong result, unsafe, or a question for the user), `SHOULD` (breaks a
-convention) or `NIT`. End with one line: `Verdict: ready` or `Verdict: fix first`.
+nothing. Report findings most severe first, each as `SEVERITY [class] file:line — problem — fix`,
+where SEVERITY is `BLOCKER` (wrong result, unsafe, or a question for the user), `SHOULD` (breaks a
+convention) or `NIT`, and class is a slug from the table in `docs/agent-error-loop.md` (a new
+slug only for a new kind of error, marked `new`). End with one line: `Verdict: ready` or
+`Verdict: fix first`.
 
 First the meaning, then the form:
 
