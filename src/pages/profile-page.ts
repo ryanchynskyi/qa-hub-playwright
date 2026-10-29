@@ -13,7 +13,6 @@ export class ProfilePage {
   readonly passwordMessage: Locator;
   readonly deleteConfirm: Locator;
   readonly deleteButton: Locator;
-  readonly deleteError: Locator;
 
   constructor(readonly page: Page) {
     this.card = page.getByTestId('profile');
@@ -24,7 +23,6 @@ export class ProfilePage {
     this.passwordMessage = page.getByTestId('profile-password-message');
     this.deleteConfirm = page.getByTestId('profile-delete-confirm');
     this.deleteButton = page.getByTestId('profile-delete');
-    this.deleteError = page.getByTestId('profile-delete-error');
   }
 
   /** `data-state` on the method row is `on|off`. */
@@ -37,9 +35,8 @@ export class ProfilePage {
     await expect(this.card).toBeVisible();
   }
 
-  /** Leave `current` out for an account without a password (the field is not shown then). */
-  async changePassword(next: string, current?: string): Promise<void> {
-    if (current !== undefined) await this.currentPassword.fill(current);
+  async changePassword(next: string, current: string): Promise<void> {
+    await this.currentPassword.fill(current);
     await this.newPassword.fill(next);
     await this.savePassword.click();
   }

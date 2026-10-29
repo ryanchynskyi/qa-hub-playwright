@@ -148,14 +148,19 @@ test.describe('sessions', () => {
       for (const remember of [true, false]) {
         const request = await newContext();
         try {
-          const res = await request.post('auth/login', { data: { ...user, remember } });
+          const res = await request.post('auth/login', {
+            data: { email: user.email, password: user.password, remember },
+          });
           expect(res.status()).toBe(200);
           const cookie = res
             .headersArray()
             .find((h) => /^set-cookie$/i.test(h.name) && h.value.startsWith('qa_rt='));
           expect(cookie, 'qa_rt cookie').toBeDefined();
-          // 30 days; without Max-Age the browser drops the cookie when it closes.
+          // 30 days; without Max-Age or Expires the browser drops the cookie when it closes.
           expect(cookie!.value.includes('Max-Age=2592000'), `remember ${remember}`).toBe(remember);
+          expect(/;\s*(max-age|expires)=/i.test(cookie!.value), `remember ${remember}`).toBe(
+            remember,
+          );
           // The app keeps the body token in `qa-hub-rt` only for "remember me".
           const { refreshToken } = AuthResponse.parse(await res.json());
           expect(refreshToken !== undefined, `remember ${remember}`).toBe(remember);
@@ -179,7 +184,10 @@ test.describe('sessions', () => {
         expect(
           (await call(newContext, 'auth/refresh', { refreshToken: other.refresh })).status,
         ).toBe(401);
-        expect((await api.raw.post('auth/login', { data: user })).status()).toBe(401);
+        const old = await api.raw.post('auth/login', {
+          data: { email: user.email, password: user.password },
+        });
+        expect(old.status()).toBe(401);
       } finally {
         await api.deleteAccount(google.accessToken, user.email);
       }

@@ -83,7 +83,7 @@ Remember on/off: `user`, `auth`, helper restartBrowser. Logout: `user`, `authedP
 
 **Steps:**
 
-1. Fixtures: auth, googleAccount (unique email + Google cleanup). Tag @REQ-AUTH-09 (checklist AUTH-014). Open /login, click `google-signin`. - expect: URL is /api/__e2e/google?state=..., title "Fake Google" - expect: sessionStorage `qa-hub-google-nonce` is set
+1. Fixtures: auth, googleAccount (unique email + Google cleanup). Tag @REQ-AUTH-09 (checklist AUTH-014). Open /login, click `google-signin`. - expect: URL is /api/__e2e/google?state=..., title "Fake Google" - expect: sessionStorage `qa-hub-google-nonce` is set (not asserted in the spec: an implementation detail; 4.2 and API 7.3 prove the nonce is required)
 2. FakeGoogle.submit(email, 'PW Google') (Email, Name, Continue). - expect: Lands on /dash; `account` contains the email
 3. Reload, open /profile. - expect: Still signed in - expect: `profile-method` key=google data-state=on, key=password data-state=off - expect: `profile-password-current` absent (the card is "Додати пароль")
 
@@ -118,7 +118,7 @@ Remember on/off: `user`, `auth`, helper restartBrowser. Logout: `user`, `authedP
 
 1. Fixture: user, auth. Tag @REQ-AUTH-11. In tab A (`page`) open /login, click `google-signin`, wait for the fake page, copy its URL (state=...). - expect: Tab A is on /api/__e2e/google?state=...
 2. Tab B = context.newPage() (same cookies, empty sessionStorage): go to the copied URL, FakeGoogle.submit(user.email). - expect: Tab B ends on /login?error=google_state, `auth-error` data-key=google_state, `account-guest` visible
-3. api.login(user) with the ORIGINAL password. - expect: 200: the rejected flow linked nothing and cleared nothing
+3. ~~api.login(user) with the ORIGINAL password. - expect: 200~~ Dropped (user decision, step 9.5): the callback links an existing unverified account and drops its password before the nonce is checked (AUTH-09 by design), so this check cannot pass. The spec uses a new `googleEmail` in tab B instead of user.email.
 
 ### 5. AUTH-16 Change password in the profile
 

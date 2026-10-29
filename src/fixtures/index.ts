@@ -178,6 +178,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         cookies: state.cookies.filter((cookie) => cookie.expires !== -1),
       });
       contexts.push(context);
+      // shortcut: the new context records no trace or screenshot, so a failure after the restart
+      // leaves only the error; add tracing here if such a test turns flaky.
       await page.context().close();
       return context.newPage();
     });
