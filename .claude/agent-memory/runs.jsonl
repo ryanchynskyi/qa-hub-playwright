@@ -1,0 +1,3 @@
+{"date":"2026-10-28","agent":"generator","step":"9.5","task":"account specs (logged after the fact: run predates the log)","status":"partial","errors":["weak-assert","auth-state","test-data-leak","plan-dropped","missed-update","layer-bypass"],"redone":true}
+{"date":"2026-10-29","agent":"test-reviewer","step":"9.5","task":"review account specs, pass 1","status":"done","errors":[],"redone":false}
+{"date":"2026-10-29","agent":"test-reviewer","step":"9.5","task":"review account specs, pass 2 (main-session fixes)","status":"done","errors":[],"redone":false}

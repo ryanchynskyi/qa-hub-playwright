@@ -14,3 +14,4 @@ allure-history.jsonl
 # Claude Code: the previous chat's summary (CLAUDE.md, "Context budget")
 .claude/handoff.md
 .playwright-mcp/
+.vscode/

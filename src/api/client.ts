@@ -120,6 +120,20 @@ export class ApiClient {
     return this.postJson('auth/login', credentials, AuthResponse);
   }
 
+  /**
+   * Rotates a refresh token sent in the body ("remember me" keeps it in `qa-hub-rt`). The server
+   * prefers the `qa_rt` cookie, and this context keeps the cookie from its own login/register.
+   */
+  refresh(refreshToken: string): Promise<AuthResponse> {
+    return this.postJson('auth/refresh', { refreshToken }, AuthResponse);
+  }
+
+  /** POST /auth/logout (204): ends every live token of the presented token's family. */
+  async logout(refreshToken: string): Promise<void> {
+    const res = await this.raw.post('auth/logout', { data: { refreshToken } });
+    await expectStatus(res, 204);
+  }
+
   me(token: string): Promise<User> {
     return this.getJson('auth/me', User, token);
   }
