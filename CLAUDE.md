@@ -18,23 +18,19 @@ workflow; `docs/WORKFLOW.md` is that explanation.
 
 - `.claude/agents/playwright-test-{planner,generator,healer}.md` and `.mcp.json` come from
   `npx playwright init-agents --loop=claude`; re-running it overwrites them, so project rules live
-  here and in `test-reviewer`, not in those files. They start from `tests/seed.spec.ts`; plans go
-  to `specs/`.
+  here, in `test-reviewer` and in `.claude/agent-memory/`, not in those files. They start from
+  `tests/seed.spec.ts`; plans go to `specs/`.
 - Their `*_setup_page` tools need `project: "desktop"`: without it they take the first project
   (`api`), which does not include the seed, and fail with "seed test not found".
-- Brief every planner run from the template in `specs/README.md`. Planner rules (lessons from step
-  9.1; add a rule when `test-reviewer` traces a problem back to a plan):
-  - setup page fails → stop and report; never plan from source code alone;
-  - first visit (focus wizard, short dashboard, tour) → `seedFile: "tests/seed-new.spec.ts"`:
-    the default seed re-writes the focus and tour keys on every load;
-  - explore step by step (snapshot, click, press_key), never `browser_run_code_unsafe`: one
-    opaque script, it asks for approval and can hang a background agent;
-  - one scenario proves one requirement in at most 5 steps; checks beyond the requirement go to
-    an "Ideas" section, not into steps;
-  - a missing `ApiClient` method or page-object locator goes to "Prerequisites"; never
-    `page.request` in a step;
-  - API first (test pyramid): a UI scenario only for what the user sees; a requirement the API
-    alone proves goes to "API tests" (for `tests/api`), not into a UI scenario.
+- Brief every planner, generator and healer run from `specs/README.md`, ending with the lessons
+  footer: that agent's `.claude/agent-memory/<agent>/MEMORY.md` and the files it lists. Agents
+  never write memory; you do (`docs/agent-error-loop.md`):
+  - after verifying every agent run (`test-reviewer` too), append one line to
+    `.claude/agent-memory/runs.jsonl`; `errors` include classes a lesson already covers;
+  - a run is partial/blocked, you redo its work, `test-reviewer` traces a finding back to it, or
+    a mutant survives its test → propose a lesson (`class`/`origin`/`since`, a line in that
+    agent's `MEMORY.md`); the user approves it before it is written;
+  - after each phase-2 block, review the log by the rules in `docs/agent-error-loop.md`.
 - Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
   tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
   is a decision for the user, not a fix.

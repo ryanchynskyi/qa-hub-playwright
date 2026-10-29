@@ -1,0 +1,6 @@
+- [Setup page fails](setup-page-fails.md) — stop and report, never plan from source
+- [First-visit seed](first-visit-seed.md) — wizard, short dashboard, tour → tests/seed-new.spec.ts
+- [Explore step by step](explore-step-by-step.md) — snapshot/click/press_key, never browser_run_code_unsafe
+- [One requirement per scenario](one-requirement-scenario.md) — ≤ 5 steps, extras to Ideas
+- [Prerequisites, not page.request](prerequisites-not-page-request.md) — missing method/locator → Prerequisites
+- [API first](api-first.md) — UI only for what the user sees, the rest → API tests
