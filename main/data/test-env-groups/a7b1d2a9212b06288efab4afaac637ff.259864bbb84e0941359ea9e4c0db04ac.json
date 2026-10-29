@@ -1,0 +1,1 @@
+{"id":"a7b1d2a9212b06288efab4afaac637ff.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/recall.spec.ts › POST /me/recall/rate › a card that is not due gives no XP and is rescheduled from the new rating","name":"a card that is not due gives no XP and is rescheduled from the new rating","status":"passed","testResultsByEnv":{"default":"7f9a1822260fcce824aaa2d9c54a2712"}}
