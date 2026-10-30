@@ -1,0 +1,1 @@
+{"id":"881ad2a7e91fa7e9bb3875d8d37b983a.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/account.spec.ts › AUTH-08 Logout › Logout returns to an empty guest and stays signed out after reload","name":"Logout returns to an empty guest and stays signed out after reload","status":"passed","testResultsByEnv":{"default":"11ddc2bcffcbd2daec26f2fc0c30d072"}}
