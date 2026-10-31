@@ -1,0 +1,15 @@
+The focus wizard skip is not saved: the wizard comes back after a reload.
+
+diff --git a/apps/web/src/lib/focus.ts b/apps/web/src/lib/focus.ts
+index 8d15f29..7c27005 100644
+--- a/apps/web/src/lib/focus.ts
++++ b/apps/web/src/lib/focus.ts
+@@ -123,7 +123,7 @@ function read(): FocusState {
+ function write(s: FocusState): void {
+   try {
+     if (s.focus) localStorage.setItem(FOCUS_KEY, JSON.stringify({ ...s.focus, scope: s.scope }));
+-    else if (s.skipped) localStorage.setItem(FOCUS_KEY, 'skipped');
++    else if (false && s.skipped) localStorage.setItem(FOCUS_KEY, 'skipped');
+     else localStorage.removeItem(FOCUS_KEY);
+   } catch {
+     // No storage: the focus lasts only for this page load.
