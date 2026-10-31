@@ -86,6 +86,7 @@ test.describe('auth API', () => {
       });
       expect(res.status()).toBe(400);
       expect(await res.json()).toMatchObject({ error: 'confirm_mismatch' });
+      expect(await api.me(user.token)).toMatchObject({ email: user.email });
       expect((await api.raw.post('auth/login', { data: user })).status()).toBe(200);
     },
   );

@@ -70,8 +70,8 @@ Plan for quiz requirements not yet covered by tests/e2e/quiz.spec.ts and tests/a
 
 **Steps:**
 
-1. Tag @REQ-QUIZ-10. Guest starts a run. Read the data-key of `quiz.optionAt(2)` and the correct index `api.correctIndex(id)`. Press `2` with no option focused.
-   - expect: `optionAt(2)` has aria-pressed=true and the other options are not pressed
+1. Tag @REQ-QUIZ-10. Guest starts a run. Pick the first screen position N whose option data-key differs from N-1 (a question shown in stored order is skipped with `0` + Enter), so that "digit = stored index" cannot pass by chance (mutant QUIZ-10-1). Read that option's data-key and the correct index `api.correctIndex(id)`. Press N with no option focused.
+   - expect: `optionAt(N)` has aria-pressed=true and the other options are not pressed
    - expect: `quiz-verdict` data-state is `correct` when that option's data-key equals the API correct index, otherwise `wrong`
 2. Press `Enter`.
    - expect: `quiz-progress` data-value grows from 1 to 2 and all options of the new question are `idle`
