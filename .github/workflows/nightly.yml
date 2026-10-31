@@ -135,23 +135,45 @@ jobs:
           else
             git worktree add --orphan -b gh-pages pages
           fi
+      # main/ and develop/ hold the latest report; runs/<date>_<run id>/ keeps a copy of each night
+      # (the last KEEP), listed in index.html.
       - name: Build the reports
+        env:
+          KEEP: 30
+          RESULT: ${{ needs.test.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs
         run: |
+          run="$(date -u +%F)_${{ github.run_id }}"
           for ref in main develop; do
             [ -d "results/allure-results-$ref" ] || continue
-            mkdir -p "pages/$ref"
+            mkdir -p "pages/$ref" "pages/runs/$run/$ref"
             find "pages/$ref" -mindepth 1 -maxdepth 1 ! -name history.jsonl -exec rm -rf {} +
             APP_REF=$ref ALLURE_HISTORY="pages/$ref/history.jsonl" \
               npx allure generate "results/allure-results-$ref" -o "pages/$ref"
+            rsync -a --exclude history.jsonl "pages/$ref/" "pages/runs/$run/$ref/"
           done
+          echo "$RESULT" > "pages/runs/$run/result"
+          ls -1 pages/runs | sort -r | tail -n +$((KEEP + 1)) | xargs -r -I{} rm -rf "pages/runs/{}"
           touch pages/.nojekyll
-          cat > pages/index.html <<'HTML'
+          {
+            cat <<'HTML'
           <!doctype html>
           <meta charset="utf-8">
           <title>QA Hub nightly</title>
           <h1>QA Hub nightly</h1>
-          <ul><li><a href="main/">app main</a></li><li><a href="develop/">app develop</a></li></ul>
+          <p>Latest: <a href="main/">app main</a> · <a href="develop/">app develop</a></p>
+          <table border="1" cellpadding="4">
+          <tr><th>Date (UTC)</th><th>Result</th><th>Reports</th><th>GitHub run</th></tr>
           HTML
+            for d in $(ls -1 pages/runs | sort -r); do
+              links=""
+              for ref in main develop; do
+                [ -d "pages/runs/$d/$ref" ] && links="$links <a href=\"runs/$d/$ref/\">$ref</a>"
+              done
+              echo "<tr><td>${d%%_*}</td><td>$(cat "pages/runs/$d/result")</td><td>$links</td><td><a href=\"$RUN_URL/${d#*_}\">${d#*_}</a></td></tr>"
+            done
+            echo "</table>"
+          } > pages/index.html
       - name: Push gh-pages
         working-directory: pages
         run: |

@@ -185,7 +185,8 @@ job `notify-tests` у `ci.yml` після зеленого `check` (push у `mai
    `https://ryanchynskyi.github.io/qa-hub-playwright/main/` і `/develop/`. Публікує лише прогін
    з `main` фреймворку: проба з гілки не перезаписує звіти й тренд. Історія
    (`<ref>/history.jsonl`, останні 30 ночей) лежить поруч зі звітом і дає тренди, flaky і
-   тривалість. *Чому один publish-job:* два job matrix, що пушать у `gh-pages` одночасно,
+   тривалість. Копія кожної ночі лежить у `runs/<дата>_<run id>/<ref>/` (останні 30), а корінь
+   сайту — таблиця всіх ранів: дата, результат, звіти, посилання на GitHub run. *Чому один publish-job:* два job matrix, що пушать у `gh-pages` одночасно,
    конфліктують. *Чому `gh-pages`, а не `actions/deploy-pages`:* deploy-pages не зберігає
    нічого між прогонами, а історії потрібне місце.
 7. Categories в `allurerc.mjs` ділять падіння за текстом помилки: Infrastructure (з'єднання,
