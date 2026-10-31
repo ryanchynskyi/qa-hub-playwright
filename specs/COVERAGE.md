@@ -371,6 +371,7 @@ CI (draft PR на червоному nightly) свідомо не робимо: 
    4. Recall: REC-04, 05 (оцінка 1 не повертає картку, Space/Enter).
    5. Онбординг: GEN-10, 11, 14.
    6. Після цього: огляд журналу за `docs/agent-error-loop.md`, далі п. 2.
+
 2. `npm run metrics` — лише після ~30 записів у `runs.jsonl` (до того журнал читається вручну):
    частка класів до і після уроку, `done / partial / redone` по агенту, раунди reviewer до
    `ready`, mutation score; таблиця в job summary nightly.
