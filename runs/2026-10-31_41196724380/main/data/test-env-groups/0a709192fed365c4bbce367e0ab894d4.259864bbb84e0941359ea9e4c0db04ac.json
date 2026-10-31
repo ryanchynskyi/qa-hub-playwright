@@ -1,0 +1,1 @@
+{"id":"0a709192fed365c4bbce367e0ab894d4.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/recall.spec.ts › POST /me/recall/rate › rejects a bad rating, an unknown card and a missing token without giving XP","name":"rejects a bad rating, an unknown card and a missing token without giving XP","status":"passed","testResultsByEnv":{"default":"9d4e6f4b4a19c15e30a6acff9c962876"}}

@@ -1,0 +1,1 @@
+{"id":"7d952bd78700b95431a57de651cfddeb.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/auth.spec.ts › sign-in and sign-up › ?next=/\\evil.example/ falls back to the dashboard","name":"?next=/\\evil.example/ falls back to the dashboard","status":"passed","testResultsByEnv":{"default":"1d9d50844e1bd64fed080ad7ace72707"}}

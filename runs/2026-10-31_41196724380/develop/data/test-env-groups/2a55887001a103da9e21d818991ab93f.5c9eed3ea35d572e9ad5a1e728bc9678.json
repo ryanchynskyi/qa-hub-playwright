@@ -1,0 +1,1 @@
+{"id":"2a55887001a103da9e21d818991ab93f.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/recall.spec.ts › Recall: rating › a signed-in rating is saved on the server and survives a reload","name":"a signed-in rating is saved on the server and survives a reload","status":"passed","testResultsByEnv":{"default":"4fce92b28ed179395011af7d31bdf4e3"}}

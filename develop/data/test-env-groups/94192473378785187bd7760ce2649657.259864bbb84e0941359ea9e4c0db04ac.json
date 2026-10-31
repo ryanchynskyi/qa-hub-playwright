@@ -1,1 +1,1 @@
-{"id":"94192473378785187bd7760ce2649657.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/auth.spec.ts › auth API › protected endpoints need a valid token","name":"protected endpoints need a valid token","status":"passed","testResultsByEnv":{"default":"74be27cde4f8a683db1945f9fba8d37d"}}
+{"id":"94192473378785187bd7760ce2649657.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/auth.spec.ts › auth API › protected endpoints need a valid token","name":"protected endpoints need a valid token","status":"passed","testResultsByEnv":{"default":"2b357f5dfcd00a1729f60cdeaac76ab7"}}

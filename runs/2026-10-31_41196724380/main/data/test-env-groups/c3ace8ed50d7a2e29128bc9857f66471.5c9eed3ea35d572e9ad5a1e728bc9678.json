@@ -1,0 +1,1 @@
+{"id":"c3ace8ed50d7a2e29128bc9857f66471.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/account.spec.ts › AUTH-18 Delete account in the profile › The delete button is enabled only after the account email is typed","name":"The delete button is enabled only after the account email is typed","status":"passed","testResultsByEnv":{"default":"8315d62d6607fd98fbf6a3a76d462bce"}}

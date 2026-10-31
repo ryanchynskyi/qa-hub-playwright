@@ -1,0 +1,1 @@
+{"id":"76275c2313accf1cd98c17f22a594a66.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/account.spec.ts › AUTH-06 Remember me › Remember me off: nothing is persisted and the session ends after a restart","name":"Remember me off: nothing is persisted and the session ends after a restart","status":"passed","testResultsByEnv":{"default":"14d6653f7640424b8b9a84bcd2ae6e2a"}}
