@@ -1,0 +1,15 @@
+/quiz/check swaps correct and wrong.
+
+diff --git a/apps/api/src/routes/quiz.ts b/apps/api/src/routes/quiz.ts
+index 2dad089..0b0f710 100644
+--- a/apps/api/src/routes/quiz.ts
++++ b/apps/api/src/routes/quiz.ts
+@@ -48,7 +48,7 @@ export const quizRoutes: FastifyPluginAsync = async (app) => {
+         return reply.code(400).send({ error: 'bad_request', message: 'choice: out of range' });
+       }
+       const outcome =
+-        body.choice === null ? 'skipped' : body.choice === q.correctIndex ? 'correct' : 'wrong';
++        body.choice === null ? 'skipped' : body.choice === q.correctIndex ? 'wrong' : 'correct';
+       const tr = app.translation(body.lang ?? 'uk');
+       const res: CheckAnswerWithProgress = {
+         outcome,
