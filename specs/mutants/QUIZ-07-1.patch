@@ -1,0 +1,14 @@
+Section questions leak the correct answer (correctIndex in the select).
+
+diff --git a/apps/api/src/routes/content.ts b/apps/api/src/routes/content.ts
+index fa227e5..f8f3051 100644
+--- a/apps/api/src/routes/content.ts
++++ b/apps/api/src/routes/content.ts
+@@ -34,6 +34,7 @@ export const contentRoutes: FastifyPluginAsync = async (app) => {
+         text: true,
+         code: true,
+         options: true,
++        correctIndex: true,
+       },
+     });
+     const tr = app.translation(lang);
