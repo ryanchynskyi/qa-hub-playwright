@@ -21,8 +21,20 @@ export class Tour {
     this.skip = page.getByTestId('tour-skip');
   }
 
+  /**
+   * Waits until the popup has been placed. Spotlight mounts `tour-pop` unpositioned (position:fixed
+   * with no top/left, so far below the viewport) and moves it one frame later, once it has measured
+   * the target (Spotlight.tsx `setBox` in requestAnimationFrame). A click in that frame lands on the
+   * dimmed blocker (or a moving button) and is dropped, so click tour buttons only after this.
+   */
+  async ready(): Promise<void> {
+    await expect(this.pop).toBeVisible();
+    await expect(this.next).toBeInViewport();
+  }
+
   /** Clicks `tour-next` up to the last step ("Готово"), without clicking it. */
   async walkToEnd(): Promise<void> {
+    await this.ready();
     const total = await numberValue(this.counter, 'data-total');
     for (let step = (await numberValue(this.counter)) + 1; step <= total; step++) {
       await this.next.click();

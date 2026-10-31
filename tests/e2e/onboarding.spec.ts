@@ -322,6 +322,7 @@ test.describe('short dashboard and tour', () => {
       await expect(tour.skip).toBeVisible();
 
       // 2. Click tour-next once
+      await tour.ready();
       await tour.next.click();
       await expect(tour.overlay).toHaveAttribute('data-key', 'dash-summary-quiz');
       await expect(tour.counter).toHaveAttribute('data-value', '2');
@@ -348,6 +349,7 @@ test.describe('short dashboard and tour', () => {
       await focus.skip.click();
       await shell.open('kb');
       await shell.open('dash');
+      await tour.ready();
       await tour.skip.click();
       await expect(tour.overlay).toHaveCount(0);
       await expect(dashboard.today).toBeVisible();
@@ -372,6 +374,7 @@ test.describe('short dashboard and tour', () => {
       await focus.skip.click();
       await shell.open('quiz');
       await shell.open('dash');
+      await tour.ready();
       await tour.next.click();
       await expect(tour.counter).toHaveAttribute('data-value', '2');
       await page.keyboard.press('Escape');
