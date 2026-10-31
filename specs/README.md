@@ -25,6 +25,17 @@ where the app differs from the requirement.
 <lessons footer, see below>
 ```
 
+## Healer brief
+
+```text
+Fix <spec file>:<line> "<test title>" (<failure: error line, how often it fails>). Run it with
+test_run / test_debug in project "desktop". App: http://localhost:4273. Fix the test or a page
+object, not the app; a fix that changes what the test asserts is a question in your report, not
+an edit. You have no Bash: the main session verifies with --repeat-each, so say what to repeat.
+
+<lessons footer, see below>
+```
+
 ## Lessons footer
 
 End every planner, generator and healer brief with this, filled from that agent's
