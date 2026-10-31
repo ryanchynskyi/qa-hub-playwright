@@ -4,3 +4,4 @@
 - [One requirement per scenario](one-requirement-scenario.md) — ≤ 5 steps, extras to Ideas
 - [Prerequisites, not page.request](prerequisites-not-page-request.md) — missing method/locator → Prerequisites
 - [API first](api-first.md) — UI only for what the user sees, the rest → API tests
+- [UI guard is not the server check](ui-guard-not-server-check.md) — each server rejection gets an API negative test

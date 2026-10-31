@@ -1,0 +1,1 @@
+- [Stay in scope](stay-in-scope.md) — only the files the fix needs; temporary spec named in the report

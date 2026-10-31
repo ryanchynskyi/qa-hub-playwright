@@ -75,4 +75,19 @@ test.describe('auth API', () => {
       expect(res.status()).toBe(401);
     },
   );
+
+  test(
+    'deleting with a wrong confirm email is 400 confirm_mismatch and keeps the account',
+    { tag: ['@REQ-AUTH-18'] },
+    async ({ api, user }) => {
+      const res = await api.raw.delete('me', {
+        headers: bearer(user.token),
+        data: { confirmEmail: uniqueEmail('other') },
+      });
+      expect(res.status()).toBe(400);
+      expect(await res.json()).toMatchObject({ error: 'confirm_mismatch' });
+      expect(await api.me(user.token)).toMatchObject({ email: user.email });
+      expect((await api.raw.post('auth/login', { data: user })).status()).toBe(200);
+    },
+  );
 });

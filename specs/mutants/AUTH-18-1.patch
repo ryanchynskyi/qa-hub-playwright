@@ -1,0 +1,15 @@
+DELETE /me deletes the account without checking the typed email.
+
+diff --git a/apps/api/src/routes/account.ts b/apps/api/src/routes/account.ts
+index c8d2322..182c68a 100644
+--- a/apps/api/src/routes/account.ts
++++ b/apps/api/src/routes/account.ts
+@@ -117,7 +117,7 @@ export const accountRoutes: FastifyPluginAsync = async (app) => {
+       where: { id: userId },
+       select: { email: true },
+     });
+-    if (body.confirmEmail !== user.email) {
++    if (false && body.confirmEmail !== user.email) {
+       throw new HttpError(400, 'confirm_mismatch', 'Email для підтвердження не збігається');
+     }
+     await app.db.user.delete({ where: { id: userId } });

@@ -1,0 +1,15 @@
+The Google code exchange accepts any non-empty nonce.
+
+diff --git a/apps/api/src/routes/google.ts b/apps/api/src/routes/google.ts
+index fa4a2a1..c6ea21b 100644
+--- a/apps/api/src/routes/google.ts
++++ b/apps/api/src/routes/google.ts
+@@ -224,7 +224,7 @@ export const googleRoutes: FastifyPluginAsync = async (app) => {
+       }
+       // Only the browser that started the flow holds the nonce. A code sent to someone else
+       // (login CSRF) is burnt above and refused here.
+-      if (!nonce || !sameString(hashToken(nonce), row.nonceHash)) {
++      if (!nonce) {
+         throw new HttpError(401, 'google_state', 'Login code was issued to another browser');
+       }
+       return issueSession(app, reply, row.user, signInOptions(remember));
