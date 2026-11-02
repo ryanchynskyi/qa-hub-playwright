@@ -50,6 +50,20 @@ export class DashboardPage {
     return this.page.locator(`[data-testid="task"][data-type="${type}"]`);
   }
 
+  /** `data-key` of every task, in slot order. */
+  async taskKeys(): Promise<string[]> {
+    return this.tasks.evaluateAll((els) => els.map((el) => el.getAttribute('data-key') ?? ''));
+  }
+
+  taskStart(task: Locator): Locator {
+    return task.getByTestId('task-start');
+  }
+
+  /** `data-value`, `data-total` and `data-reward` of one task. */
+  taskProgress(task: Locator): Locator {
+    return task.getByTestId('task-progress');
+  }
+
   async goto(): Promise<void> {
     // Relative to baseURL (which ends with '/'): works for any base path, local or prod.
     await this.page.goto('dash');
