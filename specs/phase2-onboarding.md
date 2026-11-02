@@ -45,7 +45,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 4. `focus-edit` after the wizard has no theme step; `focus-skip` while editing only closes (edit flow seen: 4 / 5 steps, `focus-setup-open`).
 5. Untick a ticked `focus-stack` on the framework step and `focus-next` is disabled again (not run; scenario 1 covers the first part).
 6. DASH-023 (any progress or stage done gives the full dashboard), DASH-024 (one-step weak hint "Зрозуміло"; meaning of `weakHint`), DASH-025 (offers wait while a tour step is open).
-7. Phone and tablet: the tour popup is a bottom sheet on phones; the `desktop` project is enough now.
+7. Phone and tablet: the tour popup is a bottom sheet on phones; the walk to Готово runs there (`@responsive`), the sheet's placement is not checked.
 8. Tour arming via the SPA link vs a full page load behave the same (both seen); scenario 10 uses `shell.open` + `shell.open('dash')`.
 
 ## Test Scenarios

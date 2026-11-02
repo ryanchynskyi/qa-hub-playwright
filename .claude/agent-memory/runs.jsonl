@@ -8,3 +8,4 @@
 {"date":"2026-10-28","agent":"planner","step":"9.1","task":"quiz plan (logged after the fact: mutants QUIZ-10-2, QUIZ-13-3 survived on 2026-11-02, digit above the count stayed in Ideas, run line not planned)","status":"done","errors":["weak-assert"],"redone":true}
 {"date":"2026-10-28","agent":"planner","step":"9.4","task":"recall plan (logged after the fact: mutants REC-05-2, REC-05-3 survived on 2026-11-02, one digit and one repeat of rating 1 planned)","status":"done","errors":["weak-assert"],"redone":true}
 {"date":"2026-11-02","agent":"test-reviewer","step":"II","task":"review tests for five surviving mutants (blocker: failed count pinned on a skipped question)","status":"done","errors":[],"redone":false}
+{"date":"2026-11-02","agent":"test-reviewer","step":"II","task":"review tour-pop placed wait and tour race fix (blocker: viewport check dropped, kept)","status":"done","errors":[],"redone":false}

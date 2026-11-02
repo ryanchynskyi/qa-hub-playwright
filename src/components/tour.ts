@@ -28,6 +28,7 @@ export class Tour {
    */
   async ready(): Promise<void> {
     await expect(this.pop).toHaveAttribute('data-state', 'placed');
+    await expect(this.next).toBeInViewport();
   }
 
   /** Clicks `tour-next` up to the last step ("Готово"), without clicking it; that step is ready. */

@@ -307,12 +307,13 @@ test.describe('short dashboard and tour', () => {
 
   test(
     'the tour runs through its steps to Готово',
-    { tag: ['@REQ-GEN-14'] },
+    { tag: ['@REQ-GEN-14', '@responsive'] },
     async ({ dashboard, shell, focus, tour }) => {
       // 1. Skip the wizard, open /quiz, open the dashboard
       await dashboard.goto();
       await focus.skip.click();
       await shell.open('quiz');
+      await shell.expectActive('quiz');
       await shell.open('dash');
       await expect(tour.overlay).toHaveAttribute('data-key', 'today');
       await expect(tour.counter).toHaveAttribute('data-value', '1');
@@ -348,6 +349,7 @@ test.describe('short dashboard and tour', () => {
       await dashboard.goto();
       await focus.skip.click();
       await shell.open('kb');
+      await shell.expectActive('kb');
       await shell.open('dash');
       await tour.ready();
       await tour.skip.click();
@@ -373,6 +375,7 @@ test.describe('short dashboard and tour', () => {
       await dashboard.goto();
       await focus.skip.click();
       await shell.open('quiz');
+      await shell.expectActive('quiz');
       await shell.open('dash');
       await tour.ready();
       await tour.next.click();
