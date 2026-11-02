@@ -34,6 +34,31 @@ export class LeaderboardPage {
     return byTestId(this.page, 'leaderboard-row', rank);
   }
 
+  cell(row: Locator, name: 'rank' | 'name' | 'anonymous' | 'level' | 'xp'): Locator {
+    return row.getByTestId(`leaderboard-${name}`);
+  }
+
+  /** `data-value` of a column in DOM order. */
+  column(name: 'rank' | 'xp'): Promise<number[]> {
+    return this.page.getByTestId(`leaderboard-${name}`).evaluateAll((els) =>
+      els.map((el) => {
+        const value = el.getAttribute('data-value');
+        if (value === null) throw new Error('A cell without data-value');
+        return Number(value);
+      }),
+    );
+  }
+
+  /** Patches the board responses of this page: its first row comes without a name. */
+  async dropFirstRowName(): Promise<void> {
+    await this.page.route(/\/leaderboard\?/, async (route) => {
+      const response = await route.fetch();
+      const board = Leaderboard.parse(await response.json());
+      board.top[0]!.name = null;
+      await route.fulfill({ response, json: board });
+    });
+  }
+
   /**
    * Opens the board and returns the response the page rendered: the only oracle that cannot race
    * with parallel tests changing the shared board between a separate API read and the DOM.
