@@ -16,9 +16,11 @@ import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { googleLogin } from '../helpers/google';
 import { AuthPage } from '../pages/auth-page';
+import { ChatPage } from '../pages/chat-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
 import { KbPage } from '../pages/kb-page';
+import { LeaderboardPage } from '../pages/leaderboard-page';
 import { ProfilePage } from '../pages/profile-page';
 import { QuizPage } from '../pages/quiz-page';
 import { RecallPage } from '../pages/recall-page';
@@ -57,6 +59,10 @@ interface TestFixtures {
   authedPage: Page;
   /** A page in a second browser context (another device) signed in as the same `user`. */
   secondPage: Page;
+  /** A second fresh account, deleted after the test; its name differs from `user`'s. */
+  otherUser: TestUser;
+  /** A page in a second browser context signed in as `otherUser`. */
+  otherPage: Page;
   /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
   adminPage: Page;
   /** An unused email for a Google-only account; the account is deleted after the test. */
@@ -76,6 +82,8 @@ interface TestFixtures {
   auth: AuthPage;
   kb: KbPage;
   profile: ProfilePage;
+  leaderboard: LeaderboardPage;
+  chat: ChatPage;
   fakeGoogle: FakeGoogle;
 }
 
@@ -147,6 +155,22 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await context.close();
   },
 
+  otherUser: async ({ api }, use) => {
+    assertNotProd('otherUser');
+    const credentials = { email: uniqueEmail(), password: DEFAULT_PASSWORD };
+    const { accessToken, user } = await api.register({ ...credentials, displayName: 'PW Other' });
+    await use({ ...credentials, displayName: user.displayName, token: accessToken });
+    await deleteAccountIfExists(api, credentials);
+  },
+
+  otherPage: async ({ browser, lang, visitor, otherUser }, use) => {
+    const context = await newContext(browser, lang, visitor);
+    const page = await context.newPage();
+    await apiLogin(page.request, otherUser);
+    await use(page);
+    await context.close();
+  },
+
   // One shared owner account for all workers: fine while admin tests only read; tests that
   // reply, ban or toggle need their own data.
   adminPage: async ({ page }, use) => {
@@ -194,6 +218,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   auth: async ({ page }, use) => use(new AuthPage(page)),
   kb: async ({ page }, use) => use(new KbPage(page)),
   profile: async ({ page }, use) => use(new ProfilePage(page)),
+  leaderboard: async ({ page }, use) => use(new LeaderboardPage(page)),
+  chat: async ({ page }, use) => use(new ChatPage(page)),
   fakeGoogle: async ({ page }, use) => use(new FakeGoogle(page)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),
   tour: async ({ page }, use) => use(new Tour(page)),

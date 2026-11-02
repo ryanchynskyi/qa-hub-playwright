@@ -156,6 +156,39 @@ export const SearchHit = z.object({
 export const SearchHits = z.array(SearchHit);
 export type SearchHit = z.infer<typeof SearchHit>;
 
+/** One daily task ($APP_DIR packages/shared/src/engine/daily-tasks.ts); `id` is `<date>:<slot>`. */
+export const DailyTask = z.object({
+  id: z.string(),
+  date: z.string(),
+  slot: z.number().int().nonnegative(),
+  type: z.enum(['ANSWER_N', 'ACCURACY', 'REVIEW_DUE', 'READ_ARTICLE', 'CODE_REVIEW', 'WEAK_SPOT']),
+  params: z.object({
+    topicId: z.string().optional(),
+    chapterId: z.string().optional(),
+    sectionIds: z.array(z.string()).optional(),
+    minAnswered: z.number().optional(),
+    minRatio: z.number().optional(),
+  }),
+  target: z.number().int().positive(),
+  progress: z.number().int().nonnegative(),
+  rewardXp: z.number().int().positive(),
+  completedAt: z.number().nullable(),
+});
+export type DailyTask = z.infer<typeof DailyTask>;
+
+const Daily = z.object({ date: z.string(), tasks: z.array(DailyTask) }).nullable();
+
+/** PUT /me/daily-count: the chosen count, and the set in force today (a started one keeps its size). */
+export const DailyCount = z.object({ dailyTaskCount: z.number().int(), daily: Daily });
+export type DailyCount = z.infer<typeof DailyCount>;
+
+/** GET /kb/chapters/:id: only the article ids tests read. */
+export const KbChapter = z.object({
+  id: z.string(),
+  articles: z.array(z.object({ id: z.string() })),
+});
+export type KbChapter = z.infer<typeof KbChapter>;
+
 /** GET /me/progress: only the parts tests read; zod drops the rest. */
 export const Progress = z.object({
   /** questionId → latest answer: lastResult 1 = correct; a skip is 0 with `skipped: true`. */
@@ -177,11 +210,20 @@ export const Progress = z.object({
   xpLog: z.array(
     z.object({ amount: z.number(), reason: z.string(), refId: z.string().optional() }),
   ),
+  dailyTaskCount: z.number().int(),
+  daily: Daily,
 });
 export type Progress = z.infer<typeof Progress>;
 
 /** Chat and comments: only the fields tests read; zod drops the rest. */
-export const ChatMessage = z.object({ id: z.number().int(), text: z.string() });
+export const ChatMessage = z.object({
+  id: z.number().int(),
+  text: z.string(),
+  /** Null on an anonymous message, which carries the author's tag number instead. */
+  name: z.string().nullable(),
+  anonNumber: z.number().int().nullable(),
+  isMine: z.boolean(),
+});
 export const ChatFeed = z.object({ messages: z.array(ChatMessage) });
 export const Comments = z.object({ items: z.array(z.object({ text: z.string() })) });
 export type ChatMessage = z.infer<typeof ChatMessage>;
