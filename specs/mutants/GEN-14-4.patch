@@ -1,0 +1,15 @@
+Escape does not end the tour.
+
+diff --git a/apps/web/src/views/Spotlight.tsx b/apps/web/src/views/Spotlight.tsx
+index c750dec..f94463a 100644
+--- a/apps/web/src/views/Spotlight.tsx
++++ b/apps/web/src/views/Spotlight.tsx
+@@ -132,7 +132,7 @@ export function Spotlight({
+       className="tour"
+       data-testid="tour"
+       data-key={targets[0]}
+-      onKeyDown={(e) => sheetKeyDown(e, panel.current, onSkip ?? onNext)}
++      onKeyDown={(e) => sheetKeyDown(e, panel.current, () => {})}
+     >
+       {/* A click on the dimmed page keeps focus in the popup, so Escape and Tab still work. */}
+       <div

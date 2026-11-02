@@ -1,0 +1,15 @@
+A wrong guest answer earns XP on import.
+
+diff --git a/packages/shared/src/import.ts b/packages/shared/src/import.ts
+index a01a96b..525e36c 100644
+--- a/packages/shared/src/import.ts
++++ b/packages/shared/src/import.ts
+@@ -107,7 +107,7 @@ export function importQuestion(
+       firstCorrectAt: earned ?? (src.lastResult === 1 ? when : null),
+       lastXpDate: cleared?.lastXpDate ?? null,
+     },
+-    rewarded: src.lastResult === 1 && earned === null,
++    rewarded: earned === null,
+   };
+ }
+ 

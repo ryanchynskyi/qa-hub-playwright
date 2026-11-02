@@ -1,0 +1,15 @@
+Refresh ignores the token sent in the body (no fallback when the cookie is gone).
+
+diff --git a/apps/api/src/routes/auth.ts b/apps/api/src/routes/auth.ts
+index f1ebc3f..f0027c4 100644
+--- a/apps/api/src/routes/auth.ts
++++ b/apps/api/src/routes/auth.ts
+@@ -93,7 +93,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
+       // The cookie wins; a token the client kept itself ("remember me") stands in where the
+       // browser blocks third-party cookies (Safari). Both go through the same checks below.
+       const bodyToken = refreshSchema.parse(req.body)?.refreshToken;
+-      const token = req.cookies[REFRESH_COOKIE] ?? bodyToken;
++      const token = req.cookies[REFRESH_COOKIE];
+       if (!token) throw unauthorized('Сесія закінчилась');
+       const row = await app.db.refreshToken.findUnique({
+         where: { tokenHash: hashToken(token) },

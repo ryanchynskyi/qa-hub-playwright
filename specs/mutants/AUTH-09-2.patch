@@ -1,0 +1,15 @@
+Google sign-in does not reset an unverified account.
+
+diff --git a/apps/api/src/routes/google.ts b/apps/api/src/routes/google.ts
+index fa4a2a1..69ff1d3 100644
+--- a/apps/api/src/routes/google.ts
++++ b/apps/api/src/routes/google.ts
+@@ -81,7 +81,7 @@ export async function userForGoogle(
+       await tx.$queryRaw`SELECT id FROM "User" WHERE email = ${id.email} FOR UPDATE`;
+       const existing = await tx.user.findUnique({ where: { email: id.email } });
+       if (existing) {
+-        if (!existing.emailVerified) {
++        if (false) {
+           await tx.refreshToken.updateMany({
+             where: { userId: existing.id, revokedAt: null },
+             data: { revokedAt: new Date(now) },

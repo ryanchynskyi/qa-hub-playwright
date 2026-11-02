@@ -1,0 +1,15 @@
+The result shows the chosen option as the correct answer.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..6ac8614 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1691,7 +1691,7 @@ function Results({
+                     {chk && (
+                       <span className="c">
+                         <span className="sr-only">{t.quiz.rightAnswer}: </span>✓{' '}
+-                        <Fmt text={q.options[chk.correctIndex] ?? ''} />
++                        <Fmt text={q.options[chk.choice ?? 0] ?? ''} />
+                       </span>
+                     )}
+                     {ch && (

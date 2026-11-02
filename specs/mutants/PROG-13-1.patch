@@ -1,0 +1,15 @@
+Import keeps no backup of the guest data.
+
+diff --git a/apps/web/src/progress/guest-store.ts b/apps/web/src/progress/guest-store.ts
+index 1e46fa1..6cd8b18 100644
+--- a/apps/web/src/progress/guest-store.ts
++++ b/apps/web/src/progress/guest-store.ts
+@@ -522,7 +522,7 @@ export class GuestStore implements ProgressRepo {
+   /** After guest progress moved into an account: keep a backup copy, start the guest fresh. */
+   clearAfterImport(): void {
+     try {
+-      this.deps.storage.setItem(IMPORTED_BACKUP_KEY, JSON.stringify(this.state));
++      
+     } catch {
+       // storage unavailable; the account has the data anyway
+     }

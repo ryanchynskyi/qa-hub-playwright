@@ -1,0 +1,15 @@
+Changing the password also ends the current session.
+
+diff --git a/apps/api/src/routes/account.ts b/apps/api/src/routes/account.ts
+index c8d2322..3cdd421 100644
+--- a/apps/api/src/routes/account.ts
++++ b/apps/api/src/routes/account.ts
+@@ -68,7 +68,7 @@ export const accountRoutes: FastifyPluginAsync = async (app) => {
+         await tx.user.update({ where: { id: userId }, data: { passwordHash: newHash } });
+         // Keep this session (by its `sid`, which also covers a cookie-less "remember me" one).
+         await tx.refreshToken.updateMany({
+-          where: { userId, revokedAt: null, familyId: { not: sid } },
++          where: { userId, revokedAt: null },
+           data: { revokedAt: new Date(app.now()) },
+         });
+       });

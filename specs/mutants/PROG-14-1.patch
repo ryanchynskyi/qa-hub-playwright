@@ -1,0 +1,15 @@
+Already answered questions are offered again.
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+index c55afe0..cb36c90 100644
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -721,7 +721,7 @@ export class ProgressService {
+       // Questions cleared by a section reset (0 attempts) take the imported answer, but
+       // keep their first-correct marker: XP for them was already granted once.
+       const newQ = questions
+-        .filter((q) => !(stateOf.get(q.id)?.attempts ?? 0))
++        .filter(() => true)
+         .map((q) => {
+           const src = p.questions[q.id]!;
+           const when = at(src.answeredAt);

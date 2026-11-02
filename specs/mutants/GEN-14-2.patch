@@ -1,0 +1,15 @@
+Opening the knowledge base does not arm the tour.
+
+diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
+index 83ec7ba..aaea898 100644
+--- a/apps/web/src/Layout.tsx
++++ b/apps/web/src/Layout.tsx
+@@ -777,7 +777,7 @@ export function Layout() {
+   const totalXp = progress.stats.totalXp;
+   // Opening a quiz, Recall or an article arms the dashboard tour for a new visitor.
+   useEffect(() => {
+-    if (section === 'quiz' || section === 'recall' || section === 'kb') armTour(totalXp);
++    if (section === 'quiz' || section === 'recall') armTour(totalXp);
+   }, [section, totalXp]);
+   const spotlight = useSpotlightOpen();
+   const gate = useFocusGate(progress) && isDash(pathname);

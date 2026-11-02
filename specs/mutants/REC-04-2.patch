@@ -1,0 +1,15 @@
+Enter no longer flips the card.
+
+diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
+index da5e2ba..86e92a3 100644
+--- a/apps/web/src/views/Recall.tsx
++++ b/apps/web/src/views/Recall.tsx
+@@ -699,7 +699,7 @@ function SessionView({
+ 
+   useKeydown((e) => {
+     if (s.i >= s.items.length) return;
+-    if (!s.shown && (e.key === ' ' || e.key === 'Enter')) {
++    if (!s.shown && (e.key === ' ')) {
+       e.preventDefault();
+       reveal();
+     } else if (s.shown && /^[1-5]$/.test(e.key)) void rate(+e.key);
