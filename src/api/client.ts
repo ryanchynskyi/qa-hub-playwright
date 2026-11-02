@@ -7,8 +7,10 @@ import {
   ChatMessage,
   CheckResult,
   Comments,
+  DailyCount,
   Health,
   ImportResult,
+  KbChapter,
   Leaderboard,
   Progress,
   Question,
@@ -102,6 +104,11 @@ export class ApiClient {
     return this.getJson(`kb/search?${params.toString()}`, SearchHits);
   }
 
+  /** Article ids of a chapter, for `readArticle`. */
+  chapter(chapterId: string): Promise<KbChapter> {
+    return this.getJson(`kb/chapters/${chapterId}`, KbChapter);
+  }
+
   leaderboard(period: 'all' | 'week' = 'all', token?: string): Promise<Leaderboard> {
     return this.getJson(`leaderboard?period=${period}`, Leaderboard, token);
   }
@@ -156,6 +163,19 @@ export class ApiClient {
     await expectStatus(res, 200);
   }
 
+  /** An untouched set takes the new size at once; a started one keeps its size until tomorrow. */
+  async setDailyCount(token: string, count: number): Promise<DailyCount> {
+    const res = await this.raw.put('me/daily-count', { data: { count }, headers: bearer(token) });
+    await expectStatus(res, 200);
+    return DailyCount.parse(await res.json());
+  }
+
+  /** Marks an article read for the account (what advances a READ_ARTICLE task). */
+  async readArticle(token: string, articleId: string): Promise<void> {
+    const res = await this.raw.post(`me/articles/${articleId}/read`, { headers: bearer(token) });
+    await expectStatus(res, 200);
+  }
+
   /** POST /me/password (204); other sessions of the account end, this one stays. */
   async changePassword(token: string, currentPassword: string, newPassword: string): Promise<void> {
     const res = await this.raw.post('me/password', {
@@ -165,8 +185,8 @@ export class ApiClient {
     await expectStatus(res, 204);
   }
 
-  postChat(token: string, text: string): Promise<ChatMessage> {
-    return this.postJson('chat/messages', { text }, ChatMessage, token, 201);
+  postChat(token: string, text: string, anonymous = false): Promise<ChatMessage> {
+    return this.postJson('chat/messages', { text, anonymous }, ChatMessage, token, 201);
   }
 
   async chatMessages(): Promise<ChatMessage[]> {

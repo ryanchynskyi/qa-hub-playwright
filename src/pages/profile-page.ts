@@ -13,6 +13,9 @@ export class ProfilePage {
   readonly passwordMessage: Locator;
   readonly deleteConfirm: Locator;
   readonly deleteButton: Locator;
+  readonly dailyCount: Locator;
+  readonly dailyPending: Locator;
+  readonly dailyError: Locator;
 
   constructor(readonly page: Page) {
     this.card = page.getByTestId('profile');
@@ -23,11 +26,24 @@ export class ProfilePage {
     this.passwordMessage = page.getByTestId('profile-password-message');
     this.deleteConfirm = page.getByTestId('profile-delete-confirm');
     this.deleteButton = page.getByTestId('profile-delete');
+    this.dailyCount = page.getByTestId('profile-daily-count');
+    this.dailyPending = page.getByTestId('profile-daily-pending');
+    this.dailyError = page.getByTestId('profile-daily-error');
   }
 
   /** `data-state` on the method row is `on|off`. */
   method(key: SignInMethod): Locator {
     return byTestId(this.page, 'profile-method', key);
+  }
+
+  dailyOption(count: number): Locator {
+    return byTestId(this.page, 'profile-daily-option', count);
+  }
+
+  /** Saved on click (guests: localStorage; signed in: PUT /me/daily-count). */
+  async setDailyCount(count: number): Promise<void> {
+    await this.dailyOption(count).click();
+    await expect(this.dailyCount).toHaveAttribute('data-value', String(count));
   }
 
   async goto(): Promise<void> {

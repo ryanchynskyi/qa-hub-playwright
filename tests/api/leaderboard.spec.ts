@@ -1,22 +1,10 @@
-import type { ApiClient } from '../../src/api/client';
-import type { Catalog } from '../../src/api/schemas';
 import { env } from '../../src/config/env';
-import { expect, test, type TestUser } from '../../src/fixtures';
+import { expect, test } from '../../src/fixtures';
 import { DEFAULT_PASSWORD, uniqueEmail } from '../../src/helpers/data';
-
-/** One correct answer gives XP, so the user gets a row (the board lists users with XP only). */
-async function earnXp(
-  api: ApiClient,
-  user: Pick<TestUser, 'token'>,
-  catalog: Catalog,
-): Promise<void> {
-  const questionId = catalog.questions[0]!.id;
-  const correct = await api.correctIndex(questionId);
-  await api.checkAnswer(questionId, correct, user.token);
-}
+import { earnXp } from '../../src/helpers/xp';
 
 test.describe('leaderboard API', () => {
-  test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user, catalog));
+  test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user.token, catalog));
 
   test('the caller sees their own row', { tag: ['@REQ-SOC-02'] }, async ({ api, user }) => {
     const board = await api.leaderboard('all', user.token);
@@ -38,7 +26,7 @@ test(
           const email = uniqueEmail('pw-board');
           const { accessToken } = await api.register({ email, password: DEFAULT_PASSWORD });
           players.push({ email, token: accessToken });
-          await earnXp(api, { token: accessToken }, catalog);
+          await earnXp(api, accessToken, catalog);
         }),
       );
       const { top } = await api.leaderboard('all');
@@ -54,7 +42,8 @@ test(
 
 test.describe('public leaderboard', { tag: ['@prod-safe'] }, () => {
   // Prod has real players; the local board is empty until a fresh user earns XP.
-  if (!env.isProd) test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user, catalog));
+  if (!env.isProd)
+    test.beforeEach(async ({ api, user, catalog }) => earnXp(api, user.token, catalog));
 
   // Security invariant: the public ranking never exposes who is behind a row. Raw JSON on purpose:
   // the zod schema would drop an unexpected field instead of showing it.
