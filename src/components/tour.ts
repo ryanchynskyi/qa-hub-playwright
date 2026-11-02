@@ -22,23 +22,22 @@ export class Tour {
   }
 
   /**
-   * Waits until the popup has been placed. Spotlight mounts `tour-pop` unpositioned (position:fixed
-   * with no top/left, so far below the viewport) and moves it one frame later, once it has measured
-   * the target (Spotlight.tsx `setBox` in requestAnimationFrame). A click in that frame lands on the
-   * dimmed blocker (or a moving button) and is dropped, so click tour buttons only after this.
+   * Waits for `tour-pop` `data-state="placed"`. Until then a click can land on the dimmed blocker
+   * or a moving button and be dropped, so click tour buttons only after this. Every step starts as
+   * `measuring` in the render that changes the step, so `placed` always belongs to the current one.
    */
   async ready(): Promise<void> {
-    await expect(this.pop).toBeVisible();
-    await expect(this.next).toBeInViewport();
+    await expect(this.pop).toHaveAttribute('data-state', 'placed');
   }
 
-  /** Clicks `tour-next` up to the last step ("Готово"), without clicking it. */
+  /** Clicks `tour-next` up to the last step ("Готово"), without clicking it; that step is ready. */
   async walkToEnd(): Promise<void> {
     await this.ready();
     const total = await numberValue(this.counter, 'data-total');
     for (let step = (await numberValue(this.counter)) + 1; step <= total; step++) {
       await this.next.click();
       await expect(this.counter).toHaveAttribute('data-value', String(step));
+      await this.ready();
     }
   }
 }
