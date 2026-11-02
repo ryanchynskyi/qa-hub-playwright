@@ -1,0 +1,14 @@
+A skipped question counts as failed in the run line again.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1568,7 +1568,7 @@ function Results({
+                 {t.today.passed(y)}
+               </span>
+               ,{' '}
+-              <span className="bad" data-testid="quiz-result-failed" data-value={count('n')}>
++              <span className="bad" data-testid="quiz-result-failed" data-value={n - y}>
+                 {t.quiz.failed(count('n'))}
+               </span>
+               ,{' '}

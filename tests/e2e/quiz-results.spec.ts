@@ -22,8 +22,8 @@ async function answerThree(quiz: QuizPage, api: ApiClient) {
 
 test.describe('Quiz: results screen and redo', () => {
   test.beforeEach(async ({ quiz, catalog }) => {
-    const section = catalog.sections.find((s) => s.questionCount >= 3);
-    if (!section) throw new Error('No section with at least 3 questions in the catalog');
+    const section = catalog.sections.find((s) => s.questionCount >= 6);
+    if (!section) throw new Error('No section with at least 6 questions in the catalog');
     await quiz.goto(section.id);
   });
 
@@ -77,20 +77,28 @@ test.describe('Quiz: results screen and redo', () => {
   );
 
   test(
-    'The run line counts passed, failed and total',
+    'The run line counts a skipped question apart from the failed ones',
     { tag: ['@REQ-QUIZ-13'] },
     async ({ quiz, api }) => {
-      // 1. Guest answers one question correctly and one wrong, with no skip, then finishes the run
+      // 1. Guest answers 1 correct, 2 wrong and skips 3, so no two counts can be mistaken
       await quiz.startRun();
-      await quiz.answerCorrectly(api);
-      await quiz.goNext();
-      await quiz.answerWrong(api);
+      await quiz.answerSeries(api, [true, false, false]);
+      for (let i = 0; i < 3; i++) {
+        await quiz.goNext();
+        await quiz.skipQuestion();
+      }
       await quiz.finishRun();
 
-      // 2. Read the run line
+      // 2. Read the run line: passed + failed + skipped = total
       await expect(quiz.resultPassed).toHaveAttribute('data-value', '1');
-      await expect(quiz.resultFailed).toHaveAttribute('data-value', '1');
-      await expect(quiz.resultTotal).toHaveAttribute('data-value', '2');
+      await expect(quiz.resultFailed).toHaveAttribute('data-value', '2');
+      await expect(quiz.resultSkipped).toHaveAttribute('data-value', '3');
+      await expect(quiz.resultTotal).toHaveAttribute('data-value', '6');
+
+      // 3. The scales show the same counts
+      await expect(quiz.resultScale('pass')).toHaveAttribute('data-value', '1');
+      await expect(quiz.resultScale('fail')).toHaveAttribute('data-value', '2');
+      await expect(quiz.resultScale('skipped')).toHaveAttribute('data-value', '3');
     },
   );
 
