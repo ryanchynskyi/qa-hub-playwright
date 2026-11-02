@@ -114,17 +114,24 @@ test.describe('Recall: rating', () => {
     },
   );
 
-  test('a digit key rates the card', { tag: ['@REQ-REC-05'] }, async ({ recall }) => {
-    // 1. Open /recall, click recall-start, press Space
+  test('digit keys rate the card', { tag: ['@REQ-REC-05'] }, async ({ recall }) => {
+    // 1. Open /recall, click recall-start
     await recall.goto();
     await recall.startSession();
-    await recall.showAnswer('Space');
 
-    // 2. Press 3
-    await recall.rateCard(3, true);
-    await expect(recall.bar.nth(0)).toHaveAttribute('data-state', 'warn');
-    await expect(recall.progress).toHaveAttribute('data-value', '2');
-    await expect(recall.progress).toHaveAttribute('data-total', '10');
+    // 2. Press Space, then a digit: the middle of the range and both its ends
+    const digits = [
+      [3, 'warn'],
+      [5, 'ok'],
+      [1, 'bad'],
+    ] as const;
+    for (const [i, [rating, state]] of digits.entries()) {
+      await recall.showAnswer('Space');
+      await recall.rateCard(rating, true);
+      await expect(recall.bar.nth(i)).toHaveAttribute('data-state', state);
+    }
+    await expect(recall.progress).toHaveAttribute('data-value', '4');
+    await expect(recall.progress).toHaveAttribute('data-total', '11');
   });
 
   test(
@@ -150,6 +157,12 @@ test.describe('Recall: rating', () => {
       await expect(recall.progress).toHaveAttribute('data-value', '5');
       await expect(recall.card).toHaveAttribute('data-key', a);
       await expect(recall.card).toHaveAttribute('data-state', 'front');
+
+      // 3. Rate it 1 again: it does not come back a second time
+      await recall.showAnswer();
+      await recall.rateCard(1, false, false);
+      await expect(recall.progress).toHaveAttribute('data-total', '11');
+      await expect(recall.bar).toHaveCount(11);
     },
   );
 

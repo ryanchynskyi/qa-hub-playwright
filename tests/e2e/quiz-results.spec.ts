@@ -77,6 +77,24 @@ test.describe('Quiz: results screen and redo', () => {
   );
 
   test(
+    'The run line counts passed, failed and total',
+    { tag: ['@REQ-QUIZ-13'] },
+    async ({ quiz, api }) => {
+      // 1. Guest answers one question correctly and one wrong, with no skip, then finishes the run
+      await quiz.startRun();
+      await quiz.answerCorrectly(api);
+      await quiz.goNext();
+      await quiz.answerWrong(api);
+      await quiz.finishRun();
+
+      // 2. Read the run line
+      await expect(quiz.resultPassed).toHaveAttribute('data-value', '1');
+      await expect(quiz.resultFailed).toHaveAttribute('data-value', '1');
+      await expect(quiz.resultTotal).toHaveAttribute('data-value', '2');
+    },
+  );
+
+  test(
     '"Повторити Fail і Skipped" restarts exactly the missed questions',
     { tag: ['@REQ-QUIZ-14'] },
     async ({ quiz, api }) => {

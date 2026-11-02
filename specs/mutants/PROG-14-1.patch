@@ -1,4 +1,4 @@
-Already answered questions are offered again.
+Import overwrites questions the account has already answered.
 
 diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
 index c55afe0..cb36c90 100644

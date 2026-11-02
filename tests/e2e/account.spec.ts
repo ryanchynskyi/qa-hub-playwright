@@ -46,6 +46,24 @@ test.describe('AUTH-06 Remember me', () => {
   );
 
   test(
+    'Remember me on: with the cookie gone the kept token restores the session',
+    { tag: ['@REQ-AUTH-06'] },
+    async ({ page, auth, shell, user }) => {
+      // 1. Sign in with remember on: the refresh token is kept in the browser
+      await auth.goto('login');
+      await auth.login(user);
+      await shell.expectSignedIn(user.email);
+      await expect.poll(() => readStorage(page, REFRESH_KEY)).toMatch(/^[\w-]{43}$/);
+
+      // 2. Clear the cookies (a browser that blocks them) and reload
+      await page.context().clearCookies();
+      await page.reload();
+      await shell.expectSignedIn(user.email);
+      await expect(shell.accountGuest).toHaveCount(0);
+    },
+  );
+
+  test(
     'Remember me off: nothing is persisted and the session ends after a restart',
     { tag: ['@REQ-AUTH-06'] },
     async ({ page, auth, shell, user, restartBrowser, device }) => {

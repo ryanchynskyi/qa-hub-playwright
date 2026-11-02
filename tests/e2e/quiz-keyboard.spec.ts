@@ -54,6 +54,26 @@ test.describe('Quiz: keyboard', () => {
   );
 
   test(
+    'A digit above the option count is ignored',
+    { tag: ['@REQ-QUIZ-10'] },
+    async ({ page, quiz }) => {
+      // 1. Guest starts a run, presses the first digit with no option behind it, then a valid one
+      await quiz.startRun();
+      const checks: string[] = [];
+      page.on('request', (request) => {
+        if (request.url().endsWith('/quiz/check')) checks.push(request.url());
+      });
+      await page.keyboard.press(String((await quiz.options.count()) + 1));
+      await page.keyboard.press('1');
+
+      // 2. Only the valid digit counts. The ignored key shows nothing, so the request count proves it.
+      await expect(quiz.optionAt(1)).toHaveAttribute('aria-pressed', 'true');
+      await expect(quiz.verdict).toHaveAttribute('data-state', /^(correct|wrong)$/);
+      expect(checks).toHaveLength(1);
+    },
+  );
+
+  test(
     'S and 0 skip a question, Enter goes next only after the verdict',
     { tag: ['@REQ-QUIZ-10'] },
     async ({ page, quiz, api }) => {
