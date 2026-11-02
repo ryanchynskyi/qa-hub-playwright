@@ -1,0 +1,15 @@
+Logout revokes every session of the user, not only its own family.
+
+diff --git a/apps/api/src/routes/auth.ts b/apps/api/src/routes/auth.ts
+index f1ebc3f..e4aa6f4 100644
+--- a/apps/api/src/routes/auth.ts
++++ b/apps/api/src/routes/auth.ts
+@@ -161,7 +161,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
+         await app.db.$transaction(async (tx) => {
+           await lockUser(tx, userId);
+           await tx.refreshToken.updateMany({
+-            where: { userId, familyId, revokedAt: null },
++            where: { userId, revokedAt: null },
+             data: { revokedAt: new Date(app.now()) },
+           });
+         });

@@ -1,0 +1,15 @@
+Key 5 does not rate the card.
+
+diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
+index da5e2ba..e0ee6a9 100644
+--- a/apps/web/src/views/Recall.tsx
++++ b/apps/web/src/views/Recall.tsx
+@@ -702,7 +702,7 @@ function SessionView({
+     if (!s.shown && (e.key === ' ' || e.key === 'Enter')) {
+       e.preventDefault();
+       reveal();
+-    } else if (s.shown && /^[1-5]$/.test(e.key)) void rate(+e.key);
++    } else if (s.shown && /^[1-4]$/.test(e.key)) void rate(+e.key);
+   });
+ 
+   if (s.i >= s.items.length) {

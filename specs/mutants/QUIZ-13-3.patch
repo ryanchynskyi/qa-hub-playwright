@@ -1,0 +1,15 @@
+The failed count equals the total.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..440fa2e 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1568,7 +1568,7 @@ function Results({
+                 {t.today.passed(y)}
+               </span>
+               ,{' '}
+-              <span className="bad" data-testid="quiz-result-failed" data-value={n - y}>
++              <span className="bad" data-testid="quiz-result-failed" data-value={n}>
+                 {t.quiz.failed(n - y)}
+               </span>{' '}
+               ·{' '}

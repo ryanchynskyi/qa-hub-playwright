@@ -1,0 +1,15 @@
+The tour never arms.
+
+diff --git a/apps/web/src/lib/tour.ts b/apps/web/src/lib/tour.ts
+index ad61f62..89a849e 100644
+--- a/apps/web/src/lib/tour.ts
++++ b/apps/web/src/lib/tour.ts
+@@ -67,7 +67,7 @@ type Progress = Parameters<typeof hasNoProgress>[0];
+  * The short dashboard (tiles, Today and Weak hidden, topics locked) is only for a visitor with no
+  * progress at all: anyone who already answered, rated or read gets the full dashboard.
+  */
+-export const isShortDash = (s: TourState, p: Progress) => s.stage === null && hasNoProgress(p);
++export const isShortDash = (s: TourState, p: Progress) => false && hasNoProgress(p);
+ 
+ /** A brand-new visitor without a focus sees only the focus wizard on the dashboard, no shell. */
+ export function useFocusGate(p: Progress): boolean {

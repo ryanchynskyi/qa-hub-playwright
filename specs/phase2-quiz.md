@@ -159,7 +159,7 @@ Plan for quiz requirements not yet covered by tests/e2e/quiz.spec.ts and tests/a
 
 ## Ideas (beyond the requirements, the user decides)
 
-- QUIZ-10: a digit above the number of options is ignored; digits and `s` do nothing after the verdict; keys are off while quiz-sheet (topic switch) is open; `Enter` on the last question opens the results.
+- QUIZ-10: digits and `s` do nothing after the verdict; keys are off while quiz-sheet (topic switch) is open; `Enter` on the last question opens the results.
 - QUIZ-19: Escape closes comments-sheet and focus returns to comments-open (the checklist QUIZ-037 row); comments-open appears also after a skip.
 - QUIZ-12: answering a different question in context B and reloading A shows the sum; re-answering moves a counter between buckets (sum stays).
 - QUIZ-13: row state is `weak` below 70% and `ok` otherwise; quiz-result-percent equals correct/N; on phones the list folds to 3 items with quiz-result-miss-more.

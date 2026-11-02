@@ -1,0 +1,14 @@
+Logout leaves the kept refresh token in the browser.
+
+diff --git a/apps/web/src/api.ts b/apps/web/src/api.ts
+index 140e13e..c227aee 100644
+--- a/apps/web/src/api.ts
++++ b/apps/web/src/api.ts
+@@ -201,7 +201,6 @@ async function logout(): Promise<void> {
+       body: kept ? JSON.stringify({ refreshToken: kept }) : undefined,
+     });
+   } finally {
+-    clearKeptToken();
+   }
+ }
+ 

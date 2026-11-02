@@ -1,0 +1,14 @@
+Import does not clear the guest data.
+
+diff --git a/apps/web/src/progress/guest-store.ts b/apps/web/src/progress/guest-store.ts
+index 1e46fa1..e3d1122 100644
+--- a/apps/web/src/progress/guest-store.ts
++++ b/apps/web/src/progress/guest-store.ts
+@@ -526,7 +526,6 @@ export class GuestStore implements ProgressRepo {
+     } catch {
+       // storage unavailable; the account has the data anyway
+     }
+-    this.commit(emptyState(this.state.guestId, this.state.timeZone));
+   }
+ 
+   setLastSection(sectionId: string): void {

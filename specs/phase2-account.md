@@ -209,9 +209,8 @@ Remember on/off: `user`, `auth`, helper restartBrowser. Logout: `user`, `authedP
 
 **Steps:**
 
-1. Remember on, cookies cleared: context.clearCookies() then reload keeps the session via the `qa-hub-rt` localStorage fallback; logout removes `qa-hub-rt` (checklist AUTH-008). - expect: Signed in after clearCookies
-2. Wrong current password in the profile: `profile-password-message` data-state=error, text "Поточний пароль невірний.", session stays (observed live). - expect: Error shown, account unchanged
-3. Google cancel: Cancel on the fake page gives /login?error=google_cancelled (checklist AUTH-016); Google with remember unticked leaves `qa-hub-rt` empty (AUTH-015); Google with the email of an existing password account signs into it (AUTH-017, overlaps the unverified scenario). - expect: Error shown / no token stored
-4. Expiry of the Google state/code (observed once after ~30 min wait): needs the TTL from the owner or page.clock. - expect: /login?error=google_state
-5. Delete the account that has progress: its leaderboard and chat entries after deletion; delete a Google-only account (confirm field still requires the email); case-insensitive confirm (Ambiguity 3). - expect: Per owner decision
-6. Registration without a name works (observed); not part of this block. - expect: n/a
+1. Wrong current password in the profile: `profile-password-message` data-state=error, text "Поточний пароль невірний.", session stays (observed live). - expect: Error shown, account unchanged
+2. Google cancel: Cancel on the fake page gives /login?error=google_cancelled (checklist AUTH-016); Google with remember unticked leaves `qa-hub-rt` empty (AUTH-015); Google with the email of an existing password account signs into it (AUTH-017, overlaps the unverified scenario). - expect: Error shown / no token stored
+3. Expiry of the Google state/code (observed once after ~30 min wait): needs the TTL from the owner or page.clock. - expect: /login?error=google_state
+4. Delete the account that has progress: its leaderboard and chat entries after deletion; delete a Google-only account (confirm field still requires the email); case-insensitive confirm (Ambiguity 3). - expect: Per owner decision
+5. Registration without a name works (observed); not part of this block. - expect: n/a

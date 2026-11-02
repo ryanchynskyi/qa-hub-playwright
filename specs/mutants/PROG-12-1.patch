@@ -1,0 +1,15 @@
+The import banner is never shown.
+
+diff --git a/apps/web/src/views/ImportBanner.tsx b/apps/web/src/views/ImportBanner.tsx
+index 3779ebe..84db308 100644
+--- a/apps/web/src/views/ImportBanner.tsx
++++ b/apps/web/src/views/ImportBanner.tsx
+@@ -85,7 +85,7 @@ function Banner() {
+       </div>
+     );
+   }
+-  if (hidden || !sources.length || auth.status === 'loading') return null;
++  return null;
+ 
+   const run = async () => {
+     setBusy(true);

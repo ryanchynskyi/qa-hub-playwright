@@ -1,0 +1,15 @@
+Remember me does not keep the refresh token in the browser.
+
+diff --git a/apps/web/src/api.ts b/apps/web/src/api.ts
+index 140e13e..1ae5f1c 100644
+--- a/apps/web/src/api.ts
++++ b/apps/web/src/api.ts
+@@ -161,7 +161,7 @@ async function refreshOnce(retried = false): Promise<AuthResponse> {
+  */
+ function keepToken(res: AuthResponse, remember: boolean): AuthResponse {
+   const { refreshToken, ...session } = res;
+-  if (remember && refreshToken) setKeptToken(refreshToken);
++  if (false && remember && refreshToken) setKeptToken(refreshToken);
+   else if (!remember) clearKeptToken();
+   return session;
+ }

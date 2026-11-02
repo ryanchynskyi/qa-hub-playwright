@@ -1,0 +1,15 @@
+A signed-in answer is handled as a guest answer.
+
+diff --git a/apps/api/src/routes/quiz.ts b/apps/api/src/routes/quiz.ts
+index 2dad089..112f299 100644
+--- a/apps/api/src/routes/quiz.ts
++++ b/apps/api/src/routes/quiz.ts
+@@ -38,7 +38,7 @@ export const quizRoutes: FastifyPluginAsync = async (app) => {
+     { config: { rateLimit: { max: 120, timeWindow: '1 minute' } } },
+     async (req, reply) => {
+       const body = checkAnswerSchema.parse(req.body);
+-      const userId = await app.optionalUser(req);
++      const userId = (await app.optionalUser(req)) && null;
+       const q = await app.db.question.findUnique({
+         where: { id: body.questionId },
+         select: { correctIndex: true, explanation: true, options: true },

@@ -1,0 +1,15 @@
+Rating 1 does not bring the card back.
+
+diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
+index da5e2ba..3686b4e 100644
+--- a/apps/web/src/views/Recall.tsx
++++ b/apps/web/src/views/Recall.tsx
+@@ -673,7 +673,7 @@ function SessionView({
+     try {
+       const r = await store.rate(card, rating);
+       // "1" comes back later in the same session, once.
+-      const requeue = rating === 1 && !s.requeued.includes(card.id);
++      const requeue = false;
+       const at = Math.min(s.i + 4, s.items.length);
+       const items = requeue ? [...s.items.slice(0, at), card, ...s.items.slice(at)] : s.items;
+       if (s.i + 1 >= items.length) recallIntro.dismiss();

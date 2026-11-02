@@ -1,0 +1,15 @@
+A digit above the option count is accepted.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..31b0f33 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1276,7 +1276,7 @@ function RunView({
+     // The topic switch's sheet is open: its keys are not the quiz's.
+     if (document.querySelector('[data-testid=quiz-sheet]')) return;
+     if (!run.answer) {
+-      if (/^[1-9]$/.test(e.key) && +e.key <= run.order.length) void choose(+e.key - 1);
++      if (/^[1-9]$/.test(e.key)) void choose(+e.key - 1);
+       else if (e.key === 's' || e.key === 'S' || e.key === '0') void choose(null);
+     } else if (e.key === 'Enter') {
+       e.preventDefault();

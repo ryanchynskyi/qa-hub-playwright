@@ -1,0 +1,15 @@
+The rating is not saved.
+
+diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
+index da5e2ba..ca97b01 100644
+--- a/apps/web/src/views/Recall.tsx
++++ b/apps/web/src/views/Recall.tsx
+@@ -671,7 +671,7 @@ function SessionView({
+     const card = s.items[s.i]!;
+     sessionStore.set({ ...s, pending: true, error: null });
+     try {
+-      const r = await store.rate(card, rating);
++      const r = { xpGained: 0 };
+       // "1" comes back later in the same session, once.
+       const requeue = rating === 1 && !s.requeued.includes(card.id);
+       const at = Math.min(s.i + 4, s.items.length);

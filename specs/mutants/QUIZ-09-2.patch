@@ -1,0 +1,15 @@
+Every attempt of a user counts as the first one.
+
+diff --git a/apps/api/src/routes/quiz.ts b/apps/api/src/routes/quiz.ts
+index 2dad089..676b43b 100644
+--- a/apps/api/src/routes/quiz.ts
++++ b/apps/api/src/routes/quiz.ts
+@@ -61,7 +61,7 @@ export const quizRoutes: FastifyPluginAsync = async (app) => {
+       if (userId) {
+         const answered = await app.progress.answer(userId, body.questionId, outcome);
+         res.progress = answered.update;
+-        first = answered.first;
++        first = true;
+       }
+       const stat = await questionStat(app.db, body.questionId, first, outcome === 'correct');
+       if (stat) res.stat = stat;

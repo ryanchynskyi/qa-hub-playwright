@@ -1,0 +1,15 @@
+Google sign-in keeps the password of an unverified account.
+
+diff --git a/apps/api/src/routes/google.ts b/apps/api/src/routes/google.ts
+index fa4a2a1..6766ff9 100644
+--- a/apps/api/src/routes/google.ts
++++ b/apps/api/src/routes/google.ts
+@@ -97,7 +97,7 @@ export async function userForGoogle(
+         });
+         const user = await tx.user.update({
+           where: { id: existing.id },
+-          data: existing.emailVerified ? {} : { emailVerified: true, passwordHash: null },
++          data: existing.emailVerified ? {} : { emailVerified: true },
+         });
+         return { user, created: false };
+       }

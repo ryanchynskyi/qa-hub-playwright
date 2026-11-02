@@ -1,0 +1,15 @@
+Redo repeats every question, not only the missed ones.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..6bd6138 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1731,7 +1731,7 @@ function Results({
+               data-testid="quiz-redo"
+               data-value={missed.length}
+               disabled={!missed.length}
+-              onClick={() => onRedo(missed)}
++              onClick={() => onRedo(run.ids)}
+             >
+               {phone ? t.quiz.redoShort(missed.length) : t.quiz.redo(missed.length)}
+             </button>

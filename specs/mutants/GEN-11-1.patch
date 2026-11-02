@@ -1,0 +1,15 @@
+The stack step goes on with no stack chosen.
+
+diff --git a/apps/web/src/views/FocusCard.tsx b/apps/web/src/views/FocusCard.tsx
+index 00b877b..2a27dbf 100644
+--- a/apps/web/src/views/FocusCard.tsx
++++ b/apps/web/src/views/FocusCard.tsx
+@@ -430,7 +430,7 @@ function FocusSetup({
+               type="button"
+               className="btn primary"
+               data-testid="focus-next"
+-              disabled={!stacks.length}
++              disabled={false}
+               onClick={() => setStep('level')}
+             >
+               {t.focus.next}

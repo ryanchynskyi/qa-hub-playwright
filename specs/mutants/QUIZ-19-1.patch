@@ -1,0 +1,17 @@
+Comments are visible before the verdict.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..77c5dba 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1387,9 +1387,9 @@ function RunView({
+           ) : (
+             <span />
+           )}
++          <QuizComments key={q.id} questionId={q.id} />
+           {a && (
+             <div className="left">
+-              <QuizComments key={q.id} questionId={q.id} />
+               <button
+                 type="button"
+                 className="btn primary"

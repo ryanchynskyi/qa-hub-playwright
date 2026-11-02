@@ -1,0 +1,15 @@
+Skipping the tour does not end it.
+
+diff --git a/apps/web/src/views/Dashboard.tsx b/apps/web/src/views/Dashboard.tsx
+index 14b5f0b..ec6967e 100644
+--- a/apps/web/src/views/Dashboard.tsx
++++ b/apps/web/src/views/Dashboard.tsx
+@@ -132,7 +132,7 @@ function DashTour({ weakCount }: { weakCount: number }) {
+     ended.current = true;
+     track(skipped ? 'tour_skip' : 'tour_done', { step: i + 1 });
+     setI(0);
+-    finishTour(skipped || weakCount > 0);
++    if (!skipped) finishTour(weakCount > 0);
+   };
+   return (
+     <Spotlight

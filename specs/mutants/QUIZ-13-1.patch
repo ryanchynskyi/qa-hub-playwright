@@ -1,0 +1,15 @@
+Skipped questions disappear from the missed list.
+
+diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
+index 6937f47..4e156c4 100644
+--- a/apps/web/src/views/Quiz.tsx
++++ b/apps/web/src/views/Quiz.tsx
+@@ -1505,7 +1505,7 @@ function Results({
+     by.set(q.group, s);
+   }
+   const rows = [...by.entries()].sort((a, b) => a[1].y / a[1].a - b[1].y / b[1].a);
+-  const missed = run.ids.filter((id) => run.res[id] !== 'y');
++  const missed = run.ids.filter((id) => run.res[id] === 'n');
+   const shown = phone && !all ? missed.slice(0, MISSED_PHONE) : missed;
+   // With misses, the run's weakest chapter is where its recall cards help most.
+   const weak = missed.length > 0 ? rows[0]?.[1] : undefined;

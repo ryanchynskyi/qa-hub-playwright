@@ -1,0 +1,15 @@
+The focus wizard never opens.
+
+diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
+index 83ec7ba..a41f2e5 100644
+--- a/apps/web/src/Layout.tsx
++++ b/apps/web/src/Layout.tsx
+@@ -780,7 +780,7 @@ export function Layout() {
+     if (section === 'quiz' || section === 'recall' || section === 'kb') armTour(totalXp);
+   }, [section, totalXp]);
+   const spotlight = useSpotlightOpen();
+-  const gate = useFocusGate(progress) && isDash(pathname);
++  const gate = false;
+   const [moreOpen, setMoreOpen] = useState(false);
+   const bugOpen = useBugReportOpen();
+   const feedbackOpen = useFeedbackOpen();

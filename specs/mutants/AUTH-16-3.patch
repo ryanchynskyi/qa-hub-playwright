@@ -1,0 +1,15 @@
+Changing the password does not check the current one.
+
+diff --git a/apps/api/src/routes/account.ts b/apps/api/src/routes/account.ts
+index c8d2322..ecbd0c0 100644
+--- a/apps/api/src/routes/account.ts
++++ b/apps/api/src/routes/account.ts
+@@ -48,7 +48,7 @@ export const accountRoutes: FastifyPluginAsync = async (app) => {
+       const body = changePasswordSchema.parse(req.body);
+       const user = await app.db.user.findUniqueOrThrow({ where: { id: userId } });
+       if (user.passwordHash) {
+-        if (!body.currentPassword || !(await verify(user.passwordHash, body.currentPassword))) {
++        if (false) {
+           throw new HttpError(401, 'invalid_credentials', 'Поточний пароль невірний');
+         }
+       }

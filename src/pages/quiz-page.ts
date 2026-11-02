@@ -22,6 +22,9 @@ export class QuizPage {
   readonly results: Locator;
   readonly resultPercent: Locator;
   readonly resultBonus: Locator;
+  readonly resultPassed: Locator;
+  readonly resultFailed: Locator;
+  readonly resultTotal: Locator;
   readonly feedback: Locator;
   readonly stat: Locator;
   readonly commentsOpen: Locator;
@@ -44,6 +47,9 @@ export class QuizPage {
     this.results = page.getByTestId('results');
     this.resultPercent = page.getByTestId('quiz-result-percent');
     this.resultBonus = page.getByTestId('quiz-result-bonus');
+    this.resultPassed = page.getByTestId('quiz-result-passed');
+    this.resultFailed = page.getByTestId('quiz-result-failed');
+    this.resultTotal = page.getByTestId('quiz-result-total');
     this.feedback = page.getByTestId('quiz-feedback');
     this.stat = this.feedback.getByTestId('quiz-stat');
     this.commentsOpen = page.getByTestId('comments-open');

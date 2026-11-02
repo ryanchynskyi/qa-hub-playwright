@@ -1,0 +1,15 @@
+Logout does not revoke the refresh tokens on the server.
+
+diff --git a/apps/api/src/routes/auth.ts b/apps/api/src/routes/auth.ts
+index f1ebc3f..5b3377d 100644
+--- a/apps/api/src/routes/auth.ts
++++ b/apps/api/src/routes/auth.ts
+@@ -152,7 +152,7 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
+     const tokens = [req.cookies[REFRESH_COOKIE], refreshSchema.parse(req.body)?.refreshToken]
+       .filter((t): t is string => !!t)
+       .map(hashToken);
+-    if (tokens.length) {
++    if (false && tokens.length) {
+       const rows = await app.db.refreshToken.findMany({
+         where: { tokenHash: { in: tokens } },
+         select: { userId: true, familyId: true },
