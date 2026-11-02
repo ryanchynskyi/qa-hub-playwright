@@ -25,6 +25,24 @@ where the app differs from the requirement.
 <lessons footer, see below>
 ```
 
+## Generator brief
+
+```text
+Generate the Playwright tests of specs/phase<N>-<block>.md into <spec files>, using
+generator_write_test. Read the whole plan first: its section "Corrections by the main session"
+wins over the rest. Generate <scenario numbers> only. Start with generator_setup_page
+{seedFile: "tests/seed.spec.ts", project: "desktop"}; if it fails, stop and report.
+App: http://localhost:4273 (uk UI, path routes).
+
+Rules: use the existing fixtures and page objects (src/fixtures/index.ts, src/pages); read them
+first. No page.request, no CSS or text locators, no waitForTimeout, no test.skip, no retries. Test
+data through the `api` fixture (src/api/client.ts); never hard-code content. One @REQ tag per test,
+as the plan says. You cannot edit src/: if a locator or a method is missing, say so in the report
+and do not work around it inline.
+
+<lessons footer, see below>
+```
+
 ## Healer brief
 
 ```text

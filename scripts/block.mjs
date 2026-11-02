@@ -78,13 +78,16 @@ function claudeBin() {
 /** The agent's own MCP tools, passed explicitly: project allow rules do not apply in a new worktree. */
 function agentTools(agent) {
   const file = readFileSync(resolve(root, `.claude/agents/${agent}.md`), 'utf8');
-  return file
+  const mcp = file
     .match(/^tools: (.*)$/m)[1]
     .split(',')
     .map((tool) => tool.trim())
     .filter((tool) => tool.startsWith('mcp__playwright-test__'))
-    .filter((tool) => tool !== 'mcp__playwright-test__browser_run_code_unsafe')
-    .join(',');
+    .filter((tool) => tool !== 'mcp__playwright-test__browser_run_code_unsafe');
+  // The healer is the only one that edits files directly. Paths, not plain Edit: --add-dir also
+  // opens the app clone, which agents must never change.
+  const edits = agent.endsWith('healer') ? ['Edit(tests/**)', 'Edit(src/**)'] : [];
+  return [...mcp, ...edits].join(',');
 }
 
 const [first, second, briefFile] = process.argv.slice(2);
