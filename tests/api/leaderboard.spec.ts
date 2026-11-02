@@ -40,6 +40,13 @@ test(
   },
 );
 
+test('a user without XP is not on the board', { tag: ['@REQ-SOC-02'] }, async ({ api, user }) => {
+  for (const board of [await api.leaderboard('all', user.token), await api.leaderboard('all')]) {
+    expect(board.me).toBeNull();
+    expect(board.top.filter((row) => row.isMe)).toEqual([]);
+  }
+});
+
 test.describe('public leaderboard', { tag: ['@prod-safe'] }, () => {
   // Prod has real players; the local board is empty until a fresh user earns XP.
   if (!env.isProd)

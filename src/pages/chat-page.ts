@@ -36,6 +36,19 @@ export class ChatPage {
     });
   }
 
+  text(message: Locator): Locator {
+    return message.getByTestId('chat-message-text');
+  }
+
+  /** `data-state` = named|anonymous, `data-value` = the tag number of an anonymous author. */
+  author(message: Locator): Locator {
+    return message.getByTestId('chat-message-author');
+  }
+
+  deleteButton(message: Locator): Locator {
+    return message.getByTestId('chat-delete');
+  }
+
   async goto(): Promise<void> {
     await this.page.goto('chat');
     await expect(this.root).toHaveAttribute('data-state', 'ready');
