@@ -6,3 +6,5 @@
 - [API first](api-first.md) — UI only for what the user sees, the rest → API tests
 - [UI guard is not the server check](ui-guard-not-server-check.md) — each server rejection gets an API negative test
 - [Boundary needs a scenario](boundary-needs-scenario.md) — a range, "only once" or fallback of the requirement → a scenario, not Ideas
+- [Plan sections in overview](plan-sections-in-overview.md) — Prerequisites, Ambiguities, Ideas go in `overview` of planner_save_plan
+- [No retry where code decides](no-retry-where-code-decides.md) — generated data: plan the setup from the code, no retry or skip branches

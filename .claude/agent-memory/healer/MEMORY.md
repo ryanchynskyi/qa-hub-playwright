@@ -1,1 +1,2 @@
 - [Stay in scope](stay-in-scope.md) — only the files the fix needs; temporary spec named in the report
+- [Random data: see every form](random-data-see-every-form.md) — one green run proves nothing; report how each form was seen
