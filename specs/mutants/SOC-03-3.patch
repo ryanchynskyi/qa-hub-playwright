@@ -1,0 +1,14 @@
+My own post comes back in a poll and is announced as a new message.
+
+diff --git a/apps/web/src/views/Chat.tsx b/apps/web/src/views/Chat.tsx
+--- a/apps/web/src/views/Chat.tsx
++++ b/apps/web/src/views/Chat.tsx
+@@ -89,7 +89,7 @@ export function Chat() {
+         track(page);
+         const box = boxRef.current;
+         const atBottom = !box || nearBottom(box);
+-        if (page.messages.some((m) => !sent.current.has(m.id))) {
++        if (page.messages.length) {
+           if (atBottom) scroll.current = { kind: 'bottom' };
+           else setNewBelow(true);
+         }

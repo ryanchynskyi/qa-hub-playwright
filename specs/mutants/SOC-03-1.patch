@@ -1,0 +1,14 @@
+A post moves the poll cursor again, so a message that landed just before it is lost.
+
+diff --git a/apps/web/src/views/Chat.tsx b/apps/web/src/views/Chat.tsx
+index 843a4d9..13fae9a 100644
+--- a/apps/web/src/views/Chat.tsx
++++ b/apps/web/src/views/Chat.tsx
+@@ -167,6 +167,7 @@ export function Chat() {
+ 
+   const onSent = (m: ChatMessageDto) => {
+     sent.current.add(m.id);
++    cursor.current = { ...cursor.current, after: Math.max(cursor.current.after, m.id) };
+     scroll.current = { kind: 'bottom' };
+     setNewBelow(false);
+     setFeed((f) => f && { ...f, messages: mergeMessages(f.messages, [m]) });

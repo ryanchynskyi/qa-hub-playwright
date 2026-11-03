@@ -1,0 +1,15 @@
+An anonymous message shows the author name.
+
+diff --git a/apps/api/src/routes/chat.ts b/apps/api/src/routes/chat.ts
+index e7a8f3c..d07b94a 100644
+--- a/apps/api/src/routes/chat.ts
++++ b/apps/api/src/routes/chat.ts
+@@ -44,7 +44,7 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
+     const deleted = r.deletedAt !== null;
+     return {
+       id: r.id,
+-      name: deleted || r.anonymous ? null : r.user.displayName,
++      name: deleted ? null : r.user.displayName,
+       anonNumber: !deleted && r.anonymous ? r.user.anonNumber : null,
+       text: deleted ? '' : r.text,
+       createdAt: r.createdAt.getTime(),

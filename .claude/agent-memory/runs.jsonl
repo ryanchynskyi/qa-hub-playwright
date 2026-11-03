@@ -20,3 +20,5 @@
 {"date":"2026-11-02","agent":"test-reviewer","step":"II-3","task":"review daily block (5 blockers: flaky topicless ANSWER_N, scenario 6 task, API-1 date, API-3 body, API-8 finishQuiz)","status":"done","errors":[],"redone":false}
 {"date":"2026-11-02","agent":"test-reviewer","step":"II-3","task":"review social block (2 blockers: feed tag not asserted, second author not repeated)","status":"done","errors":[],"redone":false}
 {"date":"2026-11-02","agent":"test-reviewer","step":"II","task":"review quiz run line skipped count (blocker: equal 1/1/1 counts could not tell the values apart, now 1/2/3)","status":"done","errors":[],"redone":false}
+{"date":"2026-11-03","agent":"test-reviewer","step":"II","task":"review chat SOC-03 test written by the main session (2 SHOULD: chat-new gap in the row, pausePolling beside breakApi; 3 NIT)","status":"done","errors":[],"redone":false}
+{"date":"2026-11-03","agent":"test-reviewer","step":"II","task":"review chat SOC-03 second pass (2 SHOULD: false-red window between restore and filter, chat-new without positive control; 2 NIT)","status":"done","errors":[],"redone":false}

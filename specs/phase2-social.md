@@ -45,7 +45,7 @@ Leaderboard UI (/leaderboard) and public chat (/chat), uk UI, path routes. Explo
 ## Ideas (outside this block, the user decides)
 
 - SOC-06 / CHAT-008, 009, 010: delete in two clicks (`chat-delete` idle→confirm), no delete for others, admin delete + ban (`chat-ban`, `chat-banned`).
-- CHAT-005 counter/500 limit in the UI (`chat-count`, send disabled on empty), CHAT-006 Enter vs Shift+Enter, CHAT-007 6th message in 30 s shows `chat-error`; CHAT-011/012 paging, `chat-new`, `chat-empty`.
+- CHAT-005 counter/500 limit in the UI (`chat-count`, send disabled on empty), CHAT-006 Enter vs Shift+Enter, CHAT-007 6th message in 30 s shows `chat-error`; CHAT-011/012 paging, `chat-new` for someone else's message, `chat-empty`.
 - LB-003 (`leaderboard-me` top/outside, 21st row `leaderboard-own-row` with `leaderboard-total`), LB-004 (`unranked` state: a signed-in user without XP), LB-005 week period, LB-006 hidden note, LB-007 empty board message (`leaderboard-empty`: seen live on the empty DB: "Поки нікого немає: набери XP першим.").
 - SOC-07…09 comments.
 - Language: the same board/chat in EN (tag spelling stays Latin; "(you)").
@@ -160,6 +160,26 @@ Leaderboard UI (/leaderboard) and public chat (/chat), uk UI, path routes. Explo
 1. Open /chat in `authedPage` and record page.on('dialog'). Send a unique payload: `<img src=x onerror="alert('T')"><b>T</b><script>alert('T')</script>` with T unique. - expect: The message appears
 2. Read `chat-message-text` of that message. - expect: textContent equals the payload exactly; locator('img, b, script') inside it has count 0; no dialog fired
 3. Reload /chat and look at the same message (now loaded from the API). - expect: Same literal text, no child elements, no dialog
+
+#### 2.6. @REQ-SOC-03 a message that lands just before my own post still arrives by polling
+
+**File:** `tests/e2e/chat.spec.ts`
+
+**Steps:**
+
+1. Open /chat in `authedPage` and fail the polls (`chat.pausePolling()`). - expect: `chat` has state `ready`
+2. `otherUser` posts through the API, then the user posts through the UI. - expect: Own message visible, the other one not yet
+3. Let the polls through. - expect: Within 10 s the other message appears; own message count stays 1
+
+#### 2.7. @REQ-SOC-03 my own post coming back in a poll is not announced as a new message
+
+**File:** `tests/e2e/chat.spec.ts`
+
+**Steps:**
+
+1. Open /chat in `authedPage`, filter polls to `isMine` messages (the room is shared with parallel tests), fail the polls, post two unique messages and scroll away from the bottom of the feed. - expect: Both messages visible
+2. Let the polls through and wait for two: the second proves the first, which carries both messages back, was handled. - expect: `chat-new` count 0; each message count 1
+3. The same user posts through the API (a message this page did not send). - expect: `chat-new` visible within 10 s
 
 ### 3. API tests (tests/api)
 

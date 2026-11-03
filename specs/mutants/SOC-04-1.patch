@@ -1,0 +1,17 @@
+A chat message is rendered as HTML.
+
+diff --git a/apps/web/src/views/Chat.tsx b/apps/web/src/views/Chat.tsx
+index 843a4d9..5cf1ff5 100644
+--- a/apps/web/src/views/Chat.tsx
++++ b/apps/web/src/views/Chat.tsx
+@@ -326,9 +326,7 @@ function Message({
+         {m.name ?? (m.anonNumber !== null ? `Anonim${m.anonNumber}` : t.chat.anonName)}
+         {m.isMine && <span className="you"> ({t.chat.you})</span>}
+       </span>
+-      <span className="chattext" data-testid="chat-message-text">
+-        {m.text}
+-      </span>
++      <span className="chattext" data-testid="chat-message-text" dangerouslySetInnerHTML={{ __html: m.text }} />
+       <span className="chatmeta">
+         <time dateTime={when.toISOString()} title={when.toLocaleString(t.locale)}>
+           {chatTime(m.createdAt, now, t.locale)}

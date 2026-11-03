@@ -1,0 +1,15 @@
+Every anonymous message gets a new tag.
+
+diff --git a/apps/api/src/routes/chat.ts b/apps/api/src/routes/chat.ts
+index e7a8f3c..5458908 100644
+--- a/apps/api/src/routes/chat.ts
++++ b/apps/api/src/routes/chat.ts
+@@ -45,7 +45,7 @@ export const chatRoutes: FastifyPluginAsync = async (app) => {
+     return {
+       id: r.id,
+       name: deleted || r.anonymous ? null : r.user.displayName,
+-      anonNumber: !deleted && r.anonymous ? r.user.anonNumber : null,
++      anonNumber: !deleted && r.anonymous ? (r.user.anonNumber ?? 0) + r.id : null,
+       text: deleted ? '' : r.text,
+       createdAt: r.createdAt.getTime(),
+       isMine: viewerId !== null && r.userId === viewerId,
