@@ -24,6 +24,7 @@ export class QuizPage {
   readonly resultBonus: Locator;
   readonly resultPassed: Locator;
   readonly resultFailed: Locator;
+  readonly resultSkipped: Locator;
   readonly resultTotal: Locator;
   readonly feedback: Locator;
   readonly stat: Locator;
@@ -49,6 +50,7 @@ export class QuizPage {
     this.resultBonus = page.getByTestId('quiz-result-bonus');
     this.resultPassed = page.getByTestId('quiz-result-passed');
     this.resultFailed = page.getByTestId('quiz-result-failed');
+    this.resultSkipped = page.getByTestId('quiz-result-skipped');
     this.resultTotal = page.getByTestId('quiz-result-total');
     this.feedback = page.getByTestId('quiz-feedback');
     this.stat = this.feedback.getByTestId('quiz-stat');
