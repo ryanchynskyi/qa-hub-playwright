@@ -1,0 +1,1 @@
+{"id":"382d6ad48aec01da5cc23d4c0ab9a296.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/auth.spec.ts › auth API › deleting with a wrong confirm email is 400 confirm_mismatch and keeps the account","name":"deleting with a wrong confirm email is 400 confirm_mismatch and keeps the account","status":"passed","testResultsByEnv":{"default":"050864d027e44a38d91bfa1250af4ea6"}}

@@ -1,0 +1,1 @@
+{"id":"d5905f4a882d34fbef08c28074c71c71.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/account.spec.ts › AUTH-06 Remember me › Remember me on: with the cookie gone the kept token restores the session","name":"Remember me on: with the cookie gone the kept token restores the session","status":"passed","testResultsByEnv":{"default":"54543bc74ee305362a10d3dee1b355aa"}}
