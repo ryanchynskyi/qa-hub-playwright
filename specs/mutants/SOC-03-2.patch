@@ -1,0 +1,15 @@
+The chat stops polling for new messages.
+
+diff --git a/apps/web/src/views/Chat.tsx b/apps/web/src/views/Chat.tsx
+index 843a4d9..5307b24 100644
+--- a/apps/web/src/views/Chat.tsx
++++ b/apps/web/src/views/Chat.tsx
+@@ -111,7 +111,7 @@ export function Chat() {
+   useEffect(() => {
+     if (!ready) return;
+     const id = window.setInterval(() => {
+-      if (document.visibilityState === 'visible') poll();
++      if (document.visibilityState === 'hidden') poll();
+     }, CHAT_POLL_MS);
+     const onVisible = () => {
+       if (document.visibilityState === 'visible') poll();

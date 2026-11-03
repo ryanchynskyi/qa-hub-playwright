@@ -67,6 +67,56 @@ test.describe('Chat UI', () => {
   );
 
   test(
+    'a message that lands just before my own post still arrives by polling',
+    { tag: ['@REQ-SOC-03'] },
+    async ({ authedPage: _signedIn, api, otherUser, chat }) => {
+      // 1. Open /chat and hold the polls back, so the page cannot see the next message yet.
+      await chat.goto();
+      const resumePolling = await chat.pausePolling();
+
+      // 2. Someone else posts, then I post.
+      const { id } = await api.postChat(otherUser.token, unique('theirs'));
+      const mine = unique('mine');
+      await chat.post(mine);
+      await expect(chat.message(id)).toHaveCount(0);
+
+      // 3. The next poll brings their message, and mine is not doubled.
+      await resumePolling();
+      await expect(chat.message(id)).toBeVisible({ timeout: 10_000 });
+      await expect(chat.messageByText(mine)).toHaveCount(1);
+    },
+  );
+
+  test(
+    'my own post coming back in a poll is not announced as a new message',
+    { tag: ['@REQ-SOC-03'] },
+    async ({ authedPage: _signedIn, api, user, chat }) => {
+      // 1. Parallel tests post here too, so only my messages come back. Hold the polls back,
+      // post two messages and leave the bottom of the feed.
+      await chat.goto();
+      await chat.pollOnlyMine();
+      const resumePolling = await chat.pausePolling();
+      const first = unique('first');
+      const second = unique('second');
+      await chat.post(first);
+      await chat.post(second);
+      await chat.scrollAwayFromBottom();
+
+      // 2. The second poll proves the first one, which carries both messages back, was handled.
+      await resumePolling();
+      await chat.nextPoll();
+      await chat.nextPoll();
+      await expect(chat.newBelow).toHaveCount(0);
+      await expect(chat.messageByText(first)).toHaveCount(1);
+      await expect(chat.messageByText(second)).toHaveCount(1);
+
+      // 3. A message this page did not send is announced, so the absence above means something.
+      await api.postChat(user.token, unique('from another tab'));
+      await expect(chat.newBelow).toBeVisible({ timeout: 10_000 });
+    },
+  );
+
+  test(
     'anonymous message gets a stable tag',
     { tag: ['@REQ-SOC-05'] },
     async ({ authedPage: _signedIn, chat }) => {
@@ -105,7 +155,6 @@ test.describe('Chat UI', () => {
       const fromSecond = unique('anon from two');
       await chat.anonymous.check();
       await chat.post(fromFirst);
-      // Delivery first: posting moves the poll cursor past unseen messages (app bug, Chat.tsx onSent).
       const theirs = otherChat.messageByText(fromFirst);
       await expect(theirs).toBeVisible({ timeout: 10_000 });
       await otherChat.anonymous.check();
