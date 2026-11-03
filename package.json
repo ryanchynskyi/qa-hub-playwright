@@ -28,7 +28,8 @@
     "mutate": "node scripts/mutate.mjs",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run check:ids && npm run coverage && npm run test:unit",
     "report:allure": "allure generate allure-results && allure open allure-report",
-    "test:unit": "node src/config/run-factory.test.ts"
+    "gate": "node scripts/gate.mjs",
+    "test:unit": "node src/config/run-factory.test.ts && node scripts/gate.test.mjs"
   },
   "repository": {
     "type": "git",

@@ -31,9 +31,9 @@ workflow; `docs/WORKFLOW.md` is that explanation.
     a mutant survives its test → propose a lesson (`class`/`origin`/`since`, a line in that
     agent's `MEMORY.md`); the user approves it before it is written;
   - after each phase-2 block, review the log by the rules in `docs/agent-error-loop.md`.
-- Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → commit. For red
-  tests: healer, then `test-reviewer` on its diff; a healer fix that changes what a test asserts
-  is a decision for the user, not a fix.
+- Flow: planner (plan in `specs/`) → generator (spec) → `test-reviewer` → fix → `npm run gate` →
+  commit. For red tests: healer, then `test-reviewer` on its diff, then `npm run gate -- --healer`;
+  a healer fix that changes what a test asserts is a decision for the user, not a fix.
 
 ## ub-mode (Uncle Bob)
 
