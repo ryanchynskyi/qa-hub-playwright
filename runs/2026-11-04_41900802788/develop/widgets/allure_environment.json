@@ -1,1 +1,1 @@
-[{"name":"target","values":["local"]},{"name":"browser","values":["chromium"]},{"name":"seed","values":["419008027881"]},{"name":"app_ref","values":["develop"]},{"name":"app_sha","values":["b99a203"]}]
+[{"name":"target","values":["local"]},{"name":"browser","values":["firefox"]},{"name":"seed","values":["419008027882"]},{"name":"app_ref","values":["develop"]},{"name":"app_sha","values":["b99a203"]}]
