@@ -1,0 +1,1 @@
+{"id":"7fa5284bd04689db1ff8d6aaee55cb63.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/chat.spec.ts › chat access and limits › a message of 500 characters gets 201","name":"a message of 500 characters gets 201","status":"passed","testResultsByEnv":{"default":"90d963dadddaa1e3a20350024c0df6b8"}}
