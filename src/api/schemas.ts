@@ -229,6 +229,57 @@ export const Comments = z.object({ items: z.array(z.object({ text: z.string() })
 export type ChatMessage = z.infer<typeof ChatMessage>;
 export type Comments = z.infer<typeof Comments>;
 
+/** Bug reports and feedback ($APP_DIR packages/shared/src/bug-report.ts, community.ts). */
+const UploadStatus = z.enum(['open', 'done']);
+export type UploadStatus = z.infer<typeof UploadStatus>;
+const StoredImage = z.object({ id: z.number().int(), mime: z.string(), size: z.number().int() });
+
+export const BugReportCreated = z.object({ id: z.number().int() });
+export const AdminBugReport = z.object({
+  id: z.number().int(),
+  text: z.string(),
+  status: UploadStatus,
+  /** Display name; null for a guest. */
+  author: z.string().nullable(),
+  images: z.array(StoredImage),
+});
+export const AdminBugReports = z.object({
+  open: z.number().int(),
+  total: z.number().int(),
+  items: z.array(AdminBugReport),
+});
+export type AdminBugReports = z.infer<typeof AdminBugReports>;
+
+export const FeedbackCreated = z.object({ id: z.string(), number: z.number().int() });
+export const AdminFeedbackItem = z.object({
+  id: z.string(),
+  number: z.number().int(),
+  rating: z.number().int(),
+  text: z.string(),
+  status: UploadStatus,
+  author: z.string().nullable(),
+  images: z.array(StoredImage),
+  reply: z.string().nullable(),
+  replySeenAt: z.string().nullable(),
+  canReply: z.boolean(),
+});
+export const AdminFeedback = z.object({
+  total: z.number().int(),
+  open: z.number().int(),
+  items: z.array(AdminFeedbackItem),
+});
+export const MyFeedback = z.object({
+  items: z.array(
+    z.object({
+      number: z.number().int(),
+      rating: z.number().int(),
+      text: z.string(),
+      reply: z.string().nullable(),
+      seen: z.boolean(),
+    }),
+  ),
+});
+
 const ImportCounts = z.object({
   questions: z.number().int().nonnegative(),
   cards: z.number().int().nonnegative(),

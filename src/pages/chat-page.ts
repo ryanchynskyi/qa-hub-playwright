@@ -87,9 +87,16 @@ export class ChatPage {
 
   /** Makes the feed scrollable and moves away from its bottom, where new messages are not announced. */
   async scrollAwayFromBottom(): Promise<void> {
-    await this.feed.evaluate((el) => {
+    await this.feed.evaluate(async (el) => {
+      const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
       el.style.maxHeight = '10px';
+      // The app's ResizeObserver re-pins to the bottom and records the new height after the next
+      // layout; scroll only once it has run, or the scroll is undone / judged by the old height.
+      // Two frames: a rAF callback runs before its frame's layout, so one frame is too early.
+      await frame();
+      await frame();
       el.scrollTop = 0;
+      await frame(); // let the scroll event reach the app
     });
   }
 }

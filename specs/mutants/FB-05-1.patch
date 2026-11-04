@@ -1,0 +1,15 @@
+A rating of 6 is allowed.
+
+diff --git a/packages/shared/src/community.ts b/packages/shared/src/community.ts
+index 2487fdc..ca8f489 100644
+--- a/packages/shared/src/community.ts
++++ b/packages/shared/src/community.ts
+@@ -2,7 +2,7 @@
+ 
+ export const FEEDBACK_TEXT_MAX = 1000;
+ export const FEEDBACK_RATING_MIN = 1;
+-export const FEEDBACK_RATING_MAX = 5;
++export const FEEDBACK_RATING_MAX = 6;
+ /** The owner's reply to a feedback item (plain text). */
+ export const FEEDBACK_REPLY_MAX = 2000;
+ /** Images follow the bug-report rules: BUG_IMAGES_MAX, BUG_IMAGE_MAX_BYTES, BUG_IMAGE_MIMES. */

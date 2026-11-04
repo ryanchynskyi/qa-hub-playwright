@@ -1,0 +1,15 @@
+The bug text maximum drops to 3999 characters.
+
+diff --git a/packages/shared/src/bug-report.ts b/packages/shared/src/bug-report.ts
+index bbc1b65..61731e9 100644
+--- a/packages/shared/src/bug-report.ts
++++ b/packages/shared/src/bug-report.ts
+@@ -1,7 +1,7 @@
+ /* ---------- bug reports (anyone may send one; admins read them) ---------- */
+ 
+ export const BUG_TEXT_MIN = 5;
+-export const BUG_TEXT_MAX = 4000;
++export const BUG_TEXT_MAX = 3999;
+ export const BUG_IMAGES_MAX = 3;
+ /** Decoded size limit per image, bytes. */
+ export const BUG_IMAGE_MAX_BYTES = 1_500_000;

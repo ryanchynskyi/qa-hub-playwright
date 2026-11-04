@@ -1,0 +1,15 @@
+Feedback can be sent without a star.
+
+diff --git a/apps/web/src/views/FeedbackDialog.tsx b/apps/web/src/views/FeedbackDialog.tsx
+index bc56167..ae7a818 100644
+--- a/apps/web/src/views/FeedbackDialog.tsx
++++ b/apps/web/src/views/FeedbackDialog.tsx
+@@ -44,7 +44,7 @@ export default function FeedbackDialog() {
+   const textId = useId();
+   const att = useImageAttachments(phase === 'open', setError);
+ 
+-  const canSend = rating !== null && phase === 'open' && att.processing === 0;
++  const canSend = phase === 'open' && att.processing === 0;
+ 
+   useEffect(() => {
+     panel.current?.focus();

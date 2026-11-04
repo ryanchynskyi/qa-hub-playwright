@@ -1,0 +1,14 @@
+The reply form's Save closes the form without sending the reply.
+
+diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
+index cb9347a..0000000 100644
+--- a/apps/web/src/views/Admin.tsx
++++ b/apps/web/src/views/Admin.tsx
+@@ -335,7 +335,6 @@ function ReplyBox({
+     setBusy(true);
+     setError(null);
+     try {
+-      await onReply(item.id, draft.trim());
+       setEditing(false);
+     } catch (e) {
+       setError(errorText(e, t));

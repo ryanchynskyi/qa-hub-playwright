@@ -11,4 +11,4 @@ metadata:
 The social spec was written without walking the steps in the browser and without reading the log.
 
 **Why:** the code came from no real run; test-reviewer then found the feed tag not asserted and the main session redid part of the work.
-**How to apply:** for each scenario, do the steps with the browser tools, then call `generator_read_log`, then `generator_write_test`.
+**How to apply:** for each scenario, do the steps with the browser tools, then call `generator_read_log`, then `generator_write_test`. A session that exists only inside fixtures (the owner on `/admin`) cannot be walked: say so in the report and write from the plan's observed behaviour; the main session runs that spec first.

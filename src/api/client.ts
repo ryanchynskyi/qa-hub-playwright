@@ -1,17 +1,24 @@
 import { expect, type APIRequestContext, type APIResponse } from '@playwright/test';
 import type { z } from 'zod';
 import {
+  AdminBugReport,
+  AdminBugReports,
+  AdminFeedback,
+  AdminFeedbackItem,
   AuthResponse,
+  BugReportCreated,
   Catalog,
   ChatFeed,
   ChatMessage,
   CheckResult,
   Comments,
   DailyCount,
+  FeedbackCreated,
   Health,
   ImportResult,
   KbChapter,
   Leaderboard,
+  MyFeedback,
   Progress,
   Question,
   RateResult,
@@ -19,7 +26,11 @@ import {
   SearchHits,
   User,
   type Lang,
+  type UploadStatus,
 } from './schemas';
+
+/** What the dialogs send beside the text; `route` and `viewport` are required by the API. */
+export const UPLOAD_CONTEXT = { route: '/dash', lang: 'uk', viewport: '1280x800' } as const;
 
 export interface Credentials {
   email: string;
@@ -187,6 +198,54 @@ export class ApiClient {
 
   postChat(token: string, text: string, anonymous = false): Promise<ChatMessage> {
     return this.postJson('chat/messages', { text, anonymous }, ChatMessage, token, 201);
+  }
+
+  sendBugReport(text: string, token?: string): Promise<z.infer<typeof BugReportCreated>> {
+    const data = { ...UPLOAD_CONTEXT, text };
+    return this.postJson('bug-reports', data, BugReportCreated, token, 201);
+  }
+
+  sendFeedback(rating: number, token?: string): Promise<z.infer<typeof FeedbackCreated>> {
+    const data = { ...UPLOAD_CONTEXT, rating };
+    return this.postJson('feedback', data, FeedbackCreated, token, 201);
+  }
+
+  adminBugReports(adminToken: string): Promise<AdminBugReports> {
+    return this.getJson('admin/bug-reports', AdminBugReports, adminToken);
+  }
+
+  async setBugStatus(
+    adminToken: string,
+    id: number,
+    status: UploadStatus,
+  ): Promise<z.infer<typeof AdminBugReport>> {
+    const res = await this.raw.patch(`admin/bug-reports/${id}`, {
+      data: { status },
+      headers: bearer(adminToken),
+    });
+    await expectStatus(res, 200);
+    return AdminBugReport.parse(await res.json());
+  }
+
+  adminFeedback(adminToken: string): Promise<z.infer<typeof AdminFeedback>> {
+    return this.getJson('admin/feedback', AdminFeedback, adminToken);
+  }
+
+  async replyToFeedback(
+    adminToken: string,
+    id: string,
+    reply: string,
+  ): Promise<z.infer<typeof AdminFeedbackItem>> {
+    const res = await this.raw.put(`admin/feedback/${id}/reply`, {
+      data: { reply },
+      headers: bearer(adminToken),
+    });
+    await expectStatus(res, 200);
+    return AdminFeedbackItem.parse(await res.json());
+  }
+
+  myFeedback(token: string): Promise<z.infer<typeof MyFeedback>> {
+    return this.getJson('me/feedback', MyFeedback, token);
   }
 
   async chatMessages(): Promise<ChatMessage[]> {

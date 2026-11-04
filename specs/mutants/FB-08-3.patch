@@ -1,0 +1,15 @@
+Someone else's feedback can be marked seen.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..b7615f4 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -248,7 +248,7 @@ export const feedbackRoutes: FastifyPluginAsync = async (app) => {
+       const userId = await app.requireUser(req);
+       const number = parseNumber(req.params.number);
+       if (!number) throw notFound('feedback');
+-      const where = { ...VISIBLE, number, userId };
++      const where = { ...VISIBLE, number };
+       const { count } = await app.db.feedback.updateMany({
+         where: { ...where, reply: { not: null }, replySeenAt: null },
+         data: { replySeenAt: new Date(app.now()) },

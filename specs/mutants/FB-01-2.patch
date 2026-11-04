@@ -1,0 +1,15 @@
+Closing the bug dialog does not return focus to the opener.
+
+diff --git a/apps/web/src/views/BugReportDialog.tsx b/apps/web/src/views/BugReportDialog.tsx
+index 47fbfa7..37e9b12 100644
+--- a/apps/web/src/views/BugReportDialog.tsx
++++ b/apps/web/src/views/BugReportDialog.tsx
+@@ -44,7 +44,7 @@ export default function BugReportDialog() {
+ 
+   useEffect(() => {
+     panel.current?.focus();
+-    return () => restoreBugReportFocus();
++    return () => undefined;
+   }, []);
+ 
+   // After sending: a short thanks, then the dialog closes by itself.

@@ -1,0 +1,15 @@
+The server trusts the declared image type.
+
+diff --git a/apps/api/src/lib/uploads.ts b/apps/api/src/lib/uploads.ts
+index d75fad7..b8cb957 100644
+--- a/apps/api/src/lib/uploads.ts
++++ b/apps/api/src/lib/uploads.ts
+@@ -56,7 +56,7 @@ export function decodeImages(images: { mime: BugImageMime; data: string }[]): De
+     if (data.length > BUG_IMAGE_MAX_BYTES) {
+       throw new HttpError(400, 'image_too_large', 'Image is larger than 1.5 MB');
+     }
+-    if (!matchesMagic(img.mime, data)) {
++    if (false) {
+       throw new HttpError(400, 'bad_image', 'Image does not match its type');
+     }
+     return { mime: img.mime, data, size: data.length };

@@ -1,0 +1,15 @@
+The thanks message shows the wrong feedback number.
+
+diff --git a/apps/web/src/views/FeedbackDialog.tsx b/apps/web/src/views/FeedbackDialog.tsx
+index bc56167..3059e7d 100644
+--- a/apps/web/src/views/FeedbackDialog.tsx
++++ b/apps/web/src/views/FeedbackDialog.tsx
+@@ -72,7 +72,7 @@ export default function FeedbackDialog() {
+       images: att.shots.map(({ mime, data }) => ({ mime, data })),
+     };
+     try {
+-      setNumber((await api.sendFeedback(body)).number);
++      setNumber((await api.sendFeedback(body)).number + 1);
+       track('feedback_sent', { rating, images: att.shots.length });
+       handleRateOffer(); // rated already: the rate offer has nothing left to ask
+       setPhase('thanks');

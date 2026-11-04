@@ -1,0 +1,15 @@
+The status change of a bug report is not stored.
+
+diff --git a/apps/api/src/routes/bug-reports.ts b/apps/api/src/routes/bug-reports.ts
+index d38529c..7d9327a 100644
+--- a/apps/api/src/routes/bug-reports.ts
++++ b/apps/api/src/routes/bug-reports.ts
+@@ -160,7 +160,7 @@ export const bugReportRoutes: FastifyPluginAsync = async (app) => {
+     const { status } = bugReportStatusSchema.parse(req.body);
+     const id = parseId(req.params.id);
+     const { count } = id
+-      ? await app.db.bugReport.updateMany({ where: { id }, data: { status } })
++      ? await app.db.bugReport.updateMany({ where: { id }, data: {} })
+       : { count: 0 };
+     if (!count) throw notFound('bug report');
+     const row = await app.db.bugReport.findUniqueOrThrow({

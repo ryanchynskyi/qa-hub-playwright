@@ -1,0 +1,15 @@
+A regular account does not get the forbidden card.
+
+diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
+index cb9347a..bea613f 100644
+--- a/apps/web/src/views/Admin.tsx
++++ b/apps/web/src/views/Admin.tsx
+@@ -59,7 +59,7 @@ export function Admin() {
+       </div>
+     );
+   }
+-  if (stats.error instanceof HttpError && stats.error.status === 403) {
++  if (stats.error instanceof HttpError && stats.error.status === 999) {
+     return (
+       <div className="card" role="alert" data-testid="admin-forbidden">
+         <p>{t.admin.forbidden}</p>

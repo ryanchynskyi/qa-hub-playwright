@@ -1,0 +1,15 @@
+View does not mark the reply seen.
+
+diff --git a/apps/web/src/views/FeedbackReplyOffer.tsx b/apps/web/src/views/FeedbackReplyOffer.tsx
+index 7385537..8eab119 100644
+--- a/apps/web/src/views/FeedbackReplyOffer.tsx
++++ b/apps/web/src/views/FeedbackReplyOffer.tsx
+@@ -60,7 +60,7 @@ export function FeedbackReplyOffer({ item }: { item: MyFeedbackItem }) {
+       d ? { items: d.items.map((i) => (i.number === item.number ? { ...i, seen: true } : i)) } : d,
+     );
+     void api
+-      .markFeedbackSeen(item.number)
++      .myFeedback()
+       .catch(() => undefined)
+       .finally(() => qc.invalidateQueries({ queryKey: key }));
+     void navigate(`/profile#${feedbackAnchor(item.number)}`);

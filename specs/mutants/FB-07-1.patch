@@ -1,0 +1,15 @@
+The reply is rendered as HTML in the profile.
+
+diff --git a/apps/web/src/views/Profile.tsx b/apps/web/src/views/Profile.tsx
+index 12f2740..b23c519 100644
+--- a/apps/web/src/views/Profile.tsx
++++ b/apps/web/src/views/Profile.tsx
+@@ -262,7 +262,7 @@ function MyFeedbackSection({ userId }: { userId: string }) {
+                       </span>
+                     )}
+                   </div>
+-                  <p className="txt">{i.reply}</p>
++                  <p className="txt" dangerouslySetInnerHTML={{ __html: i.reply }} />
+                 </div>
+               ) : (
+                 <p className="note" data-testid="profile-feedback-waiting">

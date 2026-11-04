@@ -1,0 +1,15 @@
+Guest feedback is offered a reply.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..fe58bdc 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -70,7 +70,7 @@ const toItem = (r: ItemRow): AdminFeedbackItem => ({
+   reply: r.reply,
+   repliedAt: iso(r.repliedAt),
+   replySeenAt: iso(r.replySeenAt),
+-  canReply: r.userId !== null,
++  canReply: true,
+ });
+ 
+ /**

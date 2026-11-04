@@ -1,0 +1,15 @@
+The open counter counts every report.
+
+diff --git a/apps/api/src/routes/bug-reports.ts b/apps/api/src/routes/bug-reports.ts
+index d38529c..cb8d379 100644
+--- a/apps/api/src/routes/bug-reports.ts
++++ b/apps/api/src/routes/bug-reports.ts
+@@ -122,7 +122,7 @@ export const bugReportRoutes: FastifyPluginAsync = async (app) => {
+     reply.header('cache-control', 'no-store');
+     const [total, open, rows] = await Promise.all([
+       app.db.bugReport.count(),
+-      app.db.bugReport.count({ where: { status: 'open' } }),
++      app.db.bugReport.count(),
+       app.db.bugReport.findMany({
+         orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+         take: LIST_MAX,

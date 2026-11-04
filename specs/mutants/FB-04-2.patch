@@ -1,0 +1,15 @@
+The dialog takes any file as an image.
+
+diff --git a/apps/web/src/lib/bug-image.ts b/apps/web/src/lib/bug-image.ts
+index b232dcf..40be403 100644
+--- a/apps/web/src/lib/bug-image.ts
++++ b/apps/web/src/lib/bug-image.ts
+@@ -36,7 +36,7 @@ export function decodedBytes(b64: string): number {
+   return Math.floor((b64.length * 3) / 4) - pad;
+ }
+ 
+-export const isImageFile = (f: { type: string }): boolean => /^image\//.test(f.type);
++export const isImageFile = (f: { type: string }): boolean => f.type !== undefined;
+ 
+ /** The mime type a `data:` URL declares, if it is one the API accepts. */
+ export function mimeOf(dataUrl: string): BugImageMime | null {

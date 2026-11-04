@@ -6,7 +6,13 @@ import { byTestId, numberValue } from '../helpers/locators';
 /** Main links are on every layout; the rest live in the "Ще" (More) sheet on phones. */
 const MAIN_LINKS = ['dash', 'quiz', 'recall', 'kb'] as const;
 export type NavTarget =
-  (typeof MAIN_LINKS)[number] | 'leaderboard' | 'chat' | 'tutorial' | 'profile';
+  | (typeof MAIN_LINKS)[number]
+  | 'leaderboard'
+  | 'chat'
+  | 'tutorial'
+  | 'profile'
+  | 'bug'
+  | 'feedback';
 
 /**
  * The app shell around every page: navigation, level/XP, language switch, account row.

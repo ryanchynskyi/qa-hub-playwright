@@ -1,0 +1,15 @@
+The feedback comment becomes required on the server.
+
+diff --git a/packages/shared/src/community.schema.ts b/packages/shared/src/community.schema.ts
+index 1d25705..0d04821 100644
+--- a/packages/shared/src/community.schema.ts
++++ b/packages/shared/src/community.schema.ts
+@@ -13,7 +13,7 @@ import { bugImagesSchema, routeSchema } from './bug-report.schema';
+ /** POST /feedback; the images follow the bug-report rules. */
+ export const feedbackSchema = z.object({
+   rating: z.number().int().min(FEEDBACK_RATING_MIN).max(FEEDBACK_RATING_MAX),
+-  text: z.string().trim().max(FEEDBACK_TEXT_MAX).default(''),
++  text: z.string().trim().min(1).max(FEEDBACK_TEXT_MAX),
+   /** The path the user was on, e.g. "/quiz/sql". */
+   route: routeSchema,
+   lang: z.enum(['uk', 'en']),

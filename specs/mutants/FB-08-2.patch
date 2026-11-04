@@ -1,0 +1,15 @@
+My feedback lists other users' items too.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..cfa9fb4 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -213,7 +213,7 @@ export const feedbackRoutes: FastifyPluginAsync = async (app) => {
+     const userId = await app.requireUser(req);
+     reply.header('cache-control', 'no-store');
+     const rows = await app.db.feedback.findMany({
+-      where: { ...VISIBLE, userId },
++      where: { ...VISIBLE, userId: { not: null } },
+       orderBy: [{ createdAt: 'desc' }, { number: 'desc' }],
+       take: MY_LIST_MAX,
+       select: {
