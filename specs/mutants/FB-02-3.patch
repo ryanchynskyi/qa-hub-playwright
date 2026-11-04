@@ -1,0 +1,15 @@
+Spaces count towards the bug text minimum on the server.
+
+diff --git a/packages/shared/src/bug-report.schema.ts b/packages/shared/src/bug-report.schema.ts
+index 6e0006b..455d477 100644
+--- a/packages/shared/src/bug-report.schema.ts
++++ b/packages/shared/src/bug-report.schema.ts
+@@ -29,7 +29,7 @@ export const routeSchema = z
+   .regex(/^[^\x00-\x1f\x7f-\x9f]*$/, 'control characters are not allowed');
+ 
+ export const bugReportSchema = z.object({
+-  text: z.string().trim().min(BUG_TEXT_MIN).max(BUG_TEXT_MAX),
++  text: z.string().min(BUG_TEXT_MIN).max(BUG_TEXT_MAX),
+   /** The path the user was on, e.g. "/quiz/sql". */
+   route: routeSchema,
+   lang: z.enum(['uk', 'en']),

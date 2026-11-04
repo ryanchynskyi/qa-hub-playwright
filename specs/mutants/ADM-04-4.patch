@@ -1,0 +1,15 @@
+The page shows the total in the open counter.
+
+diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
+index cb9347a..e647ec6 100644
+--- a/apps/web/src/views/Admin.tsx
++++ b/apps/web/src/views/Admin.tsx
+@@ -283,7 +283,7 @@ export function BugList({
+     <section className="card" data-testid="admin-bugs">
+       <h2>{t.admin.bugsTitle}</h2>
+       <div className="stats" style={{ marginBottom: 12 }}>
+-        <div data-testid="admin-bugs-count" data-value={data.open} data-total={data.total}>
++        <div data-testid="admin-bugs-count" data-value={data.total} data-total={data.total}>
+           <b>{data.open.toLocaleString(t.locale)}</b>
+           <span>{t.admin.bugsOpen}</span>
+         </div>

@@ -1,0 +1,15 @@
+The sheet shows the newest unseen reply, not the oldest.
+
+diff --git a/apps/web/src/views/FeedbackReplyOffer.tsx b/apps/web/src/views/FeedbackReplyOffer.tsx
+index 7385537..6cc62c1 100644
+--- a/apps/web/src/views/FeedbackReplyOffer.tsx
++++ b/apps/web/src/views/FeedbackReplyOffer.tsx
+@@ -37,7 +37,7 @@ export function useFeedbackReplyDue(otherSheetOpen: boolean): MyFeedbackItem | n
+   }
+   // The API lists newest first: the oldest unseen reply is the last match.
+   const due = data.items.filter((i) => i.reply && !i.seen && !postponed.includes(i.number));
+-  return due.at(-1) ?? null;
++  return due.at(0) ?? null;
+ }
+ 
+ /** Sheet announcing the owner's reply; "Переглянути" marks it seen and opens it in the profile. */

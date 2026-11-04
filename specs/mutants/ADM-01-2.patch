@@ -1,0 +1,15 @@
+The sign-in link loses its test id.
+
+diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
+index cb9347a..b84fde9 100644
+--- a/apps/web/src/views/Admin.tsx
++++ b/apps/web/src/views/Admin.tsx
+@@ -53,7 +53,7 @@ export function Admin() {
+     return (
+       <div className="card" data-testid="admin-signin">
+         <p>{t.admin.signIn}</p>
+-        <Link className="btn primary" to="/login?next=/admin" data-testid="admin-signin-link">
++        <Link className="btn primary" to="/login?next=/admin" data-testid="admin-signin-gone">
+           {t.admin.signInLink}
+         </Link>
+       </div>

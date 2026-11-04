@@ -1,0 +1,15 @@
+The 1.5 MB limit on one image is not checked.
+
+diff --git a/apps/api/src/lib/uploads.ts b/apps/api/src/lib/uploads.ts
+index d75fad7..0bdb8b0 100644
+--- a/apps/api/src/lib/uploads.ts
++++ b/apps/api/src/lib/uploads.ts
+@@ -53,7 +53,7 @@ export function decodeImages(images: { mime: BugImageMime; data: string }[]): De
+   return images.map((img) => {
+     if (!BASE64.test(img.data)) throw new HttpError(400, 'bad_image', 'Not base64');
+     const data = Buffer.from(img.data, 'base64');
+-    if (data.length > BUG_IMAGE_MAX_BYTES) {
++    if (data.length > BUG_IMAGE_MAX_BYTES * 100) {
+       throw new HttpError(400, 'image_too_large', 'Image is larger than 1.5 MB');
+     }
+     if (!matchesMagic(img.mime, data)) {

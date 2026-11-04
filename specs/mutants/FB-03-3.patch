@@ -1,0 +1,15 @@
+The dialog silently drops extra images without image_limit.
+
+diff --git a/apps/web/src/lib/image-attachments.ts b/apps/web/src/lib/image-attachments.ts
+index 7aeb896..eb8c149 100644
+--- a/apps/web/src/lib/image-attachments.ts
++++ b/apps/web/src/lib/image-attachments.ts
+@@ -37,7 +37,7 @@ export function useImageAttachments(enabled: boolean, onError: (e: AttachError |
+     if (images.length < files.length) onError('image_type');
+     else onError(null);
+     const take = images.slice(0, Math.max(0, room));
+-    if (images.length > take.length) onError('image_limit');
++    
+     reserved.current += take.length;
+     setProcessing((n) => n + take.length);
+     for (const file of take) {

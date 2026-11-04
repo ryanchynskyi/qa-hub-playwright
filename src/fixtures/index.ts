@@ -8,13 +8,17 @@ import {
 } from '@playwright/test';
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
+import { BugDialog } from '../components/bug-dialog';
+import { FeedbackDialog } from '../components/feedback-dialog';
 import { FocusWizard } from '../components/focus-wizard';
 import { ImportBanner } from '../components/import-banner';
+import { ReplyOffer } from '../components/reply-offer';
 import { Shell } from '../components/shell';
 import { Tour } from '../components/tour';
 import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { googleLogin } from '../helpers/google';
+import { AdminPage } from '../pages/admin-page';
 import { AuthPage } from '../pages/auth-page';
 import { ChatPage } from '../pages/chat-page';
 import { DashboardPage } from '../pages/dashboard-page';
@@ -63,8 +67,17 @@ interface TestFixtures {
   otherUser: TestUser;
   /** A page in a second browser context signed in as `otherUser`. */
   otherPage: Page;
-  /** A page on /admin, signed in as the owner (`ADMIN_EMAIL`) through the fake Google. */
+  /**
+   * A page on /admin in a browser context of its own, signed in as the owner (`ADMIN_EMAIL`)
+   * through the fake Google; the test's `page` stays a guest or `authedPage`.
+   */
   adminPage: Page;
+  /** The owner's access token, for arranging data through the API. */
+  adminToken: string;
+  admin: AdminPage;
+  bugDialog: BugDialog;
+  feedbackDialog: FeedbackDialog;
+  replyOffer: ReplyOffer;
   /** An unused email for a Google-only account; the account is deleted after the test. */
   googleEmail: string;
   /**
@@ -171,16 +184,29 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     await context.close();
   },
 
-  // One shared owner account for all workers: fine while admin tests only read; tests that
-  // reply, ban or toggle need their own data.
-  adminPage: async ({ page }, use) => {
+  // One shared owner account for all workers: tests write only to rows they created and find them
+  // by id or number.
+  adminPage: async ({ browser, lang, visitor }, use) => {
     // The fake Google exists only on the e2e server.
     assertNotProd('adminPage');
+    const context = await newContext(browser, lang, visitor);
+    const page = await context.newPage();
     await googleLogin(page.request, ADMIN_EMAIL);
     await page.goto('admin');
     await expect(page.getByTestId('admin')).toBeVisible();
     await use(page);
+    await context.close();
   },
+
+  adminToken: async ({ api }, use) => {
+    assertNotProd('adminToken');
+    await use((await googleLogin(api.raw, ADMIN_EMAIL)).accessToken);
+  },
+
+  admin: async ({ adminPage }, use) => use(new AdminPage(adminPage)),
+  bugDialog: async ({ page, shell }, use) => use(new BugDialog(page, shell)),
+  feedbackDialog: async ({ page, shell }, use) => use(new FeedbackDialog(page, shell)),
+  replyOffer: async ({ page }, use) => use(new ReplyOffer(page)),
 
   googleEmail: async ({ api }, use) => {
     // The fake Google exists only on the e2e server.
@@ -202,8 +228,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         cookies: state.cookies.filter((cookie) => cookie.expires !== -1),
       });
       contexts.push(context);
-      // shortcut: the new context records no trace or screenshot, so a failure after the restart
-      // leaves only the error; add tracing here if such a test turns flaky.
       await page.context().close();
       return context.newPage();
     });

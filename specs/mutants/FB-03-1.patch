@@ -1,0 +1,15 @@
+Four images are allowed instead of three.
+
+diff --git a/packages/shared/src/bug-report.ts b/packages/shared/src/bug-report.ts
+index bbc1b65..42391a9 100644
+--- a/packages/shared/src/bug-report.ts
++++ b/packages/shared/src/bug-report.ts
+@@ -2,7 +2,7 @@
+ 
+ export const BUG_TEXT_MIN = 5;
+ export const BUG_TEXT_MAX = 4000;
+-export const BUG_IMAGES_MAX = 3;
++export const BUG_IMAGES_MAX = 4;
+ /** Decoded size limit per image, bytes. */
+ export const BUG_IMAGE_MAX_BYTES = 1_500_000;
+ export const BUG_IMAGE_MIMES = ['image/webp', 'image/jpeg', 'image/png'] as const;

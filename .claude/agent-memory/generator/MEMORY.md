@@ -2,3 +2,7 @@
 - [Assert right after the action](assert-right-after-action.md) — check state before navigating away
 - [Teardown after credential change](teardown-after-credential-change.md) — delete the account yourself in try/finally
 - [Walk the steps, read the log](walk-steps-read-log.md) — real browser steps and generator_read_log before writing the test
+- [No shell, main session runs](no-shell-main-runs.md) — never claim specs pass; say what you walked and what you did not
+- [authedPage is page](authed-page-is-page.md) — a guest and a signed-in user in one test need secondPage or otherPage
+- [Keep the planned step](keep-the-planned-step.md) — a step the plan names is not replaced by a shortcut; if it fails, report it
+- [No UI words](no-ui-words.md) — assert values and states, not copy; Corrections win over the scenario text

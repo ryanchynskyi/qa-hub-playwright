@@ -16,6 +16,9 @@ export class ProfilePage {
   readonly dailyCount: Locator;
   readonly dailyPending: Locator;
   readonly dailyError: Locator;
+  readonly feedback: Locator;
+  readonly feedbackItems: Locator;
+  readonly feedbackEmpty: Locator;
 
   constructor(readonly page: Page) {
     this.card = page.getByTestId('profile');
@@ -29,6 +32,23 @@ export class ProfilePage {
     this.dailyCount = page.getByTestId('profile-daily-count');
     this.dailyPending = page.getByTestId('profile-daily-pending');
     this.dailyError = page.getByTestId('profile-daily-error');
+    this.feedback = page.getByTestId('profile-feedback');
+    this.feedbackItems = page.getByTestId('profile-feedback-item');
+    this.feedbackEmpty = page.getByTestId('profile-feedback-empty');
+  }
+
+  /** "Мої відгуки": `data-key` = number, `data-value` = rating, `data-state` = `replied|waiting`. */
+  feedbackItem(number: number): Locator {
+    return byTestId(this.page, 'profile-feedback-item', number);
+  }
+
+  /** The reply block; it also holds a label and a date, so assert the text with toContainText. */
+  feedbackReply(number: number): Locator {
+    return this.feedbackItem(number).getByTestId('profile-feedback-reply');
+  }
+
+  feedbackWaiting(number: number): Locator {
+    return this.feedbackItem(number).getByTestId('profile-feedback-waiting');
   }
 
   /** `data-state` on the method row is `on|off`. */

@@ -1,0 +1,15 @@
+The bug dialog stays open after sending.
+
+diff --git a/apps/web/src/views/BugReportDialog.tsx b/apps/web/src/views/BugReportDialog.tsx
+index 47fbfa7..01a4f14 100644
+--- a/apps/web/src/views/BugReportDialog.tsx
++++ b/apps/web/src/views/BugReportDialog.tsx
+@@ -51,7 +51,7 @@ export default function BugReportDialog() {
+   useEffect(() => {
+     if (phase !== 'sent') return;
+     panel.current?.focus();
+-    const id = window.setTimeout(closeBugReport, 3000);
++    const id = window.setTimeout(() => undefined, 3000);
+     return () => window.clearTimeout(id);
+   }, [phase]);
+ 

@@ -1,0 +1,14 @@
+The bug text minimum drops to 4 characters.
+
+diff --git a/packages/shared/src/bug-report.ts b/packages/shared/src/bug-report.ts
+index bbc1b65..cfc88d5 100644
+--- a/packages/shared/src/bug-report.ts
++++ b/packages/shared/src/bug-report.ts
+@@ -1,6 +1,6 @@
+ /* ---------- bug reports (anyone may send one; admins read them) ---------- */
+ 
+-export const BUG_TEXT_MIN = 5;
++export const BUG_TEXT_MIN = 4;
+ export const BUG_TEXT_MAX = 4000;
+ export const BUG_IMAGES_MAX = 3;
+ /** Decoded size limit per image, bytes. */

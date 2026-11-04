@@ -1,0 +1,15 @@
+My feedback is listed oldest first.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..30a8765 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -214,7 +214,7 @@ export const feedbackRoutes: FastifyPluginAsync = async (app) => {
+     reply.header('cache-control', 'no-store');
+     const rows = await app.db.feedback.findMany({
+       where: { ...VISIBLE, userId },
+-      orderBy: [{ createdAt: 'desc' }, { number: 'desc' }],
++      orderBy: [{ createdAt: 'asc' }, { number: 'asc' }],
+       take: MY_LIST_MAX,
+       select: {
+         number: true,

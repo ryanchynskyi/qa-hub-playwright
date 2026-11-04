@@ -1,0 +1,15 @@
+Editing a reply keeps it seen.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..c624a06 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -202,7 +202,7 @@ export const feedbackRoutes: FastifyPluginAsync = async (app) => {
+     if (!row.userId) throw new HttpError(409, 'no_author', 'Guest feedback has no one to reply to');
+     const updated = await app.db.feedback.update({
+       where: { id: id! },
+-      data: { reply, repliedAt: new Date(app.now()), replySeenAt: null },
++      data: { reply, repliedAt: new Date(app.now()) },
+       include: itemInclude,
+     });
+     return toItem(updated);

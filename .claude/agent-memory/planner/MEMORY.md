@@ -8,3 +8,6 @@
 - [Boundary needs a scenario](boundary-needs-scenario.md) — a range, "only once" or fallback of the requirement → a scenario, not Ideas
 - [Plan sections in overview](plan-sections-in-overview.md) — Prerequisites, Ambiguities, Ideas go in `overview` of planner_save_plan
 - [No retry where code decides](no-retry-where-code-decides.md) — generated data: plan the setup from the code, no retry or skip branches
+- [Tag every scenario](tag-every-scenario.md) — each saved scenario names its own @REQ tag
+- [One UI path for each control](one-ui-path-for-each-control.md) — API arrange is fine, but a named form or button needs a scenario that uses it
+- [Observed goes into steps](observed-goes-into-steps.md) — a behaviour worth proving goes into an expect, and an expect must be able to fail

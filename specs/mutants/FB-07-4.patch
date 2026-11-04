@@ -1,0 +1,15 @@
+Later does not put the sheet off.
+
+diff --git a/apps/web/src/lib/feedback-reply.ts b/apps/web/src/lib/feedback-reply.ts
+index cd73733..fe983d0 100644
+--- a/apps/web/src/lib/feedback-reply.ts
++++ b/apps/web/src/lib/feedback-reply.ts
+@@ -3,7 +3,7 @@ import { createStore } from './stores';
+ /** Feedback numbers whose reply sheet was put off with "Пізніше": until the page is reloaded. */
+ const later = createStore<readonly number[]>([]);
+ export const useReplyLater = later.use;
+-export const postponeReply = (n: number) => later.set((l) => [...l, n]);
++export const postponeReply = (n: number) => later.set((l) => (n ? l : l));
+ 
+ /** Query key of GET /me/feedback (profile section and reply sheet share it). */
+ export const myFeedbackKey = (userId: string | null) => ['my-feedback', userId] as const;

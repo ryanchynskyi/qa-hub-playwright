@@ -1,0 +1,15 @@
+A reply can be saved on guest feedback.
+
+diff --git a/apps/api/src/routes/feedback.ts b/apps/api/src/routes/feedback.ts
+index f45db51..647448e 100644
+--- a/apps/api/src/routes/feedback.ts
++++ b/apps/api/src/routes/feedback.ts
+@@ -199,7 +199,7 @@ export const feedbackRoutes: FastifyPluginAsync = async (app) => {
+       ? await app.db.feedback.findFirst({ where: { ...VISIBLE, id }, select: { userId: true } })
+       : null;
+     if (!row) throw notFound('feedback');
+-    if (!row.userId) throw new HttpError(409, 'no_author', 'Guest feedback has no one to reply to');
++    
+     const updated = await app.db.feedback.update({
+       where: { id: id! },
+       data: { reply, repliedAt: new Date(app.now()), replySeenAt: null },

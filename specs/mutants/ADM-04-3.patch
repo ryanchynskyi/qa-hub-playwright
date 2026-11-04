@@ -1,0 +1,15 @@
+Bug reports are listed oldest first.
+
+diff --git a/apps/api/src/routes/bug-reports.ts b/apps/api/src/routes/bug-reports.ts
+index d38529c..ce480e6 100644
+--- a/apps/api/src/routes/bug-reports.ts
++++ b/apps/api/src/routes/bug-reports.ts
+@@ -124,7 +124,7 @@ export const bugReportRoutes: FastifyPluginAsync = async (app) => {
+       app.db.bugReport.count(),
+       app.db.bugReport.count({ where: { status: 'open' } }),
+       app.db.bugReport.findMany({
+-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
++        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+         take: LIST_MAX,
+         include: itemInclude,
+       }),

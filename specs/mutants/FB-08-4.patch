@@ -1,0 +1,15 @@
+A replied item shows as waiting in the profile.
+
+diff --git a/apps/web/src/views/Profile.tsx b/apps/web/src/views/Profile.tsx
+index 12f2740..80ad375 100644
+--- a/apps/web/src/views/Profile.tsx
++++ b/apps/web/src/views/Profile.tsx
+@@ -237,7 +237,7 @@ function MyFeedbackSection({ userId }: { userId: string }) {
+               data-testid="profile-feedback-item"
+               data-key={i.number}
+               data-value={i.rating}
+-              data-state={i.reply ? 'replied' : 'waiting'}
++              data-state={i.reply ? 'waiting' : 'replied'}
+             >
+               <div className="meta note mono">
+                 <b>{t.profile.feedback.number(i.number)}</b>
