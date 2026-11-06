@@ -1,0 +1,1 @@
+{"id":"cd312f1263e59b6dd62f28f089895701.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/chat.spec.ts › chat access and limits › a message of only spaces gets 400","name":"a message of only spaces gets 400","status":"passed","testResultsByEnv":{"default":"5905f412d8a1fe8b1896450fa5b4e53d"}}
