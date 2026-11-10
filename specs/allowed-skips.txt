@@ -1,0 +1,3 @@
+# Tests allowed to be skipped in a run (scripts/skips.mjs). `file › title`, file relative to tests/.
+# Adding a line is a decision for the user: a skipped test proves nothing.
+e2e/shell.spec.ts › the phone More sheet closes on Escape and returns focus

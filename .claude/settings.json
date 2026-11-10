@@ -21,6 +21,14 @@
     "deny": ["mcp__playwright-test__browser_run_code_unsafe"]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__playwright-test__.*",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/no-prod-browser.mjs\"", "timeout": 10 }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [

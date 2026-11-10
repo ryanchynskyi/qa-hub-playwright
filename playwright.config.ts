@@ -40,6 +40,8 @@ export default defineConfig<FrameworkOptions>({
   reporter: [
     [env.isCI ? 'github' : 'list'],
     ['html', { open: 'never' }],
+    // Read by scripts/skips.mjs (`npm run check:skips`): every skipped test must be allowed.
+    ['json', { outputFile: 'test-results/results.json' }],
     // Raw results for the Allure report (allurerc.mjs); APP_* come from the CI workflow.
     [
       'allure-playwright',

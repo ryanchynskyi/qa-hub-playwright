@@ -21,9 +21,13 @@ A. **The test proves its requirement.** For each `@REQ-*` tag read the row in
    broke, would this test go red? A tag on a test that only checks "it renders" is a BLOCKER.
 B. **The plan is kept.** If the work came from a plan in `specs/phase*-*.md`, every scenario of it
    is in a spec, or the gap is stated with a reason. A dropped or weakened scenario is a BLOCKER.
+   For each scenario give a table `step / expected result → spec:line of the expect that checks
+   it`. A step that is acted on but never asserted (a click with no check of its outcome) is a
+   SHOULD [`unasserted-step`]; an expected result with no line is a dropped scenario.
 C. **Healer diffs.** A removed or changed `expect`, a weaker matcher (`toBe` → `toBeGreaterThan`,
    a dropped `toHaveCount`), or a new `test.skip` / `test.fixme` changes what the test asserts:
-   BLOCKER, a decision for the user (CLAUDE.md), not a fix.
+   BLOCKER, a decision for the user (CLAUDE.md), not a fix. So is any change in `specs/` (plans,
+   `COVERAGE.md`, mutants, `allowed-skips.txt`); `npm run gate -- --healer` stops on it too.
 D. **Parallel runs.** Tests run in parallel and on several devices against one database. Absolute
    numbers on shared state (leaderboard, global question stats, totals) must be relative or
    scoped; no `describe.serial` without a reason; no account shared between tests.
@@ -51,6 +55,10 @@ Then the conventions:
    (specs/COVERAGE.md; infrastructure checks like health are exempt); a new tag on a ❌ row means the row's status changes too.
    Layout checks carry `@responsive`; smoke carries `@smoke`. Device differences live in
    `Shell`, not in `if (device)` inside specs.
-8. **Docs.** If framework behaviour changed, `docs/WORKFLOW.md` is updated (CLAUDE.md rule).
+8. **Mocks** [`mock-masks`]. No `route` in specs (lint stops it). In `src/helpers/network.ts` and
+   page objects an interception passes the real response through (`route.fetch()`, then change
+   only what the test needs) or injects a fault on purpose, and a comment says why. A mock that
+   fulfills a whole response the app should have produced is a BLOCKER.
+9. **Docs.** If framework behaviour changed, `docs/WORKFLOW.md` is updated (CLAUDE.md rule).
 
 Then run `npm run check` and the touched specs with `--repeat-each=3`, and report the result.

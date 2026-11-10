@@ -5,7 +5,8 @@
  *
  *   node scripts/gate.mjs [base]            new tests: --repeat-each=3, then every mutant of the
  *                                           requirements in the changed specs must die
- *   node scripts/gate.mjs --healer [base]   healer fix: a changed assertion stops the gate, it is a
+ *   node scripts/gate.mjs --healer [base]   healer fix: a changed assertion or any change in specs/
+ *                                           (plans, COVERAGE, mutants) stops the gate, it is a
  *                                           decision for the user; then --repeat-each=3
  *
  * The base defaults to origin/main. A change outside specs (page object, fixture, config) repeats
@@ -49,6 +50,19 @@ function main(args) {
   const lines = (s) => s.split('\n').filter(Boolean);
   const from = git('merge-base', base, 'HEAD').trim();
   if (!from) stop(`no common commit with ${base}`);
+
+  if (healer) {
+    // Plans, COVERAGE.md, mutants and allowed skips define what is tested: not the healer's to edit.
+    const cases = [
+      ...lines(git('diff', '--name-only', from, '--', 'specs')),
+      ...lines(git('ls-files', '-o', '--exclude-standard', '--', 'specs')),
+    ];
+    if (cases.length) {
+      stop(
+        `the fix changes the test cases in specs/, a decision for the user:\n${cases.join('\n')}`,
+      );
+    }
+  }
 
   const paths = ['tests', 'src', 'playwright.config.ts'];
   const untracked = lines(git('ls-files', '-o', '--exclude-standard', '--', ...paths));
