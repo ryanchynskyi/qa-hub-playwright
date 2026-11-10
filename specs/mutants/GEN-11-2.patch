@@ -1,15 +1,15 @@
-The topics step goes on with no topic chosen.
+The topics step saves with no topic chosen.
 
 diff --git a/apps/web/src/views/FocusCard.tsx b/apps/web/src/views/FocusCard.tsx
-index 00b877b..beac0ee 100644
+index 0a616d9..059a9e3 100644
 --- a/apps/web/src/views/FocusCard.tsx
 +++ b/apps/web/src/views/FocusCard.tsx
-@@ -526,7 +526,7 @@ function FocusSetup({
+@@ -531,7 +531,7 @@ function FocusSetup({
                type="button"
                className="btn primary"
-               data-testid="focus-next"
+               data-testid="focus-save"
 -              disabled={!topics.length}
 +              disabled={false}
-               onClick={() => setStep('lang')}
+               onClick={save}
              >
-               {t.focus.next}
+               {t.focus.save}
