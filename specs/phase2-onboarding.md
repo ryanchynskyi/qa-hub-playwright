@@ -6,6 +6,22 @@ Onboarding of QA Interview Hub for a new visitor: GEN-11 (focus wizard, DASH-027
 
 Exploration: every behaviour below was verified live on 2026-10-28 with tests/seed-new.spec.ts (gate visible on /dash), step by step, in three fresh contexts (manual path + tour; skip path + tour-skip; auto path + Escape). Nothing is left unverified except what the Ideas section lists. Timing note found live: after a click on a wizard option the step text/heading changes about 300 ms later, so every step check must be a web-first assertion (`expect(...).toHaveText`), never a read right after the click.
 
+## Update 2026-11-10: guest home and first run (app PR #106-#107, `7993c16`, `4898095`, `4643367`)
+
+The app changed the first visit; the scenarios below are rewritten for it (DASH-026/027/030 of
+`$APP_DIR/docs/regression-checklist.md`):
+
+1. The first visit shows `guest-home` inside `focus-gate`, not the wizard. `guest-home-start`
+   opens `/quiz/manual?first=1` (5 junior questions); its results have `first-run-setup`, which
+   opens `/dash` with the wizard. The app keeps that in memory (`openWizardFrom`), so the only way
+   into the wizard is the first run: `FocusWizard.openAfterFirstRun(quiz)` skips the 5 questions.
+2. The wizard has no language and no theme step: manual = 3 steps ("Крок N / 3"), auto = 4.
+   `focus-save` is on the topics step and is disabled with no topics; there is no `focus-next`
+   there. Ambiguities 1-4 below describe the old wizard and are kept as history.
+3. The short dashboard (GEN-14) needs a visitor without activity, but the wizard now follows a
+   first run, which is activity. Those tests pre-set `qa-hub-focus` = `skipped` (the DASH-030
+   precondition) and never open the wizard.
+
 ## Prerequisites
 
 Missing page-object code (src/pages/dashboard-page.ts has only root, title, today, topics, goto):
@@ -60,19 +76,21 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash as a new visitor; in focus-gate click focus-track auto - expect: focus-step reads 'Крок 2 / 6'; focus-stack options playwright, cypress, selenium, appium are visible; focus-next is disabled; no focus-stack has aria-checked true
-2. Click focus-stack playwright - expect: It has aria-checked true; focus-next is enabled
-3. Click focus-back - expect: Step 1 shows (focus-step 'Крок 1 / 6' (auto still chosen), focus-skip visible)
+Every scenario of this section starts with: open /dash, `focus.openAfterFirstRun(quiz)` (guest-home-start, skip 5 questions, first-run-setup).
 
-#### 1.2. 2. Topics step: next is disabled with no topics
+1. Click focus-track auto - expect: focus-step reads 'Крок 2 / 4'; focus-stack options playwright, cypress, selenium, appium are visible; focus-next is disabled; no focus-stack has aria-checked true
+2. Click focus-stack playwright - expect: It has aria-checked true; focus-next is enabled
+3. Click focus-back - expect: Step 1 shows (focus-step 'Крок 1 / 4' (auto still chosen), focus-skip visible)
+
+#### 1.2. 2. Topics step: save is disabled with no topics
 
 **File:** `tests/e2e/onboarding.spec.ts`
 
 **Steps:**
 
-1. Open /dash; click focus-track manual, then focus-level junior - expect: focus-step reads 'Крок 3 / 5'; some focus-topic rows have data-state on; focus-next is enabled; focus-total data-value equals the number of 'on' rows
-2. Click every focus-topic with data-state on - expect: focus-total data-value is 0; focus-next is disabled
-3. Click one focus-topic - expect: focus-total data-value is 1; focus-next is enabled
+1. Click focus-track manual, then focus-level junior - expect: focus-step reads 'Крок 3 / 3'; some focus-topic rows have data-state on; no focus-next; focus-save is enabled; focus-total data-value equals the number of 'on' rows
+2. Click every focus-topic with data-state on - expect: focus-total data-value is 0; focus-save is disabled
+3. Click one focus-topic - expect: focus-total data-value is 1; focus-save is enabled
 
 #### 1.3. 3. Back returns one step and keeps the choice
 
@@ -80,18 +98,12 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash; click focus-track manual, focus-level middle; on the topics step untick all and tick one focus-topic (sql); click focus-next - expect: Language step: focus-step 'Крок 4 / 5', focus-lang options, uk has data-state on
-2. Click focus-back - expect: Topics step 'Крок 3 / 5'; exactly the one ticked focus-topic still has data-state on
-3. Click focus-back twice more - expect: Level step 'Крок 2 / 5' (focus-level middle still aria-checked true), then the track step 'Крок 1 / 5' with no focus-back
+1. Click focus-track manual, focus-level middle; on the topics step ('Крок 3 / 3') untick all and tick one focus-topic (sql)
+2. Click focus-back - expect: Level step 'Крок 2 / 3'; focus-level middle still aria-checked true
+3. Click focus-level middle again - expect: Topics step 'Крок 3 / 3'; exactly the one ticked focus-topic (sql) still has data-state on
+4. Click focus-back twice - expect: 'Крок 2 / 3', then the track step 'Крок 1 / 3' with no focus-back
 
-#### 1.4. 4. The theme step applies the theme at once
-
-**File:** `tests/e2e/onboarding.spec.ts`
-
-**Steps:**
-
-1. Open /dash; click focus-track manual, focus-level junior, focus-next (topics), focus-next (language) - expect: focus-step 'Крок 5 / 5', heading 'Яку сторону обираєш?'; focus-save visible, no focus-next; the selected focus-theme option (data-state selected) matches <html data-theme>
-2. Click the focus-theme option that is not selected (read the key from the page) - expect: It gets data-state selected and aria-checked true; <html data-theme> equals its key at once, with the gate still open (no focus-save clicked)
+#### 1.4. 4. (removed 2026-11-10: the wizard has no theme step)
 
 #### 1.5. 5. Saving closes the gate and shows the shell with the focus bar
 
@@ -99,7 +111,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash; click focus-track manual, focus-level junior; read focus-total data-value N; focus-next, focus-next, then click focus-save on the theme step - expect: focus-gate is gone; shell.sidebar and dashboard.root visible
+1. Click focus-track manual, focus-level junior; read focus-total data-value N; click focus-save on the topics step - expect: focus-gate is gone; shell.sidebar and dashboard.root visible
 2. Check focus-bar - expect: Visible, data-state focus, data-key manual, data-value junior; focus-summary data-value N and text 'Manual QA · Junior · N тем'
 3. Reload - expect: No focus-gate; focus-bar still visible
 
@@ -109,8 +121,8 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash; click focus-track auto; tick focus-stack cypress and appium; click focus-next - expect: Level step 'Крок 3 / 6'
-2. Click focus-level junior; click focus-next on topics and on language; click focus-save on the theme step ('Крок 6 / 6') - expect: focus-gate gone, shell visible
+1. Click focus-track auto; tick focus-stack cypress and appium; click focus-next - expect: Level step 'Крок 3 / 4'
+2. Click focus-level junior ('Крок 4 / 4'); click focus-save on the topics step - expect: focus-gate gone, shell visible
 3. Read focus-summary - expect: Text starts with 'Automation (Cypress, Appium) · Junior ·' and data-value equals the ticked topic count
 
 ### 2. GEN-12 skip (@REQ-GEN-12)
@@ -123,7 +135,9 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash - expect: focus-gate visible; focus-skip visible below the options
+Both scenarios start like section 1: open /dash, `focus.openAfterFirstRun(quiz)`.
+
+1. The wizard is open - expect: focus-gate visible; focus-skip visible below the options
 2. Click focus-skip - expect: focus-gate gone; shell.sidebar and dashboard.root visible; focus-skipped ('Показуємо всі теми.') with focus-setup-open visible; no focus-bar
 3. Read localStorage qa-hub-focus - expect: The string 'skipped'
 
@@ -133,7 +147,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash, click focus-skip, reload /dash - expect: No focus-gate; shell.sidebar visible; focus-skipped visible
+1. Click focus-skip, reload /dash - expect: No focus-gate; shell.sidebar visible; focus-skipped visible
 2. Open the root page '/' - expect: No focus-gate; shell.sidebar visible; focus-skipped visible
 
 ### 3. GEN-14 short dashboard and tour (@REQ-GEN-14)
@@ -146,7 +160,9 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash and click focus-skip (precondition, not under test) - expect: Shell and dash-title visible
+Every scenario of this section pre-sets `qa-hub-focus` = `skipped` before the first load (DASH-030), so no wizard and no activity.
+
+1. Open /dash - expect: Shell and dash-title visible
 2. Check the blocks dash-ready, dash-summary-quiz, dash-summary-recall, dash-leaderboard, dash-chat, today, weak - expect: Every one has count 0
 3. Check the kept blocks - expect: dash-quickstart visible; topics visible with data-state locked; topics-lock visible
 
@@ -156,7 +172,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Open /dash, click focus-skip, then shell.open(quiz | recall | kb) - expect: That page is active (shell.expectActive)
+1. Open /dash, then shell.open(quiz | recall | kb) - expect: That page is active (shell.expectActive)
 2. shell.open('dash') - expect: tour is visible with data-key today; tour-pop has role dialog
 3. Check the blocks - expect: today and dash-ready exist (count 1); topics data-state active
 
@@ -166,7 +182,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Skip the wizard, open /quiz, open the dashboard - expect: tour data-key today; tour-counter data-value 1 and data-total T (3 for a fresh guest; read, not hard-coded); tour-next 'Далі'; tour-skip visible
+1. Open /dash, open /quiz, open the dashboard - expect: tour data-key today; tour-counter data-value 1 and data-total T (3 for a fresh guest; read, not hard-coded); tour-next 'Далі'; tour-skip visible
 2. Click tour-next once - expect: tour data-key dash-summary-quiz; tour-counter data-value 2
 3. Click tour-next until its text is Готово (tour.walkToEnd) - expect: Last step: tour data-key topics, tour-counter data-value equals data-total
 4. Click Готово - expect: tour gone; today, dash-ready visible
@@ -177,7 +193,7 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Skip the wizard, open /kb, open the dashboard, click tour-skip on step 1 - expect: tour gone; today and dash-ready visible
+1. Open /dash, open /kb, open the dashboard, click tour-skip on step 1 - expect: tour gone; today and dash-ready visible
 2. Read qa-hub-tour-v1 - expect: JSON with stage done
 3. Reload /dash - expect: No tour; today visible
 
@@ -187,5 +203,5 @@ None. Every requirement here is device-local UI state (localStorage); the API ha
 
 **Steps:**
 
-1. Skip the wizard, open /quiz, open the dashboard, click tour-next once, press Escape - expect: tour gone; today and dash-ready visible
+1. Open /dash, open /quiz, open the dashboard, click tour-next once, press Escape - expect: tour gone; today and dash-ready visible
 2. Reload /dash - expect: No tour; today visible

@@ -9,11 +9,14 @@ test.use({ visitor: 'new' });
 
 test.describe('first visit', () => {
   test(
-    'a new visitor gets the focus wizard instead of the shell',
+    'a new visitor gets the guest home instead of the shell',
     { tag: ['@REQ-GEN-10'] },
     async ({ dashboard, shell, focus }) => {
       await dashboard.goto();
       await expect(focus.gate).toBeVisible();
+      await expect(focus.home).toBeVisible();
+      await expect(focus.homeStart).toHaveAttribute('href', /\/quiz\/manual\?first=1$/);
+      await expect(focus.step).toHaveCount(0);
       await expect(shell.sidebar).toBeHidden();
       await expect(dashboard.root).toBeHidden();
     },
@@ -21,16 +24,21 @@ test.describe('first visit', () => {
 });
 
 test.describe('focus wizard', () => {
+  test.beforeEach(async ({ dashboard, quiz, focus }) => {
+    // The wizard opens only from the first-run results (DASH-026).
+    await dashboard.goto();
+    await focus.openAfterFirstRun(quiz);
+  });
+
   test(
     'framework step: next is disabled until a framework is ticked',
     { tag: ['@REQ-GEN-11'] },
-    async ({ dashboard, focus }) => {
+    async ({ focus }) => {
       const stacks = ['playwright', 'cypress', 'selenium', 'appium'];
 
-      // 1. Open /dash as a new visitor; in focus-gate click focus-track auto
-      await dashboard.goto();
+      // 1. In focus-gate click focus-track auto
       await focus.track('auto').click();
-      await expect(focus.step).toHaveText(/Крок 2 \/ 6/);
+      await expect(focus.step).toHaveText(/Крок 2 \/ 4/);
       for (const key of stacks) {
         await expect(focus.stack(key)).toBeVisible();
         await expect(focus.stack(key)).not.toHaveAttribute('aria-checked', 'true');
@@ -44,115 +52,90 @@ test.describe('focus wizard', () => {
 
       // 3. Click focus-back
       await focus.back.click();
-      await expect(focus.step).toHaveText(/Крок 1 \/ 6/);
+      await expect(focus.step).toHaveText(/Крок 1 \/ 4/);
       await expect(focus.skip).toBeVisible();
     },
   );
 
   test(
-    'topics step: next is disabled with no topics',
+    'topics step: save is disabled with no topics',
     { tag: ['@REQ-GEN-11'] },
-    async ({ dashboard, focus }) => {
+    async ({ focus }) => {
       const ticked = focus.ticked;
 
-      // 1. Open /dash; click focus-track manual, then focus-level junior
-      await dashboard.goto();
+      // 1. Click focus-track manual, then focus-level junior
       await focus.track('manual').click();
       await focus.level('junior').click();
-      await expect(focus.step).toHaveText(/Крок 3 \/ 5/);
+      await expect(focus.step).toHaveText(/Крок 3 \/ 3/);
       await expect(ticked.first()).toBeVisible();
       const count = await ticked.count();
-      await expect(focus.next).toBeEnabled();
+      await expect(focus.next).toHaveCount(0);
+      await expect(focus.save).toBeEnabled();
       await expect(focus.total).toHaveAttribute('data-value', String(count));
 
       // 2. Click every focus-topic with data-state on
       for (let i = 0; i < count; i++) await ticked.first().click();
       await expect(focus.total).toHaveAttribute('data-value', '0');
-      await expect(focus.next).toBeDisabled();
+      await expect(focus.save).toBeDisabled();
 
       // 3. Click one focus-topic
       await focus.topics.first().click();
       await expect(focus.total).toHaveAttribute('data-value', '1');
-      await expect(focus.next).toBeEnabled();
+      await expect(focus.save).toBeEnabled();
     },
   );
 
   test(
     'back returns one step and keeps the choice',
     { tag: ['@REQ-GEN-11'] },
-    async ({ dashboard, focus }) => {
+    async ({ focus }) => {
       const ticked = focus.ticked;
 
-      // 1. Open /dash; manual, middle; untick all topics, tick sql; focus-next
-      await dashboard.goto();
+      // 1. Manual, middle; untick all topics, tick sql
       await focus.track('manual').click();
       await focus.level('middle').click();
-      await expect(focus.step).toHaveText(/Крок 3 \/ 5/);
+      await expect(focus.step).toHaveText(/Крок 3 \/ 3/);
       await expect(ticked.first()).toBeVisible();
       const count = await ticked.count();
       for (let i = 0; i < count; i++) await ticked.first().click();
       await focus.topic('sql').click();
-      await focus.next.click();
-      await expect(focus.step).toHaveText(/Крок 4 \/ 5/);
-      await expect(focus.lang('uk')).toHaveAttribute('data-state', 'on');
 
       // 2. Click focus-back
       await focus.back.click();
-      await expect(focus.step).toHaveText(/Крок 3 \/ 5/);
+      await expect(focus.step).toHaveText(/Крок 2 \/ 3/);
+      await expect(focus.level('middle')).toHaveAttribute('aria-checked', 'true');
+
+      // 3. Click focus-level middle again: the topics come back as they were left
+      await focus.level('middle').click();
+      await expect(focus.step).toHaveText(/Крок 3 \/ 3/);
       await expect(ticked).toHaveCount(1);
       await expect(focus.topic('sql')).toHaveAttribute('data-state', 'on');
 
-      // 3. Click focus-back twice more
+      // 4. Click focus-back twice
       await focus.back.click();
-      await expect(focus.step).toHaveText(/Крок 2 \/ 5/);
-      await expect(focus.level('middle')).toHaveAttribute('aria-checked', 'true');
+      await expect(focus.step).toHaveText(/Крок 2 \/ 3/);
       await focus.back.click();
-      await expect(focus.step).toHaveText(/Крок 1 \/ 5/);
+      await expect(focus.step).toHaveText(/Крок 1 \/ 3/);
       await expect(focus.back).toHaveCount(0);
-    },
-  );
-
-  test(
-    'the theme step applies the theme at once',
-    { tag: ['@REQ-GEN-11'] },
-    async ({ dashboard, focus }) => {
-      // 1. Open /dash; manual, junior, next (topics), next (language)
-      await dashboard.goto();
-      await focus.passToTheme('junior');
-      await expect(focus.step).toHaveText(/Крок 5 \/ 5/);
-      await expect(focus.save).toBeVisible();
-      await expect(focus.next).toHaveCount(0);
-      await expect(focus.currentTheme).toHaveCount(1);
-      // The preselected theme follows the system one, so it is read, not hard-coded.
-      const other = (await focus.otherTheme.getAttribute('data-key')) as 'light' | 'dark';
-
-      // 2. Click the focus-theme option that is not selected
-      await focus.theme(other).click();
-      await expect(focus.theme(other)).toHaveAttribute('data-state', 'selected');
-      await expect(focus.theme(other)).toHaveAttribute('aria-checked', 'true');
-      await expect(focus.html).toHaveAttribute('data-theme', other);
-      await expect(focus.gate).toBeVisible();
     },
   );
 
   test(
     'saving closes the gate and shows the shell with the focus bar',
     { tag: ['@REQ-GEN-11'] },
-    async ({ page, dashboard, shell, focus }) => {
-      // 1. Open /dash; manual, junior; read focus-total N; next, next, save
-      await dashboard.goto();
+    async ({ page, dashboard, shell, focus, tour }) => {
+      // 1. Manual, junior; read focus-total N; save on the topics step
       await focus.track('manual').click();
       await focus.level('junior').click();
-      await expect(focus.step).toHaveText(/Крок 3 \/ 5/);
+      await expect(focus.step).toHaveText(/Крок 3 \/ 3/);
       await expect(focus.total).toHaveAttribute('data-value', /^[1-9]\d*$/);
       const n = await numberValue(focus.total);
-      await focus.next.click();
-      await focus.next.click();
-      await expect(focus.step).toHaveText(/Крок 5 \/ 5/);
       await focus.save.click();
       await expect(focus.gate).toBeHidden();
       await expect(shell.sidebar).toBeVisible();
       await expect(dashboard.root).toBeVisible();
+      // The first run was activity, so the dashboard tour starts right away.
+      await expect(tour.overlay).toHaveAttribute('data-key', 'today');
 
       // 2. Check focus-bar
       await expect(focus.bar).toBeVisible();
@@ -172,26 +155,22 @@ test.describe('focus wizard', () => {
   test(
     'auto track: ticked frameworks go into the focus summary',
     { tag: ['@REQ-GEN-11'] },
-    async ({ dashboard, shell, focus }) => {
-      // 1. Open /dash; auto; tick cypress and appium; next
-      await dashboard.goto();
+    async ({ shell, focus }) => {
+      // 1. Auto; tick cypress and appium; next
       await focus.track('auto').click();
       await focus.stack('cypress').click();
       await focus.stack('appium').click();
       await focus.next.click();
-      await expect(focus.step).toHaveText(/Крок 3 \/ 6/);
+      await expect(focus.step).toHaveText(/Крок 3 \/ 4/);
 
-      // 2. Click level junior; next on topics and language; save on the theme step
+      // 2. Click level junior; save on the topics step
       await focus.level('junior').click();
-      await expect(focus.step).toHaveText(/Крок 4 \/ 6/);
+      await expect(focus.step).toHaveText(/Крок 4 \/ 4/);
       // The topic preset follows the ticked frameworks.
       await expect(focus.topic('cypress')).toHaveAttribute('data-state', 'on');
       await expect(focus.topic('appium')).toHaveAttribute('data-state', 'on');
       await expect(focus.total).toHaveAttribute('data-value', /^[1-9]\d*$/);
       const n = await numberValue(focus.total);
-      await focus.next.click();
-      await focus.next.click();
-      await expect(focus.step).toHaveText(/Крок 6 \/ 6/);
       await focus.save.click();
       await expect(focus.gate).toBeHidden();
       await expect(shell.sidebar).toBeVisible();
@@ -204,12 +183,16 @@ test.describe('focus wizard', () => {
 });
 
 test.describe('focus skip', () => {
+  test.beforeEach(async ({ dashboard, quiz, focus }) => {
+    await dashboard.goto();
+    await focus.openAfterFirstRun(quiz);
+  });
+
   test(
     'skip closes the gate, shows the dashboard with the shell and the skipped line',
     { tag: ['@REQ-GEN-12'] },
-    async ({ page, dashboard, shell, focus }) => {
-      // 1. Open /dash
-      await dashboard.goto();
+    async ({ page, dashboard, shell, focus, tour }) => {
+      // 1. The wizard is open on step 1
       await expect(focus.gate).toBeVisible();
       await expect(focus.skip).toBeVisible();
 
@@ -219,6 +202,7 @@ test.describe('focus skip', () => {
       await expect(shell.sidebar).toBeVisible();
       await expect(dashboard.root).toBeVisible();
       await expect(focus.skipped).toContainText('Показуємо всі теми.');
+      await expect(tour.overlay).toHaveAttribute('data-key', 'today');
       await expect(focus.setupOpen).toBeVisible();
       await expect(focus.bar).toHaveCount(0);
 
@@ -228,11 +212,11 @@ test.describe('focus skip', () => {
   );
 
   test(
-    'after a skip the wizard does not come back on reload',
+    'the skip survives a reload and /',
     { tag: ['@REQ-GEN-12'] },
-    async ({ page, dashboard, shell, focus }) => {
-      // 1. Open /dash, click focus-skip, reload /dash
-      await dashboard.goto();
+    async ({ page, shell, focus }) => {
+      // The gate checks here are about layout: the wizard itself opens only after a first run.
+      // 1. Click focus-skip, reload /dash
       await focus.skip.click();
       await expect(focus.gate).toBeHidden();
       await page.reload();
@@ -250,13 +234,16 @@ test.describe('focus skip', () => {
 });
 
 test.describe('short dashboard and tour', () => {
+  // DASH-030: a visitor who skipped the wizard and has no activity yet. The first visit now opens
+  // the guest home, and the wizard only follows a first run, which is activity itself.
+  test.use({ visitor: 'skipped' });
+
   test(
     "a new visitor's short dashboard hides the full blocks until first activity",
     { tag: ['@REQ-GEN-14'] },
-    async ({ page, dashboard, shell, focus, tour }) => {
-      // 1. Open /dash and click focus-skip
+    async ({ page, dashboard, shell, tour }) => {
+      // 1. Open /dash with the focus skipped
       await dashboard.goto();
-      await focus.skip.click();
       await expect(shell.sidebar).toBeVisible();
 
       // 2. Check the kept blocks first: only the short dashboard has a locked topic list
@@ -284,10 +271,9 @@ test.describe('short dashboard and tour', () => {
     test(
       `opening ${target} arms the tour on the next dashboard`,
       { tag: ['@REQ-GEN-14'] },
-      async ({ dashboard, shell, focus, tour }) => {
-        // 1. Open /dash, click focus-skip, then open the page
+      async ({ dashboard, shell, tour }) => {
+        // 1. Open /dash with the focus skipped, then open the page
         await dashboard.goto();
-        await focus.skip.click();
         await shell.open(target);
         await shell.expectActive(target);
 
@@ -308,10 +294,9 @@ test.describe('short dashboard and tour', () => {
   test(
     'the tour runs through its steps to Готово',
     { tag: ['@REQ-GEN-14', '@responsive'] },
-    async ({ dashboard, shell, focus, tour }) => {
-      // 1. Skip the wizard, open /quiz, open the dashboard
+    async ({ dashboard, shell, tour }) => {
+      // 1. Open /dash with the focus skipped, open /quiz, open the dashboard
       await dashboard.goto();
-      await focus.skip.click();
       await shell.open('quiz');
       await shell.expectActive('quiz');
       await shell.open('dash');
@@ -344,10 +329,9 @@ test.describe('short dashboard and tour', () => {
   test(
     'tour-skip ends the tour and a reload does not start it again',
     { tag: ['@REQ-GEN-14'] },
-    async ({ page, dashboard, shell, focus, tour }) => {
-      // 1. Skip the wizard, open /kb, open the dashboard, click tour-skip
+    async ({ page, dashboard, shell, tour }) => {
+      // 1. Open /dash with the focus skipped, open /kb, open the dashboard, click tour-skip
       await dashboard.goto();
-      await focus.skip.click();
       await shell.open('kb');
       await shell.expectActive('kb');
       await shell.open('dash');
@@ -370,10 +354,9 @@ test.describe('short dashboard and tour', () => {
   test(
     'Escape ends the tour and a reload does not start it again',
     { tag: ['@REQ-GEN-14'] },
-    async ({ page, dashboard, shell, focus, tour }) => {
-      // 1. Skip the wizard, open /quiz, open the dashboard, tour-next once, press Escape
+    async ({ page, dashboard, shell, tour }) => {
+      // 1. Open /dash with the focus skipped, open /quiz, open the dashboard, tour-next once, press Escape
       await dashboard.goto();
-      await focus.skip.click();
       await shell.open('quiz');
       await shell.expectActive('quiz');
       await shell.open('dash');

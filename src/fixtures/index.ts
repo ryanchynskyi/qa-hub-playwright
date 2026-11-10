@@ -38,8 +38,11 @@ export interface FrameworkOptions {
   visitor?: Visitor;
 }
 
-/** `new`: first visit, with the focus wizard and the dashboard tour; `returning`: neither. */
-export type Visitor = 'returning' | 'new';
+/**
+ * `new`: first visit (guest home, then the focus wizard and the dashboard tour); `skipped`: the
+ * wizard skipped, the tour still ahead; `returning`: neither.
+ */
+export type Visitor = 'returning' | 'new' | 'skipped';
 
 export interface TestUser extends Credentials {
   displayName: string;
@@ -50,7 +53,7 @@ export interface TestUser extends Credentials {
 interface TestFixtures {
   /** UI language pinned before the app loads. `test.use({ lang: 'en' })` for English. */
   lang: Lang;
-  /** `test.use({ visitor: 'new' })` keeps the first-visit focus wizard and dashboard tour. */
+  /** `test.use({ visitor: 'new' })` keeps the first visit; `'skipped'` keeps only the tour. */
   visitor: Visitor;
   /** Layout of the current project; page objects use it to hide desktop/phone differences. */
   device: Device;
@@ -258,18 +261,19 @@ async function prepareContext(
   visitor: Visitor,
 ): Promise<void> {
   await context.addInitScript(
-    ({ language, returning }) => {
+    ({ language, visitor }) => {
       localStorage.setItem('umami.disabled', '1');
       localStorage.setItem('qa-hub-lang', language);
-      if (!returning) return;
+      if (visitor === 'new') return;
       localStorage.setItem('qa-hub-focus', 'skipped');
+      if (visitor === 'skipped') return;
       localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
       // Sheets after a finished quiz cover the result buttons: the content note, then the donate
       // offer (a signed-in user's first quiz gets it once the note is handled).
       localStorage.setItem('qa-hub-content-note', 'dismissed');
       localStorage.setItem('qa-hub-donate-offer', 'dismissed');
     },
-    { language: lang, returning: visitor === 'returning' },
+    { language: lang, visitor },
   );
 }
 

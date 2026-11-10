@@ -41,8 +41,8 @@
 | GEN-07 | 🟡     | `api/seo.spec.ts` (2 сторінки, 2 shell-и, robots, sitemap); решта маршрутів — ні                                 | API (GET HTML)    |
 | GEN-08 | ❌     | індикатор холодного старту, блок «Повторити»                                                                     | UI + `page.route` |
 | GEN-09 | ❌     | тост XP, стан level-up                                                                                           | UI                |
-| GEN-10 | ✅     | `e2e/onboarding.spec.ts` (майстер замість шела, desktop)                                                         | UI                |
-| GEN-11 | ✅     | `e2e/onboarding.spec.ts` (кроки, «Далі» неактивна, «Назад», тема одразу, збереження, auto)                       | UI                |
+| GEN-10 | ✅     | `e2e/onboarding.spec.ts` (guest home замість шела, desktop)                                                      | UI                |
+| GEN-11 | ✅     | `e2e/onboarding.spec.ts` (через перший прогін: кроки, «Далі»/«Готово» неактивні, «Назад», збереження, auto)      | UI                |
 | GEN-12 | ✅     | `e2e/onboarding.spec.ts` («Пропустити» → `skipped`, після reload і на `/` майстра немає)                         | UI                |
 | GEN-13 | ❌     | дашборд за фокусом, «Усі теми»                                                                                   | UI                |
 | GEN-14 | ✅     | `e2e/onboarding.spec.ts` (короткий дашборд, тур з /quiz, /recall, /kb, «Готово» на всіх пристроях, skip, Escape) | UI                |
