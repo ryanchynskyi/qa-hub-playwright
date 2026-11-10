@@ -1,0 +1,1 @@
+{"id":"8f121c43710a9120383e41f8ddb07145.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/bug-dialog.spec.ts › Bug report dialog › undecodable bytes named .png are refused, a real PNG named .txt is accepted","name":"undecodable bytes named .png are refused, a real PNG named .txt is accepted","status":"passed","testResultsByEnv":{"default":"e2de8a195d995eede84fc508b15a5fde"}}

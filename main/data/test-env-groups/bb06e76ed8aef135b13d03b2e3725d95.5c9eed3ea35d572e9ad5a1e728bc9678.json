@@ -1,1 +1,1 @@
-{"id":"bb06e76ed8aef135b13d03b2e3725d95.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/auth.spec.ts › sign-in and sign-up › a session survives a reload","name":"a session survives a reload","status":"failed","testResultsByEnv":{"default":"bc559c75bd40a167a6c8d04852ca8cd1"}}
+{"id":"bb06e76ed8aef135b13d03b2e3725d95.5c9eed3ea35d572e9ad5a1e728bc9678","fullName":"e2e/auth.spec.ts › sign-in and sign-up › a session survives a reload","name":"a session survives a reload","status":"passed","testResultsByEnv":{"default":"80532b8019469e2f20dc13e0b2d4cfda"}}
