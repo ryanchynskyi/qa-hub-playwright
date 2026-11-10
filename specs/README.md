@@ -10,7 +10,7 @@ Copy, fill the `<…>` parts, pass as the planner's prompt:
 ```text
 Plan the <block> block of phase <N>. Save with planner_save_plan to specs/phase<N>-<block>.md.
 Start with planner_setup_page {seedFile: "tests/seed.spec.ts", project: "desktop"}; if it fails,
-stop and report. (First visit: focus wizard, short dashboard, tour → seedFile
+stop and report. (First visit: guest home, first run, focus wizard, short dashboard, tour → seedFile
 "tests/seed-new.spec.ts".) App: http://localhost:4273 (uk UI, path routes).
 
 Requirements (rows in specs/COVERAGE.md, checklist ids in $APP_DIR/docs/regression-checklist.md):

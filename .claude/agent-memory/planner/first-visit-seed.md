@@ -1,6 +1,6 @@
 ---
 name: first-visit-seed
-description: First-visit features (focus wizard, short dashboard, tour) need seedFile tests/seed-new.spec.ts
+description: First-visit features (guest home, first run, focus wizard, short dashboard, tour) need seedFile tests/seed-new.spec.ts
 metadata:
   type: feedback
   class: wrong-seed
