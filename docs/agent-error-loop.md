@@ -49,6 +49,8 @@ metadata:
 | `test-data-leak`    | тест лишає дані в БД або залежить від даних іншого тесту                             |
 | `weak-assert`       | тест зелений, але вимогу не доводить (мутант виживає)                                |
 | `plan-dropped`      | сценарій плану пропущено чи послаблено без причини                                   |
+| `unasserted-step`   | крок сценарію виконано, але його результат не перевірено жодним `expect`             |
+| `mock-masks`        | мок мережі в спеці чи без `route.fetch()`: тест зелений на зламаному API             |
 | `flaky-masked`      | retries, `test.skip`, довший таймаут чи слабший matcher ховають справжнє падіння      |
 | `fragile-locator`   | CSS/текст/nth там, де є `data-testid`                                                |
 | `hard-wait`         | `waitForTimeout` чи поллінг замість web-first assertion                              |

@@ -90,6 +90,8 @@ jobs:
         run: npx playwright install-deps chromium
       # webServer in playwright.config.ts starts scripts/stack.mjs (API + built web app).
       - run: npx playwright test
+      # A skipped test is not a green one: only those in specs/allowed-skips.txt may skip.
+      - run: npm run check:skips
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:

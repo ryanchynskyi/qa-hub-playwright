@@ -64,6 +64,16 @@ export default defineConfig(
       'playwright/expect-expect': ['error', { assertFunctionPatterns: ['^expect[A-Z]'] }],
       // `test.skip(condition, reason)` is a documented decision; a bare skip still fails lint.
       'playwright/no-skipped-test': ['error', { allowConditional: true }],
+      // A mock in a spec can make a test green against an app that is broken. Interception lives in
+      // src/helpers/network.ts and page objects, passes the real response through (route.fetch)
+      // and says why (test-reviewer, "Mocks").
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'CallExpression[callee.property.name=/^route(FromHAR|WebSocket)?$/]',
+          message: 'No network mocks in specs: use src/helpers/network.ts or a page object.',
+        },
+      ],
     },
   },
 
