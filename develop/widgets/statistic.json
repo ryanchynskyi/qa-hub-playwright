@@ -1,1 +1,1 @@
-{"total":252,"retries":27,"flaky":18,"broken":3,"failed":24,"passed":223,"skipped":2}
+{"total":252,"passed":223,"retries":27,"flaky":8,"failed":24,"skipped":2,"broken":3}
