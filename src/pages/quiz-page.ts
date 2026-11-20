@@ -6,11 +6,12 @@ export type QuizCount = '10' | '20' | 'all';
 export type Verdict = 'correct' | 'wrong' | 'skipped';
 
 /**
- * Quiz, `/quiz/:sectionId`: setup (section, level, count) → run (one question at a time) →
+ * Quiz, `/quiz/:sectionId`: setup (section; level and count behind `setupToggle`) → run (one question at a time) →
  * results. Clicking an option *is* the check: options stay `data-state=idle` until the server
  * answers, then the verdict appears.
  */
 export class QuizPage {
+  readonly setupToggle: Locator;
   readonly start: Locator;
   readonly question: Locator;
   readonly options: Locator;
@@ -39,6 +40,7 @@ export class QuizPage {
   readonly resultRecall: Locator;
 
   constructor(readonly page: Page) {
+    this.setupToggle = page.getByTestId('quiz-setup-toggle');
     this.start = page.getByTestId('quiz-start');
     this.question = page.getByTestId('question');
     this.options = this.question.getByTestId('quiz-option');
@@ -99,6 +101,9 @@ export class QuizPage {
   }
 
   async startRun(count: QuizCount = '10'): Promise<void> {
+    // The count filter sits behind the setup toggle (closed on every mount).
+    if ((await this.setupToggle.getAttribute('data-state')) === 'closed')
+      await this.setupToggle.click();
     await byTestId(this.page, 'quiz-count', count).click();
     await this.start.click();
     await expect(this.question).toBeVisible();
