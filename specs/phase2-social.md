@@ -52,7 +52,7 @@ Leaderboard UI (/leaderboard) and public chat (/chat), uk UI, path routes. Explo
 
 - SOC-06 / CHAT-008, 009, 010: delete in two clicks (`chat-delete` idle→confirm), no delete for others, admin delete + ban (`chat-ban`, `chat-banned`).
 - CHAT-005 counter/500 limit in the UI (`chat-count`, send disabled on empty), CHAT-006 Enter vs Shift+Enter, CHAT-007 6th message in 30 s shows `chat-error`; CHAT-011/012 paging, `chat-new` for someone else's message, `chat-empty`.
-- LB-003 (`leaderboard-me` top/outside, 21st row `leaderboard-own-row` with `leaderboard-total`), LB-004 (`unranked` state: a signed-in user without XP), LB-005 week period, LB-006 hidden note, LB-007 empty board message (`leaderboard-empty`: seen live on the empty DB: "Поки нікого немає: набери XP першим.").
+- LB-003 (`leaderboard-me` top/outside, 21st row `leaderboard-own-row` with `leaderboard-total`), LB-008 (was LB-004; `unranked` state: a signed-in user without XP), LB-005 week period, LB-006 hidden note, LB-007 empty board message (`leaderboard-empty`: seen live on the empty DB: "Поки нікого немає: набери XP першим.").
 - SOC-07…09 comments.
 - Language: the same board/chat in EN (tag spelling stays Latin; "(you)").
 - Persisted period via `?period=week` link.
