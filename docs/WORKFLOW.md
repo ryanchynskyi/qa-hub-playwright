@@ -141,12 +141,7 @@ API. Лінт ловить це до ревʼю, а `test-reviewer` (пункт 
 |---|---|
 | push у `main`, pull request | не пустити зламаний фреймворк |
 | `repository_dispatch: app-updated` | зелений push апки в `main`/`develop` запускає повний набір проти саме цього коміту апки (`client_payload.sha`) |
-| `workflow_dispatch` | ручний запуск, input `app_ref` (гілка, тег чи SHA апки, за замовчуванням `develop`, див. нижче) |
-
-**Тимчасово (2026-11-20): апка за замовчуванням — `develop`.** Push і PR фреймворку тестують
-`develop` апки, бо редизайн (PR #118 апки) поки лише там, а фреймворк уже під нього. Коли апка
-зіллє `develop` у `main`, повернути `'main'` у `APP_REF`, `APP_BRANCH` і `default` в e2e.yml.
-До того nightly-прогін на `main` апки червоний очікувано.
+| `workflow_dispatch` | ручний запуск, input `app_ref` (гілка, тег чи SHA апки, за замовчуванням `main`) |
 
 **Тригери з апки (I-3).** Апка шле `repository_dispatch` двома кроками у своїх workflow:
 job `notify-tests` у `ci.yml` після зеленого `check` (push у `main`/`develop`, подія `app-updated`)
