@@ -13,7 +13,7 @@ const BROWSERS: readonly Browser[] = ['chromium', 'firefox', 'webkit'];
 /** Viewports of the app's layouts (docs/brief.md §10); the same on every browser. */
 const VIEWPORTS: Record<Device, { width: number; height: number }> = {
   desktop: { width: 1280, height: 800 },
-  tablet: { width: 800, height: 800 },
+  tablet: { width: 1024, height: 800 }, // the narrow rail, 901–1279px
   phone: { width: 390, height: 800 },
 };
 

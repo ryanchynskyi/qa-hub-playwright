@@ -1,5 +1,12 @@
 # Phase 2: Quiz block
 
+## Update 2026-11-20: redesign (app `develop`, PR #118)
+
+Wins over the text below. Misses and «Повторити» live in the review: `quiz-review` («Розібрати N»)
+opens `quiz-review-view`, only the first accordion item is open, `quiz-redo` is inside it. When a
+chapter is below 70 % the results table lists only the weak chapters (checklist QUIZ-043; app source
+`QuizResults.tsx`).
+
 ## Application Overview
 
 Plan for quiz requirements not yet covered by tests/e2e/quiz.spec.ts and tests/api/quiz-check.spec.ts: QUIZ-09, 10, 12, 13, 14, 19. Explored live on http://localhost:4273/quiz/sql (uk UI, guest, desktop). Fixtures: quiz (QuizPage), api, user, authedPage. Test ids only from the app's docs/test-ids.md. Questions and answers always come from the ApiClient (api.questions, api.correctIndex), never hard-coded. Every scenario starts from a fresh state (fresh guest context or a new user fixture). Desktop project only (phones fold the miss list and have no keyboard).

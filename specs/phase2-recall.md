@@ -1,5 +1,12 @@
 # Phase 2: Recall (REC-04, REC-05, REC-06)
 
+## Update 2026-11-20: redesign (app `develop`, PR #118)
+
+Wins over the text below. Rating is three buttons, `recall-rate` key `1|3|5`, digit keys 1-3;
+bar states `pass|part|fail|current|todo`. The session size is not a constant: tests set
+`recall-count` 10 and read it from `recall-start[data-value]`. With nothing due but reviewed cards
+the page is `recall-caught-up`; `recall-caught-setup` opens the setup.
+
 ## Application Overview
 
 Active Recall at /recall. Explored live as a guest (uk UI, desktop, seed tests/seed.spec.ts, project desktop; setup succeeded). Flow: setup view (topic list, presets, count chips, "Почати: N карток" = recall-start) -> session (recall-progress "n / N", recall-card state front|back, recall-reveal, Space/Enter reveal, recall-rate 1..5, keys 1..5 rate) -> result view. Rating is stored in localStorage (qa-hub-guest-v1, cards.<id> {rating, reviews, dueAt, history, lastXpDate}) for a guest and via POST /me/recall/rate for an account. Session card order in "Усі теми" is not scope order (first card was Java Core), so a test must read the card id from recall-card[data-key], never assume a card. Fixtures: `page` = guest, `authedPage` + `user` = account.

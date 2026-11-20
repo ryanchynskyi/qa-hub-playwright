@@ -1,15 +1,15 @@
 Rating 1 brings the card back every time.
 
-diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
-index da5e2ba..86297a5 100644
---- a/apps/web/src/views/Recall.tsx
-+++ b/apps/web/src/views/Recall.tsx
-@@ -673,7 +673,7 @@ function SessionView({
+diff --git a/apps/web/src/views/RecallSession.tsx b/apps/web/src/views/RecallSession.tsx
+index e7ab258..8e23771 100644
+--- a/apps/web/src/views/RecallSession.tsx
++++ b/apps/web/src/views/RecallSession.tsx
+@@ -428,7 +428,7 @@ function RunView({ idx, s, scope }: { idx: CatalogIndex; s: Session; scope: stri
      try {
        const r = await store.rate(card, rating);
-       // "1" comes back later in the same session, once.
+       // «Не знаю» (1) comes back later in the same session, once.
 -      const requeue = rating === 1 && !s.requeued.includes(card.id);
 +      const requeue = rating === 1;
        const at = Math.min(s.i + 4, s.items.length);
        const items = requeue ? [...s.items.slice(0, at), card, ...s.items.slice(at)] : s.items;
-       if (s.i + 1 >= items.length) recallIntro.dismiss();
+       sessionStore.set({

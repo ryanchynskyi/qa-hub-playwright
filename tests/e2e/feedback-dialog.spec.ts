@@ -77,6 +77,7 @@ test.describe('Site feedback', () => {
       await admin.reload();
       const item = admin.feedbackItem(number);
       await expect(item).toHaveAttribute('data-value', '3');
+      await admin.expand(item);
       await expect(admin.feedbackReply(number).none).toBeVisible();
       await expect(admin.feedbackImages(number)).toHaveCount(1);
     },
@@ -101,6 +102,7 @@ test.describe('Site feedback', () => {
       // 3. In `adminPage` find AdminPage.feedbackItem(N2)
       await admin.reload();
       await expect(admin.feedbackItem(second)).toContainText(user.displayName);
+      await admin.expand(admin.feedbackItem(second));
       await expect(admin.feedbackReply(second).input).toBeVisible();
       await expect(admin.feedbackReply(second).none).toHaveCount(0);
     },

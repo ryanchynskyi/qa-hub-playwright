@@ -9,5 +9,5 @@ test.use({ visitor: 'new' });
 
 test('seed new visitor', async ({ page }) => {
   await page.goto('dash');
-  await expect(page.getByTestId('focus-gate')).toBeVisible();
+  await expect(page.getByTestId('guest-home')).toBeVisible();
 });

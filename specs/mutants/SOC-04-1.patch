@@ -1,17 +1,15 @@
-A chat message is rendered as HTML.
+Comment text is returned with its HTML tags stripped.
 
-diff --git a/apps/web/src/views/Chat.tsx b/apps/web/src/views/Chat.tsx
-index 843a4d9..5cf1ff5 100644
---- a/apps/web/src/views/Chat.tsx
-+++ b/apps/web/src/views/Chat.tsx
-@@ -326,9 +326,7 @@ function Message({
-         {m.name ?? (m.anonNumber !== null ? `Anonim${m.anonNumber}` : t.chat.anonName)}
-         {m.isMine && <span className="you"> ({t.chat.you})</span>}
-       </span>
--      <span className="chattext" data-testid="chat-message-text">
--        {m.text}
--      </span>
-+      <span className="chattext" data-testid="chat-message-text" dangerouslySetInnerHTML={{ __html: m.text }} />
-       <span className="chatmeta">
-         <time dateTime={when.toISOString()} title={when.toLocaleString(t.locale)}>
-           {chatTime(m.createdAt, now, t.locale)}
+diff --git a/apps/api/src/routes/comments.ts b/apps/api/src/routes/comments.ts
+index d001314..7030b8a 100644
+--- a/apps/api/src/routes/comments.ts
++++ b/apps/api/src/routes/comments.ts
+@@ -49,7 +49,7 @@ export const commentRoutes: FastifyPluginAsync = async (app) => {
+     author: r.anonymous ? null : r.user.displayName,
+     mine: viewerId !== null && r.userId === viewerId,
+     staff: !r.anonymous && app.isAdmin(r.user),
+-    text: r.text,
++    text: r.text.replace(/<[^>]*>/g, ''),
+     createdAt: r.createdAt.toISOString(),
+     score: r.score,
+     myVote,

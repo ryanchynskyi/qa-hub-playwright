@@ -1,15 +1,15 @@
 The page shows the total in the open counter.
 
-diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
-index cb9347a..e647ec6 100644
---- a/apps/web/src/views/Admin.tsx
-+++ b/apps/web/src/views/Admin.tsx
-@@ -283,7 +283,7 @@ export function BugList({
-     <section className="card" data-testid="admin-bugs">
-       <h2>{t.admin.bugsTitle}</h2>
-       <div className="stats" style={{ marginBottom: 12 }}>
--        <div data-testid="admin-bugs-count" data-value={data.open} data-total={data.total}>
-+        <div data-testid="admin-bugs-count" data-value={data.total} data-total={data.total}>
-           <b>{data.open.toLocaleString(t.locale)}</b>
-           <span>{t.admin.bugsOpen}</span>
-         </div>
+diff --git a/apps/web/src/views/admin/Inbox.tsx b/apps/web/src/views/admin/Inbox.tsx
+index 3431bad..9d3fb7f 100644
+--- a/apps/web/src/views/admin/Inbox.tsx
++++ b/apps/web/src/views/admin/Inbox.tsx
+@@ -629,7 +629,7 @@ export function InboxTab({
+       <div className="adm-stats2">
+         <div data-testid="admin-bugs" className="card adm-card">
+           <div className="stats">
+-            <div data-testid="admin-bugs-count" data-value={bugs.open} data-total={bugs.total}>
++            <div data-testid="admin-bugs-count" data-value={bugs.total} data-total={bugs.total}>
+               <b>{bugs.open.toLocaleString(t.locale)}</b>
+               <span>
+                 {t.admin.bugsTitle}: {t.admin.bugsOpen.toLowerCase()}

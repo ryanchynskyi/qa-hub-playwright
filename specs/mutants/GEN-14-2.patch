@@ -1,10 +1,10 @@
 Opening the knowledge base does not arm the tour.
 
 diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
-index 83ec7ba..aaea898 100644
+index 9ea1aaf..9555f50 100644
 --- a/apps/web/src/Layout.tsx
 +++ b/apps/web/src/Layout.tsx
-@@ -777,7 +777,7 @@ export function Layout() {
+@@ -1098,7 +1098,7 @@ export function Layout() {
    const totalXp = progress.stats.totalXp;
    // Opening a quiz, Recall or an article arms the dashboard tour for a new visitor.
    useEffect(() => {
@@ -12,4 +12,4 @@ index 83ec7ba..aaea898 100644
 +    if (section === 'quiz' || section === 'recall') armTour(totalXp);
    }, [section, totalXp]);
    const spotlight = useSpotlightOpen();
-   const gate = useFocusGate(progress) && isDash(pathname);
+   // Only the focus wizard of a finished first run runs without the shell; the guest home has it.

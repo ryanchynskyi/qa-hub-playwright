@@ -40,6 +40,7 @@ test.describe('Admin access and bug reports', () => {
       await admin.reload();
       const row = admin.bug(id);
       await expect(row).toHaveAttribute('data-state', 'open');
+      await admin.expand(row);
       await expect(admin.bugToggle(id)).toBeVisible();
 
       // 2. Click `admin-bug-toggle` inside that row; the page re-fetches and renders the list

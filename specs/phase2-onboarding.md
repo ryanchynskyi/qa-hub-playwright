@@ -1,5 +1,14 @@
 # Phase 2: onboarding (focus wizard, skip, dashboard tour)
 
+## Update 2026-11-20: redesign (app `develop`, PR #118)
+
+Wins over the text below. The wizard has two steps: topics (`focus-topic`, `focus-next` disabled
+until one is ticked), then level (Middle preselected, `focus-save`; `focus-skip` exists only here).
+`focus-track`, `focus-stack` and `focus-bar` are gone, so the framework and auto-track scenarios
+are deleted; the saved focus shows as `focus-summary` (v = ticked topics). The guest home sits in
+the normal shell (no `focus-gate` on first visit). Tour keys: `dash-ready` replaces
+`dash-summary-quiz`, `why-open` replaces `topics`.
+
 ## Application Overview
 
 Onboarding of QA Interview Hub for a new visitor: GEN-11 (focus wizard, DASH-027), GEN-12 (focus-skip, DASH-028), GEN-14 (short dashboard and tour, DASH-020/021/022). GEN-10 (gate instead of shell) is already covered by tests/e2e/onboarding.spec.ts. All state is device-local (localStorage `qa-hub-focus`, `qa-hub-tour-v1`, `qa-hub-theme-v1`, `qa-hub-guest-v1`), the API has no endpoint for it. Every scenario uses `test.use({ visitor: 'new' })`, desktop project, guest, `uk` UI, blank browser, and goes to `/dash`. Tests go into tests/e2e/onboarding.spec.ts (describe 'first visit').

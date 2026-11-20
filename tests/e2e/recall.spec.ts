@@ -1,6 +1,7 @@
 // spec: specs/phase2-recall.md
 // seed: tests/seed.spec.ts
 import { expect, test } from '../../src/fixtures';
+import { stripInlineCode } from '../../src/helpers/data';
 import { readGuest } from '../../src/helpers/guest-storage';
 import type { ApiClient } from '../../src/api/client';
 import { RecallPage } from '../../src/pages/recall-page';
@@ -23,29 +24,29 @@ test.describe('Recall: card front', () => {
     'the front shows the question and hides the answer',
     { tag: ['@REQ-REC-04'] },
     async ({ recall, api }) => {
-      // 1. Open /recall and click recall-start (default 10 cards, all topics)
+      // 1. Open /recall and click recall-start (default preset core, count all)
       await recall.goto();
-      await recall.startSession();
+      const size = await recall.startSession();
 
       // 2. Read recall-card[data-key] and look the card up in the API
       const id = await recall.currentCardId();
       const card = await cardById(api, id);
       await expect(recall.card).toHaveAttribute('data-state', 'front');
-      await expect(recall.question).toHaveText(card.question);
+      await expect(recall.question).toHaveText(stripInlineCode(card.question));
       await expect(recall.reveal).toBeVisible();
       await expect(recall.back).toBeHidden();
       await expect(recall.answer).toBeHidden();
       await expect(recall.rates).toHaveCount(0);
       await expect(recall.card).not.toContainText(plainFragment(card.answer));
       await expect(recall.progress).toHaveAttribute('data-value', '1');
-      await expect(recall.progress).toHaveAttribute('data-total', '10');
+      await expect(recall.progress).toHaveAttribute('data-total', String(size));
     },
   );
 });
 
 test.describe('Recall: reveal', () => {
   test(
-    'the button shows the model answer and rating buttons 1 to 5',
+    'the button shows the model answer and the three rating buttons',
     { tag: ['@REQ-REC-04'] },
     async ({ recall, api }) => {
       // 1. Open /recall, click recall-start, remember the card id
@@ -58,9 +59,9 @@ test.describe('Recall: reveal', () => {
       await recall.showAnswer();
       await expect(recall.answer).toBeVisible();
       await expect(recall.answer).toContainText(plainFragment(card.answer));
-      await expect(recall.question).toHaveText(card.question);
-      await expect(recall.rates).toHaveCount(5);
-      for (let n = 1; n <= 5; n++) {
+      await expect(recall.question).toHaveText(stripInlineCode(card.question));
+      await expect(recall.rates).toHaveCount(3);
+      for (const n of [1, 3, 5]) {
         await expect(recall.rate(n)).toBeEnabled();
       }
       await expect(recall.reveal).toHaveCount(0);
@@ -76,7 +77,7 @@ test.describe('Recall: reveal', () => {
 
       // 2. Press the key without focusing any element
       await recall.showAnswer(key);
-      await expect(recall.rates).toHaveCount(5);
+      await expect(recall.rates).toHaveCount(3);
 
       // Negative: Space again changes nothing
       await recall.page.keyboard.press('Space');
@@ -93,37 +94,38 @@ test.describe('Recall: rating', () => {
     async ({ page, recall }) => {
       // 1. Open /recall, click recall-start, remember card id A
       await recall.goto();
-      await recall.startSession();
+      const size = await recall.startSession();
       const a = await recall.currentCardId();
 
-      // 2. Reveal and rate 4
+      // 2. Reveal and rate «Знаю» (5)
       await recall.showAnswer();
-      await recall.rateCard(4);
+      await recall.rateCard(5);
       await expect(recall.progress).toHaveAttribute('data-value', '2');
-      await expect(recall.progress).toHaveAttribute('data-total', '10');
+      await expect(recall.progress).toHaveAttribute('data-total', String(size));
       await expect(recall.card).toHaveAttribute('data-state', 'front');
       await expect(recall.card).not.toHaveAttribute('data-key', a);
-      await expect(recall.bar.nth(0)).toHaveAttribute('data-state', 'ok');
+      await expect(recall.bar.nth(0)).toHaveAttribute('data-state', 'pass');
       await expect(recall.bar.nth(1)).toHaveAttribute('data-state', 'current');
       await expect
         .poll(async () => {
           const state = (await readGuest(page))?.cards[a];
           return state && { rating: state.rating, reviews: state.reviews };
         })
-        .toEqual({ rating: 4, reviews: 1 });
+        .toEqual({ rating: 5, reviews: 1 });
     },
   );
 
   test('digit keys rate the card', { tag: ['@REQ-REC-05'] }, async ({ recall }) => {
     // 1. Open /recall, click recall-start
     await recall.goto();
-    await recall.startSession();
+    const size = await recall.startSession();
+    expect(size, 'cards in the core session').toBeGreaterThanOrEqual(3);
 
-    // 2. Press Space, then a digit: the middle of the range and both its ends
+    // 2. Press Space, then a digit 1-3: «Частково» (key 2), «Знаю» (3) and «Не знаю» (1)
     const digits = [
-      [3, 'warn'],
-      [5, 'ok'],
-      [1, 'bad'],
+      [3, 'part'],
+      [5, 'pass'],
+      [1, 'fail'],
     ] as const;
     for (const [i, [rating, state]] of digits.entries()) {
       await recall.showAnswer('Space');
@@ -131,7 +133,8 @@ test.describe('Recall: rating', () => {
       await expect(recall.bar.nth(i)).toHaveAttribute('data-state', state);
     }
     await expect(recall.progress).toHaveAttribute('data-value', '4');
-    await expect(recall.progress).toHaveAttribute('data-total', '11');
+    // The card rated 1 was put back: one more place in the session
+    await expect(recall.progress).toHaveAttribute('data-total', String(size + 1));
   });
 
   test(
@@ -140,14 +143,15 @@ test.describe('Recall: rating', () => {
     async ({ recall }) => {
       // 1. Open /recall, click recall-start, remember card id A, reveal, rate 1
       await recall.goto();
-      await recall.startSession();
+      const size = await recall.startSession();
+      expect(size, 'cards in the core session').toBeGreaterThanOrEqual(4);
       const a = await recall.currentCardId();
       await recall.showAnswer();
       await recall.rateCard(1);
       await expect(recall.progress).toHaveAttribute('data-value', '2');
-      await expect(recall.progress).toHaveAttribute('data-total', '11');
-      await expect(recall.bar.nth(0)).toHaveAttribute('data-state', 'bad');
-      await expect(recall.bar).toHaveCount(11);
+      await expect(recall.progress).toHaveAttribute('data-total', String(size + 1));
+      await expect(recall.bar.nth(0)).toHaveAttribute('data-state', 'fail');
+      await expect(recall.bar).toHaveCount(size + 1);
 
       // 2. Rate the next three cards 5: the app puts a card rated 1 back three places later, once
       for (let i = 0; i < 3; i++) {
@@ -161,8 +165,8 @@ test.describe('Recall: rating', () => {
       // 3. Rate it 1 again: it does not come back a second time
       await recall.showAnswer();
       await recall.rateCard(1, false, false);
-      await expect(recall.progress).toHaveAttribute('data-total', '11');
-      await expect(recall.bar).toHaveCount(11);
+      await expect(recall.progress).toHaveAttribute('data-total', String(size + 1));
+      await expect(recall.bar).toHaveCount(size + 1);
     },
   );
 
@@ -186,7 +190,10 @@ test.describe('Recall: rating', () => {
         .toBe(true);
 
       // 2. Reload the page, open /recall
-      await recall.goto();
+      // Nothing is due but a card is reviewed: the page is the caught-up one, the setup is a click away
+      await authedPage.goto('recall');
+      await expect(recall.caughtUp).toBeVisible();
+      await authedPage.getByTestId('recall-caught-setup').click();
       // A is reviewed and not due (14 days): it moved from "new" to "later" for this account.
       await expect(recall.pool).toHaveAttribute('data-later', '1');
       await expect(recall.pool).toHaveAttribute('data-due', '0');

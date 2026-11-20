@@ -14,7 +14,7 @@
  * DB_URL - full URL of the framework database on an external server (implies --no-db).
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
 import { resolve } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -206,13 +206,19 @@ function resetDatabase() {
   if (result.status !== 0) fail(`reset failed:\n${result.stderr || result.stdout}`);
 }
 
-/** The build is fresh when it is newer than the app's last commit. */
+/**
+ * The build is fresh when it was made from the app clone and commit checked out now. A timestamp
+ * is not enough: checking out an older commit (main after develop) would keep the newer build.
+ * Uncommitted edits in the app are not seen: --build after them.
+ */
+const stampFile = resolve(distDir, '.built-from');
+function appStamp() {
+  const git = spawnSync('git', ['-C', appDir, 'rev-parse', 'HEAD'], { encoding: 'utf8' });
+  return `${resolve(appDir)} ${git.stdout.trim()}`;
+}
 function buildIsFresh() {
-  const index = resolve(distDir, 'index.html');
-  if (!existsSync(index)) return false;
-  const git = spawnSync('git', ['-C', appDir, 'log', '-1', '--format=%ct'], { encoding: 'utf8' });
-  const lastCommitMs = Number(git.stdout.trim()) * 1000;
-  return lastCommitMs > 0 && statSync(index).mtimeMs > lastCommitMs;
+  if (!existsSync(resolve(distDir, 'index.html')) || !existsSync(stampFile)) return false;
+  return readFileSync(stampFile, 'utf8') === appStamp();
 }
 
 function buildWeb() {
@@ -221,15 +227,19 @@ function buildWeb() {
     return Promise.resolve(0);
   }
   if (!flags.forceBuild && buildIsFresh()) {
-    log("web build: up to date (newer than the app's last commit; --build forces it)");
+    log('web build: up to date (made from the checked-out app commit; --build forces it)');
     return Promise.resolve(0);
   }
   log(`web build: building into ${distDir}`);
+  const stamp = appStamp();
   return run('build', [viteBin, 'build', '--outDir', distDir, '--emptyOutDir'], {
     cwd: webDir,
     // Build-time flag for test-only hooks, e.g. the shorter feedback-form threshold.
     env: { VITE_E2E_HOOKS: '1' },
-  }).done;
+  }).done.then((code) => {
+    if (code === 0) writeFileSync(stampFile, stamp);
+    return code;
+  });
 }
 
 // --- Main --------------------------------------------------------------------------------------

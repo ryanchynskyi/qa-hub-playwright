@@ -1,0 +1,15 @@
+The phone More sheet does not return focus to the More button when it closes.
+
+diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
+index 9ea1aaf..a6a0163 100644
+--- a/apps/web/src/Layout.tsx
++++ b/apps/web/src/Layout.tsx
+@@ -907,7 +907,7 @@ function MoreSheet({ onClose, due }: { onClose: () => void; due: number }) {
+   useEffect(() => {
+     const opener = document.activeElement as HTMLElement | null;
+     panel.current?.focus();
+-    return () => opener?.focus();
++    return () => void opener;
+   }, []);
+ 
+   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => sheetKeyDown(e, panel.current, onClose);

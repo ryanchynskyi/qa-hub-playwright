@@ -31,6 +31,9 @@ const adminEndpoints = [
   ['PATCH', 'admin/feedback/1'],
   ['PUT', 'admin/feedback/1/reply'],
   ['GET', 'admin/question-ratings'],
+  ['GET', 'admin/comments'],
+  ['GET', 'admin/online'],
+  ['GET', 'admin/projects'],
 ] as const;
 
 test(

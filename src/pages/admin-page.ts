@@ -2,7 +2,10 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { AdminBugReports } from '../api/schemas';
 import { byTestId } from '../helpers/locators';
 
-/** `/admin`: lists and counters are shared with parallel tests, so tests find their own row. */
+/**
+ * `/admin`, the Інбокс tab: lists and counters are shared with parallel tests, so tests find their
+ * own row. A row's body (toggle, reply form, images) exists only while it is expanded: `expand`.
+ */
 export class AdminPage {
   readonly root: Locator;
   readonly bugs: Locator;
@@ -17,12 +20,21 @@ export class AdminPage {
   }
 
   /**
-   * Nothing polls the lists and `admin-refresh` covers only stats, so a reload is the deterministic
-   * way to get new rows. `root` proves stats only: assert a row before any absence check.
+   * Nothing polls the lists, so a fresh load of the inbox is the deterministic way to get new rows.
+   * Status `all`: a row marked done leaves the default (`open`) list. `root` proves the page only:
+   * assert a row before any absence check.
    */
   async reload(): Promise<void> {
-    await this.page.reload();
+    await this.page.goto('admin?tab=inbox');
     await expect(this.root).toBeVisible();
+    await this.page.getByTestId('admin-inbox-status').selectOption('all');
+  }
+
+  /** Opens a bug or feedback row; its body ids exist only while it is expanded. */
+  async expand(row: Locator): Promise<void> {
+    const toggle = row.getByTestId('admin-inbox-toggle');
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   }
 
   bug(id: number): Locator {
@@ -38,6 +50,7 @@ export class AdminPage {
    * database-wide, so this response is its only oracle while other tests write reports.
    */
   async toggleBug(id: number): Promise<AdminBugReports> {
+    await this.expand(this.bug(id));
     const listed = this.page.waitForResponse(
       (res) => res.url().endsWith('/admin/bug-reports') && res.request().method() === 'GET',
     );

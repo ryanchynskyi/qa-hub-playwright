@@ -1,0 +1,24 @@
+Rail links are plain Links, so the current page's link is not marked active (aria-current).
+
+diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
+index 9ea1aaf..14d4060 100644
+--- a/apps/web/src/Layout.tsx
++++ b/apps/web/src/Layout.tsx
+@@ -432,7 +432,7 @@ function SideLink({
+   const { pathname } = useLocation();
+   const t = useT();
+   return (
+-    <NavLink
++    <Link
+       to={navTo(v.to, pathname)}
+       state={v.key === 'courses' ? { entry: 'nav' } : undefined}
+       className={foot ? 'snav snav-foot' : 'snav'}
+@@ -454,7 +454,7 @@ function SideLink({
+         </span>
+       )}
+       {dot && <NewDot testId={`nav-${v.key}-dot`} />}
+-    </NavLink>
++    </Link>
+   );
+ }
+ 

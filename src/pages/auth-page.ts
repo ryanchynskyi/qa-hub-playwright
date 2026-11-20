@@ -41,9 +41,18 @@ export class AuthPage {
     await this.login({ email, password });
   }
 
-  /** The error box carries the API error code in `data-key` (e.g. `invalid_credentials`). */
+  /**
+   * `google_*` returns show the closable `auth-notice` (key = code); API errors go in the
+   * `auth-error` box (key = code) and mark the field at fault with `aria-invalid`.
+   */
   async expectError(code: string): Promise<void> {
+    if (code.startsWith('google_')) {
+      await expect(this.page.getByTestId('auth-notice')).toHaveAttribute('data-key', code);
+      await expect(this.error).toBeVisible();
+      return;
+    }
     await expect(this.error).toHaveAttribute('data-key', code);
-    await expect(this.email).toHaveAttribute('aria-invalid', 'true');
+    const field = code === 'email_taken' ? this.email : this.password;
+    await expect(field).toHaveAttribute('aria-invalid', 'true');
   }
 }

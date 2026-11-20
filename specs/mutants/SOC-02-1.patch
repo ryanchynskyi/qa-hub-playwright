@@ -1,0 +1,15 @@
+The caller's own row (me) is returned only when it is outside the top 20.
+
+diff --git a/apps/api/src/routes/leaderboard.ts b/apps/api/src/routes/leaderboard.ts
+index 2d6ff53..3491eea 100644
+--- a/apps/api/src/routes/leaderboard.ts
++++ b/apps/api/src/routes/leaderboard.ts
+@@ -87,7 +87,7 @@ export const leaderboardRoutes: FastifyPluginAsync = async (app) => {
+         top: rows.filter((r) => Number(r.rank) <= LEADERBOARD_SIZE).map(entry),
+         total: Number(rows[0]?.total ?? 0),
+         me: (() => {
+-          const own = rows.find((r) => r.userId === userId);
++          const own = rows.find((r) => r.userId === userId && Number(r.rank) > LEADERBOARD_SIZE);
+           return own ? entry(own) : null;
+         })(),
+       };

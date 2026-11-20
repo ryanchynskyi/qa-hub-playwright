@@ -4,8 +4,8 @@ import type { QuizPage } from '../pages/quiz-page';
 
 /**
  * First visit (`focus-gate`, replaces the shell): the guest home, then, after the 5-question first
- * run, the focus wizard, and what the wizard leaves on the dashboard. Track and level advance on
- * click; the framework step has `focus-next`; the topics step (the last one) has `focus-save`.
+ * run, the focus wizard, and what the wizard leaves on the dashboard. Two steps: topics
+ * (`focus-next`, disabled until one is ticked), then level (`focus-save`, `focus-skip`).
  * Steps change ~300 ms after a click: assert, never read.
  */
 export class FocusWizard {
@@ -19,10 +19,11 @@ export class FocusWizard {
   readonly save: Locator;
   readonly skip: Locator;
   readonly total: Locator;
-  readonly bar: Locator;
   readonly summary: Locator;
   readonly skipped: Locator;
   readonly topics: Locator;
+  readonly search: Locator;
+  readonly topicsMore: Locator;
   /** Topics ticked on the topics step (`data-state` = on). */
   readonly ticked: Locator;
   readonly setupOpen: Locator;
@@ -38,18 +39,24 @@ export class FocusWizard {
     this.save = page.getByTestId('focus-save');
     this.skip = page.getByTestId('focus-skip');
     this.total = page.getByTestId('focus-total');
-    this.bar = page.getByTestId('focus-bar');
     this.summary = page.getByTestId('focus-summary');
     this.skipped = page.getByTestId('focus-skipped');
     this.topics = page.getByTestId('focus-topic');
+    this.search = page.getByTestId('focus-search');
+    this.topicsMore = page.getByTestId('focus-topics-more');
     this.ticked = page.locator('[data-testid="focus-topic"][data-state="on"]');
     this.setupOpen = page.getByTestId('focus-setup-open');
   }
 
-  track = (key: 'manual' | 'auto' | 'all') => byTestId(this.page, 'focus-track', key);
-  stack = (key: string) => byTestId(this.page, 'focus-stack', key);
   level = (key: 'junior' | 'middle' | 'senior') => byTestId(this.page, 'focus-level', key);
   topic = (id: string) => byTestId(this.page, 'focus-topic', id);
+
+  /** Step 1 to step 2: ticks the first listed topic (or the given one) and clicks next. */
+  async toLevelStep(topicId?: string): Promise<void> {
+    await (topicId ? this.topic(topicId) : this.topics.first()).click();
+    await this.next.click();
+    await expect(this.step).toHaveAttribute('data-value', '2');
+  }
 
   /**
    * From the guest home: the first run (5 questions, all skipped), then `first-run-setup` on its

@@ -10,6 +10,7 @@ const BACKUP_KEY = 'qa-hub-guest-v1.imported';
 export interface GuestState {
   questions: Record<string, unknown>;
   cards: Record<string, CardState>;
+  stats?: { totalXp: number };
 }
 
 const read = (page: Page, key: string): Promise<GuestState | null> =>

@@ -1,15 +1,15 @@
 The weak chapter link loses its chapter.
 
-diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
-index 6937f47..e43cc41 100644
---- a/apps/web/src/views/Quiz.tsx
-+++ b/apps/web/src/views/Quiz.tsx
-@@ -1741,7 +1741,7 @@ function Results({
-             {weak && recallCards > 0 && (
-               <Link
-                 className="btn"
--                to={`/recall/ch/${weak.chapterId}`}
-+                to="/recall"
-                 title={idx.chapter.get(weak.chapterId)?.title}
-                 data-testid="quiz-result-recall"
-                 data-key={weak.chapterId}
+diff --git a/apps/web/src/views/QuizResults.tsx b/apps/web/src/views/QuizResults.tsx
+index 2150c31..47cba14 100644
+--- a/apps/web/src/views/QuizResults.tsx
++++ b/apps/web/src/views/QuizResults.tsx
+@@ -314,7 +314,7 @@ export function Results({
+           {weak && recallCards > 0 && (
+             <Link
+               className="qz-lnk qz-recall"
+-              to={`/recall/ch/${weak.chapterId}`}
++              to="C:/Program Files/Git/recall"
+               title={idx.chapter.get(weak.chapterId)?.title}
+               data-testid="quiz-result-recall"
+               data-key={weak.chapterId}

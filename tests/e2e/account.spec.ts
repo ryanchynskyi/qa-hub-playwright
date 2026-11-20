@@ -83,7 +83,7 @@ test.describe('AUTH-06 Remember me', () => {
       const next = await restartBrowser(page);
       await next.goto('dash');
       const nextShell = new Shell(next, device);
-      await expect(nextShell.accountGuest).toBeVisible();
+      await expect(nextShell.accountGuest).toBeAttached();
       await expect(nextShell.account).toHaveCount(0);
     },
   );
@@ -108,7 +108,7 @@ test.describe('AUTH-08 Logout', () => {
       // 2. Sign out
       await shell.logout();
       await expect(shell.account).toHaveCount(0);
-      await expect.poll(() => shell.totalXp()).toBe(0);
+      await expect(page.getByTestId('xp-total')).toHaveCount(0);
       // Before any navigation: a later page load's failed refresh would drop the token anyway
       await expect.poll(() => readStorage(page, REFRESH_KEY)).toBeNull();
 
@@ -118,8 +118,8 @@ test.describe('AUTH-08 Logout', () => {
       await expect(profile.register).toBeVisible();
       await page.reload();
       await expect(profile.card).toHaveAttribute('data-state', 'guest');
-      await expect(shell.accountGuest).toBeVisible();
-      await expect.poll(() => shell.totalXp()).toBe(0);
+      await expect(shell.accountGuest).toBeAttached();
+      await expect(page.getByTestId('xp-total')).toHaveCount(0);
       await expect(importBanner.banner).toHaveCount(0);
     },
   );
@@ -147,6 +147,7 @@ test.describe('AUTH-09 Google sign-in and unverified account', () => {
       await profile.goto();
       await expect(profile.method('google')).toHaveAttribute('data-state', 'on');
       await expect(profile.method('password')).toHaveAttribute('data-state', 'off');
+      await profile.openPasswordDialog();
       await expect(profile.currentPassword).toHaveCount(0);
     },
   );
@@ -154,7 +155,7 @@ test.describe('AUTH-09 Google sign-in and unverified account', () => {
   test(
     'Google sign-in with the email of an unverified password account clears its password',
     { tag: ['@REQ-AUTH-09'] },
-    async ({ auth, fakeGoogle, shell, profile, api, user }) => {
+    async ({ page, auth, fakeGoogle, shell, profile, api, user }) => {
       // The fixture cleans up with the password, which the callback drops in step 1.
       try {
         // 1. Open /login, click google-signin, submit the fake consent form with user.email
@@ -167,7 +168,9 @@ test.describe('AUTH-09 Google sign-in and unverified account', () => {
         await profile.goto();
         await expect(profile.method('password')).toHaveAttribute('data-state', 'off');
         await expect(profile.method('google')).toHaveAttribute('data-state', 'on');
+        await profile.openPasswordDialog();
         await expect(profile.currentPassword).toHaveCount(0);
+        await page.keyboard.press('Escape'); // the modal would cover the header's sign-out
 
         // 3. Sign out, sign in with the old password
         await shell.logout();
@@ -195,7 +198,7 @@ test.describe('AUTH-11 Google flow security', () => {
       await auth.expectError('google_state');
       // account-guest is not rendered on /login (test-ids.md)
       await shell.open('dash');
-      await expect(shell.accountGuest).toBeVisible();
+      await expect(shell.accountGuest).toBeAttached();
     },
   );
 
@@ -218,7 +221,7 @@ test.describe('AUTH-11 Google flow security', () => {
       await new AuthPage(tabB).expectError('google_state');
       const shellB = new Shell(tabB, device);
       await shellB.open('dash');
-      await expect(shellB.accountGuest).toBeVisible();
+      await expect(shellB.accountGuest).toBeAttached();
     },
   );
 });
@@ -239,8 +242,8 @@ test.describe('AUTH-16 Change password in the profile', () => {
       // The fixture cleans up with the old password, which may no longer work.
       try {
         await expect(profile.passwordMessage).toHaveAttribute('data-state', 'ok');
-        await expect(profile.currentPassword).toHaveValue('');
-        await expect(profile.newPassword).toHaveValue('');
+        // After a save the dialog closes (its fields are unmounted, so no empty-value check)
+        await expect(profile.currentPassword).toHaveCount(0);
 
         // 2. Session 1: reload /profile
         await authedPage.reload();
@@ -248,7 +251,7 @@ test.describe('AUTH-16 Change password in the profile', () => {
 
         // 3. Session 2: reload /dash
         await secondPage.reload();
-        await expect(secondShell.accountGuest).toBeVisible();
+        await expect(secondShell.accountGuest).toBeAttached();
 
         // 4. The new password works, the old one does not
         const old = await api.raw.post('auth/login', {
@@ -276,6 +279,7 @@ test.describe('AUTH-18 Delete account in the profile', () => {
     async ({ authedPage: _signedIn, profile, api, user }) => {
       // 1. Open /profile
       await profile.goto();
+      await profile.openDeleteDialog();
       await expect(profile.deleteConfirm).toHaveValue('');
       await expect(profile.deleteButton).toBeDisabled();
 
@@ -307,7 +311,7 @@ test.describe('AUTH-18 Delete account in the profile', () => {
       // 1. Type user.email and delete
       await profile.goto();
       await profile.deleteAccount(user.email);
-      await expect(shell.accountGuest).toBeVisible();
+      await expect(shell.accountGuest).toBeAttached();
 
       // 2. The deleted credentials no longer log in
       const login = await api.raw.post('auth/login', {

@@ -1,19 +1,20 @@
 The failed and skipped counts swap places in the run line.
 
-diff --git a/apps/web/src/views/Quiz.tsx b/apps/web/src/views/Quiz.tsx
---- a/apps/web/src/views/Quiz.tsx
-+++ b/apps/web/src/views/Quiz.tsx
-@@ -1568,11 +1568,11 @@ function Results({
-                 {t.today.passed(y)}
-               </span>
-               ,{' '}
--              <span className="bad" data-testid="quiz-result-failed" data-value={count('n')}>
-+              <span className="bad" data-testid="quiz-result-failed" data-value={count('s')}>
-                 {t.quiz.failed(count('n'))}
-               </span>
-               ,{' '}
--              <span data-testid="quiz-result-skipped" data-value={count('s')}>
-+              <span data-testid="quiz-result-skipped" data-value={count('n')}>
-                 {t.quiz.skippedCount(count('s'))}
-               </span>{' '}
-               ·{' '}
+diff --git a/apps/web/src/views/QuizResults.tsx b/apps/web/src/views/QuizResults.tsx
+index 2150c31..203cac6 100644
+--- a/apps/web/src/views/QuizResults.tsx
++++ b/apps/web/src/views/QuizResults.tsx
+@@ -146,11 +146,11 @@ export function Results({
+         {t.today.passed(y)}
+       </span>
+       ,{' '}
+-      <span className="bad" data-testid="quiz-result-failed" data-value={count('n')}>
++      <span className="bad" data-testid="quiz-result-failed" data-value={count('s')}>
+         {t.quiz.failed(count('n'))}
+       </span>
+       ,{' '}
+-      <span data-testid="quiz-result-skipped" data-value={count('s')}>
++      <span data-testid="quiz-result-skipped" data-value={count('n')}>
+         {t.quiz.skippedCount(count('s'))}
+       </span>{' '}
+       ·{' '}
