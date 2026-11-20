@@ -1,15 +1,15 @@
-The stack step goes on with no stack chosen.
+The topics step goes on with no topic ticked.
 
 diff --git a/apps/web/src/views/FocusCard.tsx b/apps/web/src/views/FocusCard.tsx
-index 00b877b..2a27dbf 100644
+index 7a6d618..ca766a9 100644
 --- a/apps/web/src/views/FocusCard.tsx
 +++ b/apps/web/src/views/FocusCard.tsx
-@@ -430,7 +430,7 @@ function FocusSetup({
-               type="button"
-               className="btn primary"
-               data-testid="focus-next"
--              disabled={!stacks.length}
-+              disabled={false}
-               onClick={() => setStep('level')}
-             >
-               {t.focus.next}
+@@ -127,7 +127,7 @@ function FocusSetup({
+     }
+   };
+   const go = () => (step === 1 ? setStep(2) : save());
+-  const canGo = step === 2 || n > 0;
++  const canGo = true;
+ 
+   // Enter does what the primary button does (desktop, where the ENTER hint shows).
+   const goRef = useRef(go);

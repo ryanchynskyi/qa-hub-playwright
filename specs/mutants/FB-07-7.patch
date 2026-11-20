@@ -1,10 +1,10 @@
 The reply form's Save closes the form without sending the reply.
 
-diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
-index cb9347a..0000000 100644
---- a/apps/web/src/views/Admin.tsx
-+++ b/apps/web/src/views/Admin.tsx
-@@ -335,7 +335,6 @@ function ReplyBox({
+diff --git a/apps/web/src/views/admin/Inbox.tsx b/apps/web/src/views/admin/Inbox.tsx
+index 3431bad..4b810d2 100644
+--- a/apps/web/src/views/admin/Inbox.tsx
++++ b/apps/web/src/views/admin/Inbox.tsx
+@@ -127,7 +127,6 @@ function ReplyBox({
      setBusy(true);
      setError(null);
      try {

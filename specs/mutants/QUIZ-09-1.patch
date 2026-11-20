@@ -1,7 +1,7 @@
 A skipped guest question counts as answered.
 
 diff --git a/apps/api/src/routes/quiz.ts b/apps/api/src/routes/quiz.ts
-index 2dad089..cd145ed 100644
+index e12cc2a..111f0b0 100644
 --- a/apps/api/src/routes/quiz.ts
 +++ b/apps/api/src/routes/quiz.ts
 @@ -57,7 +57,7 @@ export const quizRoutes: FastifyPluginAsync = async (app) => {
@@ -11,5 +11,5 @@ index 2dad089..cd145ed 100644
 -      let first = !userId && outcome !== 'skipped' && body.first === true;
 +      let first = !userId && body.first === true;
        if (userId) {
-         const answered = await app.progress.answer(userId, body.questionId, outcome);
+         const answered = await app.progress.answer(userId, body.questionId, outcome, body.course);
          res.progress = answered.update;

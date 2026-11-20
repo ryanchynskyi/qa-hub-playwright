@@ -71,13 +71,33 @@ export class ProfilePage {
     await expect(this.card).toBeVisible();
   }
 
+  /** The password form lives in a dialog that exists only while open (test-ids.md, Profile). */
+  async openPasswordDialog(): Promise<void> {
+    await this.page.getByTestId('profile-password-open').click();
+    await expect(this.page.getByTestId('profile-password-dialog')).toBeVisible();
+  }
+
+  async openDeleteDialog(): Promise<void> {
+    await this.page.getByTestId('profile-delete-open').click();
+    await expect(this.page.getByTestId('profile-delete-dialog')).toBeVisible();
+  }
+
+  /** «Мої відгуки» is collapsed until the row is clicked. */
+  async openFeedback(): Promise<void> {
+    const toggle = this.page.getByTestId('profile-feedback-toggle');
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    await expect(this.feedback).toBeVisible();
+  }
+
   async changePassword(next: string, current: string): Promise<void> {
+    await this.openPasswordDialog();
     await this.currentPassword.fill(current);
     await this.newPassword.fill(next);
     await this.savePassword.click();
   }
 
   async deleteAccount(email: string): Promise<void> {
+    await this.openDeleteDialog();
     await this.deleteConfirm.fill(email);
     await this.deleteButton.click();
   }

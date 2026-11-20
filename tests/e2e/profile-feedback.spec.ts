@@ -17,7 +17,7 @@ test.describe('Site feedback in the profile and the admin', () => {
 
       // 2. Open /profile signed in
       await profile.goto();
-      await expect(profile.feedback).toBeVisible();
+      await profile.openFeedback();
       await expect(profile.feedbackItems).toHaveCount(2);
       await expect(profile.feedbackItems.first()).toHaveAttribute('data-key', String(newer.number));
       await expect(profile.feedbackItems.last()).toHaveAttribute('data-key', String(older.number));
@@ -46,6 +46,7 @@ test.describe('Site feedback in the profile and the admin', () => {
       // 2. With a fresh signed-in `user` (no feedback) open /profile
       const mine = new ProfilePage(secondPage);
       await mine.goto();
+      await mine.openFeedback();
       await expect(mine.feedbackEmpty).toBeVisible();
       await expect(mine.feedbackItems).toHaveCount(0);
     },
@@ -60,6 +61,7 @@ test.describe('Site feedback in the profile and the admin', () => {
 
       // 2. In `adminPage` find AdminPage.feedbackItem(number)
       await admin.reload();
+      await admin.expand(admin.feedbackItem(number));
       const { none, input, save } = admin.feedbackReply(number);
       await expect(none).toBeVisible();
       await expect(input).toHaveCount(0);

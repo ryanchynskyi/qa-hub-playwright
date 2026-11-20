@@ -11,7 +11,7 @@ on:
     inputs:
       app_ref:
         description: App branch, tag or SHA to test against
-        default: main
+        default: develop
   # The app's CI sends this after a green push to main or develop (specs/COVERAGE.md, I-3), with
   # client_payload {ref, sha}; the run then tests that exact app commit.
   repository_dispatch:
@@ -47,9 +47,11 @@ jobs:
           --health-retries 10
     env:
       APP_DIR: app
-      # Manual input, else the app commit that triggered the run, else the app's main.
-      APP_REF: ${{ inputs.app_ref || github.event.client_payload.sha || 'main' }}
-      APP_BRANCH: ${{ github.event.client_payload.ref || inputs.app_ref || 'main' }}
+      # Manual input, else the app commit that triggered the run, else the app's develop.
+      # shortcut: develop, not main, while the app's redesign (PR #118) is only on develop; back to
+      # 'main' once the app merges develop into main.
+      APP_REF: ${{ inputs.app_ref || github.event.client_payload.sha || 'develop' }}
+      APP_BRANCH: ${{ github.event.client_payload.ref || inputs.app_ref || 'develop' }}
       # stack.mjs: an external Postgres (no embedded server); the API creates and seeds the DB.
       DB_URL: postgresql://postgres:postgres@localhost:5432/qahub_pw
       GH_TOKEN: ${{ github.token }}

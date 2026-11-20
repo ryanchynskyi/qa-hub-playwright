@@ -86,7 +86,6 @@ test.describe('Leaderboard UI', () => {
       await expect(leaderboard.cell(row, 'xp')).toHaveAttribute('data-value', String(expected.xp));
       const level = leaderboard.cell(row, 'level');
       await expect(level).toHaveAttribute('data-value', String(expected.level));
-      await expect(level).toHaveText(`LVL ${expected.level}`);
       await expect(leaderboard.cell(row, 'name')).toHaveText(expected.name!);
     },
   );

@@ -1,0 +1,15 @@
+The admin guard only checks that the account exists, not that it is the owner.
+
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index 9b94e94..438379c 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -197,7 +197,7 @@ export async function buildApp({
+       where: { id: userId },
+       select: { email: true, emailVerified: true },
+     });
+-    if (!app.isAdmin(user)) throw new HttpError(403, 'forbidden', 'Forbidden');
++    if (!user) throw new HttpError(403, 'forbidden', 'Forbidden');
+     return userId;
+   });
+ 

@@ -7,7 +7,7 @@ export type Fault = 500 | 'abort' | { delayMs: number };
 /**
  * Breaks one API endpoint for this page until the returned `restore` is called: `breakApi(page,
  * 'quiz/check', 'abort')`. Only requests to that path fail; the rest of the API works. `path` is a
- * Playwright glob, so a query string needs one: `chat/messages?*after=*`.
+ * Playwright glob, so a query string needs one: `comments?*targetId=*`.
  */
 export async function breakApi(
   page: Page,

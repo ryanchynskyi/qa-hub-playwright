@@ -12,6 +12,7 @@ test.describe('Admin reply form (FB-07)', () => {
       // 1. Arrange: user sends feedback; admin.reload(); r = admin.feedbackReply(number)
       const { number } = await api.sendFeedback(4, user.token);
       await admin.reload();
+      await admin.expand(admin.feedbackItem(number));
       const r = admin.feedbackReply(number);
       await expect(admin.feedbackItem(number)).toBeVisible();
       await expect(r.input).toBeEmpty();
@@ -46,6 +47,7 @@ test.describe('Admin reply form (FB-07)', () => {
       const first = uniqueText('first');
       await api.replyToFeedback(adminToken, id, first);
       await admin.reload();
+      await admin.expand(admin.feedbackItem(number));
       const r = admin.feedbackReply(number);
       await expect(r.block).toContainText(first);
       await expect(r.input).toHaveCount(0);

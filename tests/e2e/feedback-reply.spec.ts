@@ -90,6 +90,7 @@ test.describe('Site feedback replies', () => {
 
       // 2. In `adminPage` find AdminPage.feedbackItem(N)
       await admin.reload();
+      await admin.expand(admin.feedbackItem(number));
       const { seen } = admin.feedbackReply(number);
       await expect(seen).toHaveAttribute('data-state', 'unseen');
 
@@ -98,6 +99,7 @@ test.describe('Site feedback replies', () => {
       await replyOffer.view.click();
       await expectSeen(api, user, number);
       await admin.reload();
+      await admin.expand(admin.feedbackItem(number));
       await expect(seen).toHaveAttribute('data-state', 'seen');
     },
   );

@@ -1,0 +1,15 @@
+Comment text is HTML-escaped when stored instead of kept as plain text.
+
+diff --git a/apps/api/src/routes/comments.ts b/apps/api/src/routes/comments.ts
+index d001314..cdae5cf 100644
+--- a/apps/api/src/routes/comments.ts
++++ b/apps/api/src/routes/comments.ts
+@@ -15,7 +15,7 @@ import { HttpError, notFound } from '../lib/errors';
+ 
+ /** Unifies line breaks and keeps at most one empty line in a row. */
+ export const normalizeCommentText = (text: string) =>
+-  text.replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n');
++  text.replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+ 
+ interface Row {
+   id: number;

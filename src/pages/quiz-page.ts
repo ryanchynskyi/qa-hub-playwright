@@ -32,6 +32,8 @@ export class QuizPage {
   readonly finish: Locator;
   readonly counts: Locator;
   readonly redo: Locator;
+  readonly review: Locator;
+  readonly reviewView: Locator;
   readonly resultRows: Locator;
   readonly resultMisses: Locator;
   readonly resultRecall: Locator;
@@ -58,6 +60,8 @@ export class QuizPage {
     this.finish = page.getByTestId('quiz-finish');
     this.counts = page.getByTestId('quiz-counts');
     this.redo = page.getByTestId('quiz-redo');
+    this.review = page.getByTestId('quiz-review');
+    this.reviewView = page.getByTestId('quiz-review-view');
     this.resultRows = page.getByTestId('quiz-result-row');
     this.resultMisses = page.getByTestId('quiz-result-miss');
     this.resultRecall = page.getByTestId('quiz-result-recall');
@@ -152,6 +156,12 @@ export class QuizPage {
   async finishRun(): Promise<void> {
     await this.finish.click();
     await expect(this.results).toBeVisible();
+  }
+
+  /** Opens the review of Fail and Skipped from the results ("Розібрати N"). */
+  async openReview(): Promise<void> {
+    await this.review.click();
+    await expect(this.reviewView).toBeVisible();
   }
 
   /** XP shown for the current answer; the element exists only when the gain is above 0. */

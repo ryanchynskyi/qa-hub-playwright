@@ -5,6 +5,9 @@ import { verdict } from './mutate.mjs';
 const ASSERT = 'Error: \x1b[2mexpect(\x1b[22m\x1b[31mlocator\x1b[39m\x1b[2m).\x1b[22mtoBeVisible()';
 // A fixture error's code frame shows the test's own expect: it must not count.
 const FIXTURE = "Error: fixture boom\n\n  4 | await expect(page.getByText('y')).toBeVisible();";
+// expect(res.status(), body): Playwright prints the custom message first, then the matcher.
+const CUSTOM =
+  'Error: {"error":"x"}\n\n\x1b[2mexpect(\x1b[22m\x1b[31mreceived\x1b[39m\x1b[2m).\x1b[22mtoBe()';
 const TIMEOUT = '\x1b[31mTest timeout of 1000ms exceeded.\x1b[39m';
 
 const report = (...results) => ({
@@ -13,6 +16,7 @@ const report = (...results) => ({
 const run = (status, ...messages) => ({ status, errors: messages.map((message) => ({ message })) });
 
 assert.equal(verdict(report(run('failed', ASSERT))), 'killed');
+assert.equal(verdict(report(run('failed', CUSTOM))), 'killed');
 assert.equal(verdict(report(run('timedOut', TIMEOUT, ASSERT))), 'killed');
 assert.equal(verdict(report(run('failed', FIXTURE))), 'error');
 assert.equal(verdict(report(run('timedOut', TIMEOUT))), 'error');

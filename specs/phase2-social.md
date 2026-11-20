@@ -1,5 +1,11 @@
 # Phase 2 — Social (leaderboard UI and chat)
 
+## Update 2026-11-20
+
+The app removed the chat and its polls (2026-11-11, app commit 31f44c2). Sections 2 and 3.2–3.3
+are history: their specs, `ChatPage`, `postChat` and the SOC-03/04/05 mutants are deleted;
+SOC-03 and SOC-05 are ⛔ in specs/COVERAGE.md. The leaderboard part stands.
+
 ## Corrections by the main session (win over the text below)
 
 Checked against the app source. Prerequisites are done: `leaderboard` and `chat` fixtures,

@@ -1,15 +1,15 @@
-The topics step saves with no topic chosen.
+Back to the topics step drops the ticked topics.
 
 diff --git a/apps/web/src/views/FocusCard.tsx b/apps/web/src/views/FocusCard.tsx
-index 0a616d9..059a9e3 100644
+index 7a6d618..7316b87 100644
 --- a/apps/web/src/views/FocusCard.tsx
 +++ b/apps/web/src/views/FocusCard.tsx
-@@ -531,7 +531,7 @@ function FocusSetup({
-               type="button"
-               className="btn primary"
-               data-testid="focus-save"
--              disabled={!topics.length}
-+              disabled={false}
-               onClick={save}
+@@ -194,7 +194,7 @@ function FocusSetup({
+               className="focus-back"
+               data-testid="focus-back"
+               aria-label={t.focus.back}
+-              onClick={() => setStep(1)}
++              onClick={() => { setPicked([]); setStep(1); }}
              >
-               {t.focus.save}
+               <svg viewBox="0 0 16 14" aria-hidden focusable="false">
+                 <path d="M7 1L1 7l6 6M1 7h15" />

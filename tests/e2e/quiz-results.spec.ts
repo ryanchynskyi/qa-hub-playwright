@@ -54,10 +54,16 @@ test.describe('Quiz: results screen and redo', () => {
         total += Number(await row.getAttribute('data-total'));
         value += Number(await row.getAttribute('data-value'));
       }
-      expect(total, 'sum of row totals').toBe(3);
-      expect(value, 'sum of row values').toBe(1);
+      // With weak chapters the table lists only the weak ones (checklist QUIZ-043). A chapter with
+      // a miss scores at most 50 %, so both misses are listed and the correct-only one may not be.
+      expect(rows.length, 'chapter rows').toBeGreaterThan(0);
+      expect(total - value, 'misses in the rows').toBe(2);
+      expect(value, 'sum of row values').toBeLessThanOrEqual(1);
+      for (const row of rows) await expect(row).toHaveAttribute('data-state', 'weak');
 
-      // 4. Read the miss list
+      // 4. Open the review "Розібрати N" and read the miss list
+      await expect(quiz.review).toHaveAttribute('data-value', '2');
+      await quiz.openReview();
       await expect(quiz.resultMisses).toHaveCount(2);
       const wrongMiss = quiz.resultMiss(wrongId);
       const skippedMiss = quiz.resultMiss(skippedId);
@@ -70,6 +76,9 @@ test.describe('Quiz: results screen and redo', () => {
         stripInlineCode(questions.find((q) => q.id === id)!.options[key]!);
       await expect(wrongMiss).toContainText(optionText(wrongId, chosenKey));
       await expect(wrongMiss).toContainText(optionText(wrongId, await api.correctIndex(wrongId)));
+      // Only the first item starts open: open the skipped one to see its answers
+      await skippedMiss.getByRole('button').first().click();
+      await expect(skippedMiss).toHaveAttribute('data-open', 'true');
       await expect(skippedMiss).toContainText(
         optionText(skippedId, await api.correctIndex(skippedId)),
       );
@@ -103,11 +112,12 @@ test.describe('Quiz: results screen and redo', () => {
   );
 
   test(
-    '"Повторити Fail і Skipped" restarts exactly the missed questions',
+    'The review "Повторити ці N" restarts exactly the missed questions',
     { tag: ['@REQ-QUIZ-14'] },
     async ({ quiz, api }) => {
       // 1. Guest answers three questions (correct, wrong, skipped) and finishes the run
       const { correctId, wrongId, skippedId } = await answerThree(quiz, api);
+      await quiz.openReview();
       await expect(quiz.redo).toBeEnabled();
       await expect(quiz.redo).toHaveAttribute('data-value', '2');
 

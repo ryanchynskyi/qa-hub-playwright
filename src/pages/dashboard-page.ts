@@ -31,15 +31,7 @@ export class DashboardPage {
     this.ready = page.getByTestId('dash-ready');
     this.quickstart = page.getByTestId('dash-quickstart');
     this.topicsLock = page.getByTestId('topics-lock');
-    this.fullOnly = [
-      'dash-ready',
-      'dash-summary-quiz',
-      'dash-summary-recall',
-      'dash-leaderboard',
-      'dash-chat',
-      'today',
-      'weak',
-    ].map((id) => page.getByTestId(id));
+    this.fullOnly = ['dash-ready', 'today', 'weak'].map((id) => page.getByTestId(id));
   }
 
   task(id: string): Locator {

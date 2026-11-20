@@ -1,10 +1,10 @@
 Editing a reply again keeps the discarded draft instead of the saved text.
 
-diff --git a/apps/web/src/views/Admin.tsx b/apps/web/src/views/Admin.tsx
-index cb9347a..0000000 100644
---- a/apps/web/src/views/Admin.tsx
-+++ b/apps/web/src/views/Admin.tsx
-@@ -366,7 +366,6 @@ function ReplyBox({
+diff --git a/apps/web/src/views/admin/Inbox.tsx b/apps/web/src/views/admin/Inbox.tsx
+index 3431bad..07b075a 100644
+--- a/apps/web/src/views/admin/Inbox.tsx
++++ b/apps/web/src/views/admin/Inbox.tsx
+@@ -158,7 +158,6 @@ function ReplyBox({
                  className="btn"
                  data-testid="admin-feedback-reply-edit"
                  onClick={() => {

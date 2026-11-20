@@ -1,15 +1,15 @@
 Space no longer flips the card.
 
-diff --git a/apps/web/src/views/Recall.tsx b/apps/web/src/views/Recall.tsx
-index da5e2ba..f3cc382 100644
---- a/apps/web/src/views/Recall.tsx
-+++ b/apps/web/src/views/Recall.tsx
-@@ -699,7 +699,7 @@ function SessionView({
+diff --git a/apps/web/src/views/RecallSession.tsx b/apps/web/src/views/RecallSession.tsx
+index e7ab258..c3850fe 100644
+--- a/apps/web/src/views/RecallSession.tsx
++++ b/apps/web/src/views/RecallSession.tsx
+@@ -111,7 +111,7 @@ export function RecallCardPanel({
+   const board = variant === 'board';
  
    useKeydown((e) => {
-     if (s.i >= s.items.length) return;
--    if (!s.shown && (e.key === ' ' || e.key === 'Enter')) {
-+    if (!s.shown && (e.key === 'Enter')) {
+-    if (!shown && (e.key === ' ' || e.key === 'Enter')) {
++    if (!shown && (e.key === 'Enter')) {
        e.preventDefault();
-       reveal();
-     } else if (s.shown && /^[1-5]$/.test(e.key)) void rate(+e.key);
+       onReveal();
+     } else if (shown && /^[1-3]$/.test(e.key) && !pending) onRate(RATINGS[+e.key - 1]!);

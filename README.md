@@ -38,7 +38,7 @@ localhost, never production.
 
 `playwright.config.ts` starts `scripts/stack.mjs` through `webServer` and reuses a stack that is
 already up. For debugging keep one running in a separate terminal: `npm run stack` (or
-`npm run stack:reset` for an empty database: no leaderboard rows, no chat).
+`npm run stack:reset` for an empty database: no leaderboard rows).
 
 Local stack: web http://localhost:4273 · API http://127.0.0.1:3200 (tests use the same-origin
 proxy http://localhost:4273/api/) · DB `qahub_pw` on the shared local Postgres (:5433).

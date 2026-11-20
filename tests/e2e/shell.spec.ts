@@ -17,7 +17,7 @@ test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => 
       await shell.expectActive('quiz');
 
       await shell.open('kb');
-      await expect(page.getByTestId('kb')).toBeVisible();
+      await expect(page.getByTestId('kb-home')).toBeVisible();
       await shell.expectActive('kb');
 
       await shell.open('dash');
@@ -32,9 +32,6 @@ test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => 
       await shell.open('leaderboard');
       await expect(page).toHaveURL(/\/leaderboard\/?$/);
       await expect(page.getByTestId('leaderboard')).toBeVisible();
-
-      await shell.open('chat');
-      await expect(page).toHaveURL(/\/chat\/?$/);
     },
   );
 

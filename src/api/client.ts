@@ -8,8 +8,6 @@ import {
   AuthResponse,
   BugReportCreated,
   Catalog,
-  ChatFeed,
-  ChatMessage,
   CheckResult,
   Comments,
   DailyCount,
@@ -196,10 +194,6 @@ export class ApiClient {
     await expectStatus(res, 204);
   }
 
-  postChat(token: string, text: string, anonymous = false): Promise<ChatMessage> {
-    return this.postJson('chat/messages', { text, anonymous }, ChatMessage, token, 201);
-  }
-
   sendBugReport(text: string, token?: string): Promise<z.infer<typeof BugReportCreated>> {
     const data = { ...UPLOAD_CONTEXT, text };
     return this.postJson('bug-reports', data, BugReportCreated, token, 201);
@@ -246,10 +240,6 @@ export class ApiClient {
 
   myFeedback(token: string): Promise<z.infer<typeof MyFeedback>> {
     return this.getJson('me/feedback', MyFeedback, token);
-  }
-
-  async chatMessages(): Promise<ChatMessage[]> {
-    return (await this.getJson('chat/messages', ChatFeed)).messages;
   }
 
   /** Comments target a question (or another `targetType`) by id. */

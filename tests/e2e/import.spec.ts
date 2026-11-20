@@ -40,7 +40,7 @@ test.describe('Import of guest progress (UI)', () => {
       await guestThenSignUp(f, [true, false]);
 
       // 3. The banner names the guest source and counts 2 answers and 0 cards (numbers only: #90)
-      await expect(importBanner.banner).toContainText('гостьовий режим');
+      await expect(importBanner.banner).toContainText(/гостьовий режим/i);
       await expect(importBanner.banner).toHaveText(/\(2\D+, 0\D+\)/);
       await expect(importBanner.move).toBeEnabled();
       await expect(importBanner.later).toBeEnabled();
@@ -74,6 +74,7 @@ test.describe('Import of guest progress (UI)', () => {
 
       // 4. localStorage: the backup holds both answers, the guest store is emptied (key kept)
       const backup = await readGuestBackup(page);
+      expect(backup, 'backup of the guest store').not.toBeNull();
       expect(Object.keys(backup!.questions)).toEqual(expect.arrayContaining(ids));
       const guest = await readGuest(page);
       expect(guest!.questions).toEqual({});

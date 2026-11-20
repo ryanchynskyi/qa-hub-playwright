@@ -215,18 +215,8 @@ export const Progress = z.object({
 });
 export type Progress = z.infer<typeof Progress>;
 
-/** Chat and comments: only the fields tests read; zod drops the rest. */
-export const ChatMessage = z.object({
-  id: z.number().int(),
-  text: z.string(),
-  /** Null on an anonymous message, which carries the author's tag number instead. */
-  name: z.string().nullable(),
-  anonNumber: z.number().int().nullable(),
-  isMine: z.boolean(),
-});
-export const ChatFeed = z.object({ messages: z.array(ChatMessage) });
+/** Comments: only the fields tests read; zod drops the rest. */
 export const Comments = z.object({ items: z.array(z.object({ text: z.string() })) });
-export type ChatMessage = z.infer<typeof ChatMessage>;
 export type Comments = z.infer<typeof Comments>;
 
 /** Bug reports and feedback ($APP_DIR packages/shared/src/bug-report.ts, community.ts). */

@@ -1,0 +1,15 @@
+Off-by-one: the board shows the top 19 instead of the top 20.
+
+diff --git a/apps/api/src/routes/leaderboard.ts b/apps/api/src/routes/leaderboard.ts
+index 2d6ff53..a7be8ee 100644
+--- a/apps/api/src/routes/leaderboard.ts
++++ b/apps/api/src/routes/leaderboard.ts
+@@ -84,7 +84,7 @@ export const leaderboardRoutes: FastifyPluginAsync = async (app) => {
+       });
+       const out: LeaderboardResponse = {
+         period,
+-        top: rows.filter((r) => Number(r.rank) <= LEADERBOARD_SIZE).map(entry),
++        top: rows.filter((r) => Number(r.rank) < LEADERBOARD_SIZE).map(entry),
+         total: Number(rows[0]?.total ?? 0),
+         me: (() => {
+           const own = rows.find((r) => r.userId === userId);

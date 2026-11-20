@@ -1,15 +1,15 @@
-Bug reports are listed oldest first.
+Bug reports are listed oldest first (the admin inbox sorts its entries itself).
 
-diff --git a/apps/api/src/routes/bug-reports.ts b/apps/api/src/routes/bug-reports.ts
-index d38529c..ce480e6 100644
---- a/apps/api/src/routes/bug-reports.ts
-+++ b/apps/api/src/routes/bug-reports.ts
-@@ -124,7 +124,7 @@ export const bugReportRoutes: FastifyPluginAsync = async (app) => {
-       app.db.bugReport.count(),
-       app.db.bugReport.count({ where: { status: 'open' } }),
-       app.db.bugReport.findMany({
--        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
-         take: LIST_MAX,
-         include: itemInclude,
-       }),
+diff --git a/apps/web/src/views/admin/Inbox.tsx b/apps/web/src/views/admin/Inbox.tsx
+index 3431bad..2a6cb49 100644
+--- a/apps/web/src/views/admin/Inbox.tsx
++++ b/apps/web/src/views/admin/Inbox.tsx
+@@ -64,7 +64,7 @@ export function buildEntries(
+       item,
+     })),
+   ];
+-  return all.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
++  return all.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+ }
+ 
+ const firstLine = (s: string) => s.split('\n', 1)[0]!.trim();

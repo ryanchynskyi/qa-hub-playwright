@@ -1,5 +1,12 @@
 # Phase 2: Account block (AUTH-06, 08, 09, 11, 16, 18)
 
+## Update 2026-11-20: redesign (app `develop`, PR #118)
+
+Wins over the text below. `aria-invalid` goes on the field at fault (`email_taken` → `auth-email`,
+`invalid_credentials` → `auth-password`); a `google_*` return is the closable `auth-notice`. The
+name, password and delete forms are dialogs (`profile-*-open` first); «Мої відгуки» is collapsed
+until `profile-feedback-toggle`.
+
 ## Application Overview
 
 Remember me, logout, Google sign-in (fake provider on the e2e server), Google flow security, password change and account deletion in QA Interview Hub (http://localhost:4273, uk UI, path routes). Explored live with seed tests/seed.spec.ts, project desktop. Every scenario starts from a blank browser (returning visitor preset by the context fixture: no focus wizard, no tour) and a fresh account; scenarios are independent. Test ids come from test-ids.md only. Already covered and NOT re-planned: tests/api/sessions.spec.ts (rotation, family revocation after the 30 s grace, password change ends other sessions and retires the old password), tests/api/auth.spec.ts (registration, login, httpOnly cookie, deleted account cannot log in), tests/e2e/auth.spec.ts (sign up, wrong password, sign in/out through the UI, reload keeps the session, profile opens, ?next=).

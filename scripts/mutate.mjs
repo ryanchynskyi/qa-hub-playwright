@@ -71,8 +71,9 @@ process.on('SIGINT', () => process.exit(130));
 
 /**
  * killed | survived | error from a Playwright JSON report. Killed needs a failed test whose error
- * is an assertion: its first line is `Error: expect(...)` once the colours are gone. Only the first
- * line: the rest is a code frame, where any error shows the test's own `expect` calls.
+ * is an assertion: its first line is `Error: expect(...)` once the colours are gone, or, when the
+ * test passed a custom message (`expect(x, body)`), a later line starts with `expect(`. Code frame
+ * lines start with a line number or `>`, so the test's own `expect` calls there do not count.
  */
 export function verdict(report) {
   const results = [];
@@ -84,8 +85,12 @@ export function verdict(report) {
   if (!results.length || report.errors?.length) return 'error';
   const failed = results.filter((r) => r.status !== 'passed' && r.status !== 'skipped');
   if (!failed.length) return 'survived';
-  const firstLine = (e) => stripVTControlCharacters(e.message ?? '').split('\n', 1)[0];
-  const onAssert = (r) => (r.errors ?? []).some((e) => /^Error: expect\(/.test(firstLine(e)));
+  const lines = (e) => stripVTControlCharacters(e.message ?? '').split('\n');
+  const isAssert = (e) => {
+    const [first = '', ...rest] = lines(e);
+    return /^Error: expect\(/.test(first) || rest.some((line) => /^expect\(/.test(line));
+  };
+  const onAssert = (r) => (r.errors ?? []).some(isAssert);
   return failed.some(onAssert) ? 'killed' : 'error';
 }
 

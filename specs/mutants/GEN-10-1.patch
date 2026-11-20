@@ -1,15 +1,15 @@
-The focus wizard never opens.
+A new visitor gets the focus wizard instead of the guest home (it opens without a finished first run).
 
 diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
-index 83ec7ba..a41f2e5 100644
+index 9ea1aaf..ee54e00 100644
 --- a/apps/web/src/Layout.tsx
 +++ b/apps/web/src/Layout.tsx
-@@ -780,7 +780,7 @@ export function Layout() {
-     if (section === 'quiz' || section === 'recall' || section === 'kb') armTour(totalXp);
-   }, [section, totalXp]);
+@@ -1103,7 +1103,7 @@ export function Layout() {
    const spotlight = useSpotlightOpen();
--  const gate = useFocusGate(progress) && isDash(pathname);
-+  const gate = false;
+   // Only the focus wizard of a finished first run runs without the shell; the guest home has it.
+   const wizard = useWizardFrom() !== null;
+-  const gate = useFocusGate(progress) && isDash(pathname) && wizard;
++  const gate = useFocusGate(progress) && isDash(pathname);
    const [moreOpen, setMoreOpen] = useState(false);
    const bugOpen = useBugReportOpen();
    const feedbackOpen = useFeedbackOpen();

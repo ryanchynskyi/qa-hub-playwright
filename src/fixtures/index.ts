@@ -20,7 +20,6 @@ import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { googleLogin } from '../helpers/google';
 import { AdminPage } from '../pages/admin-page';
 import { AuthPage } from '../pages/auth-page';
-import { ChatPage } from '../pages/chat-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
 import { KbPage } from '../pages/kb-page';
@@ -99,7 +98,6 @@ interface TestFixtures {
   kb: KbPage;
   profile: ProfilePage;
   leaderboard: LeaderboardPage;
-  chat: ChatPage;
   fakeGoogle: FakeGoogle;
 }
 
@@ -246,7 +244,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   kb: async ({ page }, use) => use(new KbPage(page)),
   profile: async ({ page }, use) => use(new ProfilePage(page)),
   leaderboard: async ({ page }, use) => use(new LeaderboardPage(page)),
-  chat: async ({ page }, use) => use(new ChatPage(page)),
   fakeGoogle: async ({ page }, use) => use(new FakeGoogle(page)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),
   tour: async ({ page }, use) => use(new Tour(page)),

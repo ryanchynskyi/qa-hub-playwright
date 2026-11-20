@@ -1,0 +1,15 @@
+The CSRF origin guard skips POST, so a write from another site passes.
+
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index 9b94e94..2970584 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -212,7 +212,7 @@ export async function buildApp({
+   // write from any other site is refused. Requests without Origin (curl, tests) pass; they
+   // can't carry a victim's cookies anyway.
+   app.addHook('onRequest', async (req) => {
+-    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return;
++    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS' || req.method === 'POST') return;
+     const origin = req.headers.origin;
+     if (origin !== undefined && origin !== webOrigin) {
+       throw new HttpError(403, 'bad_origin', 'Request from another site');
