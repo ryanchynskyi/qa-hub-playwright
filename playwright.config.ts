@@ -26,7 +26,7 @@ if (process.env.SEED && process.env.TEST_WORKER_INDEX === undefined) {
 function uiProject(device: Device) {
   return {
     name: device,
-    testIgnore: 'api/**',
+    testIgnore: ['api/**', 'clock/**'],
     grep: grepFor(device),
     use: { ...deviceUse(browser, device), device },
   };
@@ -73,6 +73,20 @@ export default defineConfig<FrameworkOptions>({
     uiProject('desktop'),
     uiProject('tablet'),
     uiProject('phone'),
+    // The e2e API's clock (PUT /__e2e/clock) is one for the whole server: these tests run alone,
+    // one at a time, after every other project. Prod has no such route.
+    ...(env.isProd
+      ? []
+      : [
+          {
+            name: 'clock',
+            testDir: './tests/clock',
+            workers: 1,
+            dependencies: ['api', 'desktop', 'tablet', 'phone'],
+            grep: grepFor('desktop'),
+            use: { ...deviceUse(browser, 'desktop'), device: 'desktop' as const },
+          },
+        ]),
   ],
 
   // The local stack: Postgres, the app's e2e API (:3200) and the built web app (:4273).

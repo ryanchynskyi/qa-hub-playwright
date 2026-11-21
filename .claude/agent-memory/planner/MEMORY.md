@@ -12,3 +12,4 @@
 - [One UI path for each control](one-ui-path-for-each-control.md) — API arrange is fine, but a named form or button needs a scenario that uses it
 - [Observed goes into steps](observed-goes-into-steps.md) — a behaviour worth proving goes into an expect, and an expect must be able to fail
 - [Probe the API from the browser](probe-api-from-browser.md) — rejections and shapes via fetch in browser_evaluate; body-less POST without JSON content-type
+- [Server clock order](server-clock-order.md) — clock → login → data → browser Date at the same instant; reset to 0 at the end

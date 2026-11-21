@@ -14,7 +14,7 @@
  * serves the unmutated app. Env (also read from .env): APP_DIR - the app clone (`npm ci` done).
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
 import { basename, join, resolve } from 'node:path';
@@ -38,6 +38,13 @@ function fail(msg) {
   console.error(`[mutate] ERROR: ${msg}`);
   process.exit(2);
 }
+
+/** Whether a test in tests/clock carries `@REQ-<req>`. */
+const movesClock = (req) =>
+  existsSync(resolve(root, 'tests/clock')) &&
+  readdirSync(resolve(root, 'tests/clock')).some((f) =>
+    new RegExp(`@REQ-${req}\\b`).test(readFileSync(resolve(root, 'tests/clock', f), 'utf8')),
+  );
 
 const git = (...args) => spawnSync('git', ['-C', appDir, ...args], { encoding: 'utf8' });
 
@@ -160,7 +167,18 @@ async function main() {
       const json = join(tmpdir(), `mutate-${process.pid}.json`);
       const tests = spawnSync(
         process.execPath,
-        [cli, 'test', '--grep', `@REQ-${req}\\b`, '--retries=0', '--reporter=line,json'],
+        [
+          cli,
+          'test',
+          '--grep',
+          `@REQ-${req}\\b`,
+          '--retries=0',
+          '--reporter=line,json',
+          // The clock project depends on every other one, and a grep does not filter dependencies.
+          '--no-deps',
+          // Its clock is server-global: nothing may run beside a test that moves it.
+          ...(movesClock(req) ? ['--workers=1'] : []),
+        ],
         {
           cwd: root,
           encoding: 'utf8',

@@ -1,10 +1,13 @@
 import { expect, type APIRequestContext, type APIResponse } from '@playwright/test';
-import type { z } from 'zod';
+import { z } from 'zod';
 import {
+  AdminAsked,
   AdminBugReport,
   AdminBugReports,
   AdminFeedback,
   AdminFeedbackItem,
+  AskedQuestions,
+  AskedSearch,
   AuthResponse,
   BugReportCreated,
   Catalog,
@@ -27,9 +30,11 @@ import {
   Question,
   RateResult,
   RecallCard,
+  SavedAskedQuestions,
   SearchHits,
   User,
   type Interview,
+  type InterviewOutcome,
   type Lang,
   type QuestionLevel,
   type UploadStatus,
@@ -305,6 +310,73 @@ export class ApiClient {
   /** 409 `not_answered` until every question of the started round is answered (use `raw`). */
   finishPlanDay(token: string, date: string): Promise<PlanUpdate> {
     return this.postEmpty(`me/plan/days/${date}/finish`, PlanUpdate, token);
+  }
+
+  /** «Сьогодні 1 год» (60) or back to the interview's minutes (null): PUT /me/plan/today. */
+  async setPlanToday(token: string, minutes: 60 | null): Promise<void> {
+    const res = await this.raw.put('me/plan/today', { data: { minutes }, headers: bearer(token) });
+    await expectStatus(res, 200);
+  }
+
+  /** «Як пройшла?» on a past interview; freezes its readiness. */
+  async setInterviewOutcome(
+    token: string,
+    id: string,
+    outcome: InterviewOutcome,
+  ): Promise<Interview> {
+    const res = await this.raw.put(`me/interviews/${id}/outcome`, {
+      data: { outcome },
+      headers: bearer(token),
+    });
+    await expectStatus(res, 200);
+    return InterviewResponse.parse(await res.json()).interview;
+  }
+
+  /** «Перенесли»: the same past interview on a new date (409 `interview_exists` without replace). */
+  async moveInterview(
+    token: string,
+    id: string,
+    body: { date: string; replace?: boolean },
+  ): Promise<Interview> {
+    return (await this.postJson(`me/interviews/${id}/move`, body, InterviewResponse, token))
+      .interview;
+  }
+
+  askedQuestions(token: string, id: string): Promise<AskedQuestions> {
+    return this.getJson(`me/interviews/${id}/questions`, AskedQuestions, token);
+  }
+
+  /** `questionIds` replace the marks, `texts` add own questions (for the admin inbox). */
+  async saveAskedQuestions(
+    token: string,
+    id: string,
+    body: { questionIds: string[]; texts: string[] },
+  ): Promise<z.infer<typeof SavedAskedQuestions>> {
+    const res = await this.raw.put(`me/interviews/${id}/questions`, {
+      data: body,
+      headers: bearer(token),
+    });
+    await expectStatus(res, 200);
+    return SavedAskedQuestions.parse(await res.json());
+  }
+
+  async askedSearch(token: string, q: string): Promise<z.infer<typeof AskedSearch>['items']> {
+    const params = new URLSearchParams({ q });
+    return (await this.getJson(`quiz/search?${params}`, AskedSearch, token)).items;
+  }
+
+  adminAsked(adminToken: string): Promise<AdminAsked> {
+    return this.getJson('admin/asked', AdminAsked, adminToken);
+  }
+
+  /**
+   * The local e2e API's clock (never on prod): `{ at }` (ISO) or `{ offsetMs }` from real time,
+   * global for the whole server. Tokens minted before a jump look expired after it: log in again.
+   */
+  async setClock(body: { at: string } | { offsetMs: number }): Promise<number> {
+    const res = await this.raw.put('__e2e/clock', { data: body });
+    await expectStatus(res, 200);
+    return z.object({ now: z.number() }).parse(await res.json()).now;
   }
 
   /** Deletes the account the token belongs to (DELETE /me, 204). */

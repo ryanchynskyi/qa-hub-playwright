@@ -38,6 +38,9 @@ export class QuizPage {
   readonly resultRows: Locator;
   readonly resultMisses: Locator;
   readonly resultRecall: Locator;
+  /** «РЕАЛЬНО ПИТАЛИ · N РАЗІВ» (≥ 3 users, guests too): `data-value` = N; and the note under it. */
+  readonly askedTag: Locator;
+  readonly askedNote: Locator;
 
   constructor(readonly page: Page) {
     this.setupToggle = page.getByTestId('quiz-setup-toggle');
@@ -67,6 +70,8 @@ export class QuizPage {
     this.resultRows = page.getByTestId('quiz-result-row');
     this.resultMisses = page.getByTestId('quiz-result-miss');
     this.resultRecall = page.getByTestId('quiz-result-recall');
+    this.askedTag = page.getByTestId('quiz-asked-tag');
+    this.askedNote = page.getByTestId('quiz-asked-note');
   }
 
   section(sectionId: string): Locator {
