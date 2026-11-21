@@ -324,10 +324,8 @@ async function prepareContext(
       localStorage.setItem('qa-hub-focus', 'skipped');
       if (visitor === 'skipped') return;
       localStorage.setItem('qa-hub-tour-v1', JSON.stringify({ stage: 'done', weakHint: true }));
-      // Sheets after a finished quiz cover the result buttons: the content note, then the donate
-      // offer (a signed-in user's first quiz gets it once the note is handled).
+      // The content note after a finished quiz covers the result buttons.
       localStorage.setItem('qa-hub-content-note', 'dismissed');
-      localStorage.setItem('qa-hub-donate-offer', 'dismissed');
     },
     { language: lang, visitor },
   );
