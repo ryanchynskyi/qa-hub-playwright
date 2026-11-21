@@ -14,6 +14,7 @@ import {
   BugReportCreated,
   Catalog,
   CheckResult,
+  type CourseSlug,
   Comments,
   DailyCount,
   FeedbackCreated,
@@ -107,15 +108,17 @@ export class ApiClient {
    * Checks an answer. Without a token nothing is recorded, so `choice: null` is a safe way to
    * learn the correct option of a question for a deterministic UI test. With a token the answer
    * counts for that user (progress and XP). `first` marks a guest's first answer: the server
-   * trusts it and counts it into the question's correct-answer share (`stat`).
+   * trusts it and counts it into the question's correct-answer share (`stat`). `course` also
+   * writes the answer into that course's own record (a signed-in `choice: null` is a skip there).
    */
   checkAnswer(
     questionId: string,
     choice: number | null,
     token?: string,
     first?: boolean,
+    course?: CourseSlug,
   ): Promise<CheckResult> {
-    return this.postJson('quiz/check', { questionId, choice, first }, CheckResult, token);
+    return this.postJson('quiz/check', { questionId, choice, first, course }, CheckResult, token);
   }
 
   async correctIndex(questionId: string): Promise<number> {
@@ -127,8 +130,13 @@ export class ApiClient {
   }
 
   /** Rates a card 1..5 for the account; XP only for a new or due card, once per local day. */
-  rateCard(token: string, cardId: string, rating: number): Promise<RateResult> {
-    return this.postJson('me/recall/rate', { cardId, rating }, RateResult, token);
+  rateCard(
+    token: string,
+    cardId: string,
+    rating: number,
+    course?: CourseSlug,
+  ): Promise<RateResult> {
+    return this.postJson('me/recall/rate', { cardId, rating, course }, RateResult, token);
   }
 
   search(q: string, limit?: number): Promise<z.infer<typeof SearchHits>> {
@@ -203,10 +211,20 @@ export class ApiClient {
     return DailyCount.parse(await res.json());
   }
 
-  /** Marks an article read for the account (what advances a READ_ARTICLE task). */
-  async readArticle(token: string, articleId: string): Promise<void> {
-    const res = await this.raw.post(`me/articles/${articleId}/read`, { headers: bearer(token) });
+  /** Marks an article read for the account (what advances a READ_ARTICLE task); `course` also
+   * marks it in that course's record. Unscoped it stays body-less, as the KB page sends it. */
+  async readArticle(token: string, articleId: string, course?: CourseSlug): Promise<void> {
+    const res = await this.raw.post(`me/articles/${articleId}/read`, {
+      headers: bearer(token),
+      ...(course && { data: { course } }),
+    });
     await expectStatus(res, 200);
+  }
+
+  /** «Скинути прогрес курсу» (204): clears only that course's record; XP and the rest stay. */
+  async resetCourse(token: string, slug: CourseSlug): Promise<void> {
+    const res = await this.raw.post(`me/courses/${slug}/reset`, { headers: bearer(token) });
+    await expectStatus(res, 204);
   }
 
   /** POST /me/password (204); other sessions of the account end, this one stays. */

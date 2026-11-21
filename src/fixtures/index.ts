@@ -22,8 +22,11 @@ import { Tour } from '../components/tour';
 import { env } from '../config/env';
 import { ADMIN_EMAIL, DEFAULT_PASSWORD, uniqueEmail } from '../helpers/data';
 import { googleLogin } from '../helpers/google';
+import { playwrightCourse, type CourseChapter } from '../helpers/course';
 import { AdminPage } from '../pages/admin-page';
 import { AuthPage } from '../pages/auth-page';
+import { CourseCatalogPage } from '../pages/course-catalog-page';
+import { CoursePage } from '../pages/course-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
 import { InterviewPage } from '../pages/interview-page';
@@ -113,6 +116,8 @@ interface TestFixtures {
   askCard: AskCard;
   askedCard: AskedCard;
   interviews: InterviewsPage;
+  courses: CourseCatalogPage;
+  coursePage: CoursePage;
   /**
    * Moves the e2e API's clock to `at` (ISO), back to real time after the test. Server-global:
    * only in the `clock` project (one worker, after the others). A token minted before a jump looks
@@ -127,6 +132,8 @@ interface TestFixtures {
 interface WorkerFixtures {
   /** GET /content/catalog, fetched once per worker: ids for data-driven tests, never volumes. */
   catalog: Catalog;
+  /** The Playwright course's chapters with their step ids (src/helpers/course.ts), once per worker. */
+  course: CourseChapter[];
 }
 
 export const test = base.extend<TestFixtures, WorkerFixtures>({
@@ -154,6 +161,15 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     async ({ playwright }, use) => {
       const request = await playwright.request.newContext({ baseURL: env.apiURL });
       await use(await new ApiClient(request).catalog());
+      await request.dispose();
+    },
+    { scope: 'worker' },
+  ],
+
+  course: [
+    async ({ playwright, catalog }, use) => {
+      const request = await playwright.request.newContext({ baseURL: env.apiURL });
+      await use(await playwrightCourse(new ApiClient(request), catalog));
       await request.dispose();
     },
     { scope: 'worker' },
@@ -275,6 +291,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   askCard: async ({ page }, use) => use(new AskCard(page)),
   askedCard: async ({ page }, use) => use(new AskedCard(page)),
   interviews: async ({ page }, use) => use(new InterviewsPage(page)),
+  courses: async ({ page }, use) => use(new CourseCatalogPage(page)),
+  coursePage: async ({ page }, use) => use(new CoursePage(page)),
   serverClock: async ({ api }, use) => {
     assertNotProd('serverClock');
     await use(async (at) => {

@@ -1,0 +1,15 @@
+The step count always includes Практика, even without code questions.
+
+diff --git a/packages/shared/src/course.ts b/packages/shared/src/course.ts
+index fd3970c..430baa0 100644
+--- a/packages/shared/src/course.ts
++++ b/packages/shared/src/course.ts
+@@ -128,7 +128,7 @@ export function buildCourse(
+     if (test.length) steps.push({ key: 'test', kind: 'test', ids: test });
+     if (cards.length) steps.push({ key: 'cards', kind: 'cards', ids: cards });
+     const lessons =
+-      c.articleCount + (practice.length ? 1 : 0) + (test.length ? 1 : 0) + (cards.length ? 1 : 0);
++      c.articleCount + 1 + (test.length ? 1 : 0) + (cards.length ? 1 : 0);
+     return {
+       id: c.id,
+       title: c.title,

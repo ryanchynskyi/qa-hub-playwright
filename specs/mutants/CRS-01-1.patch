@@ -1,0 +1,15 @@
+Every catalog card loads the Playwright course and its record.
+
+diff --git a/apps/web/src/views/CourseCatalog.tsx b/apps/web/src/views/CourseCatalog.tsx
+index 9566de9..49ab8c4 100644
+--- a/apps/web/src/views/CourseCatalog.tsx
++++ b/apps/web/src/views/CourseCatalog.tsx
+@@ -80,7 +80,7 @@ export function CourseCatalog() {
+ 
+ /** Loads its own course. */
+ function CatalogCard({ def }: { def: CourseDef }) {
+-  const { course, guest, progress, error, retry } = useCourseData(def);
++  const { course, guest, progress, error, retry } = useCourseData(COURSE_LIST[0]!);
+   if (error) return <LoadError error={error} retry={retry} />;
+   if (!course) return <Loading />;
+   return <CatalogCardBody def={def} course={course} guest={guest} progress={progress} />;
