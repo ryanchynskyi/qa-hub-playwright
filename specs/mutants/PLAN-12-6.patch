@@ -1,0 +1,15 @@
+Unchecking a marked question in the history sheet keeps the mark.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..c17bb48 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -387,7 +387,7 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+           throw new HttpError(400, 'asked_texts_limit', 'Too many own questions');
+         }
+         await tx.interviewAskedQuestion.deleteMany({
+-          where: { interviewId: current.id, questionId: { notIn: questionIds } },
++          where: { interviewId: current.id, questionId: { in: [] } },
+         });
+         await tx.interviewAskedQuestion.createMany({
+           data: questionIds.map((questionId) => ({

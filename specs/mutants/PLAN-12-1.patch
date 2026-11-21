@@ -1,0 +1,14 @@
+The «реально питали» tag shows from 2 users instead of 3.
+
+diff --git a/apps/api/src/asked.ts b/apps/api/src/asked.ts
+index 943cff1..eb08dc1 100644
+--- a/apps/api/src/asked.ts
++++ b/apps/api/src/asked.ts
+@@ -34,6 +34,6 @@ export async function withAsked<Q extends { id: string }>(
+   );
+   return questions.map((q) => {
+     const n = counts.get(q.id) ?? 0;
+-    return { ...q, asked: n >= ASKED_PUBLIC_MIN ? n : null };
++    return { ...q, asked: n >= 2 ? n : null };
+   });
+ }
