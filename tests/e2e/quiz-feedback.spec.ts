@@ -5,7 +5,10 @@ import { QUESTION_STAT_MIN } from '../../src/api/schemas';
 
 test.describe('Quiz: feedback after the verdict', () => {
   test.beforeEach(async ({ quiz, catalog }) => {
-    const section = catalog.sections.find((s) => s.questionCount > 0);
+    // Not a course topic: the course specs answer those questions in parallel and move `stat`.
+    const section = catalog.sections.find(
+      (s) => s.questionCount > 0 && s.topicId !== 'playwright' && s.topicId !== 'api',
+    );
     if (!section) throw new Error('No section with questions in the catalog');
     await quiz.goto(section.id);
   });

@@ -1,0 +1,15 @@
+Guests may open three chapters, not two.
+
+diff --git a/packages/shared/src/course.ts b/packages/shared/src/course.ts
+index fd3970c..901dd4d 100644
+--- a/packages/shared/src/course.ts
++++ b/packages/shared/src/course.ts
+@@ -51,7 +51,7 @@ export const COURSES = {
+ } as const satisfies Record<CourseSlug, CourseDef>; // one per shared COURSE_SLUGS entry
+ export const COURSE_LIST: readonly CourseDef[] = [COURSES.playwright, COURSES.api];
+ /** Guests can use the first chapters; the rest is a sign-up nudge, not a paywall. */
+-export const COURSE_GUEST_CHAPTERS = 2;
++export const COURSE_GUEST_CHAPTERS = 3;
+ 
+ /** The course's chapter rows (catalog or raw content), in course order. */
+ export function courseChapters<T extends { id: string; topicId: string; order: number }>(

@@ -1,0 +1,15 @@
+A scoped card rating is not written into the course record.
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+index 9a46ff2..d53f3c6 100644
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -570,7 +570,7 @@ export class ProgressService {
+     at: number,
+     answer?: { lastResult: 0 | 1; skipped: boolean },
+   ) {
+-    if (!course) return;
++    if (!course || kind === 'card') return;
+     const data = { at: new Date(at), ...answer };
+     await tx.courseItem.upsert({
+       where: { userId_course_kind_itemId: { userId, course, kind, itemId } },

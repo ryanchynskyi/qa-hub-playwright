@@ -1,0 +1,14 @@
+Resetting a course deletes the records of every course.
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+index 9a46ff2..2503e8e 100644
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -1939,6 +1939,6 @@ export class ProgressService {
+ 
+   /** Clears one course's own record; shared progress, XP and daily tasks stay as they are. */
+   async resetCourse(userId: string, course: CourseSlug): Promise<void> {
+-    await this.inTx(userId, (tx) => tx.courseItem.deleteMany({ where: { userId, course } }));
++    await this.inTx(userId, (tx) => tx.courseItem.deleteMany({ where: { userId } }));
+   }
+ }

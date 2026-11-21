@@ -43,6 +43,8 @@ export const Catalog = z.object({
       id: z.string(),
       topicId: z.string(),
       title: z.string(),
+      /** Position inside the topic; a course lists its chapters by it. */
+      order: z.number(),
       articleCount: z.number().int().nonnegative(),
     }),
   ),
@@ -204,6 +206,21 @@ export const KbChapter = z.object({
 });
 export type KbChapter = z.infer<typeof KbChapter>;
 
+/** The courses (`/course/<slug>`): `COURSE_SLUGS` in $APP_DIR packages/shared/src/api.ts. */
+export const CourseSlug = z.enum(['playwright', 'api']);
+export type CourseSlug = z.infer<typeof CourseSlug>;
+
+/** One course's own record: only steps done inside the course (scoped writes). */
+const CourseRecord = z.object({
+  questions: z.record(
+    z.string(),
+    z.object({ lastResult: z.union([z.literal(0), z.literal(1)]), skipped: z.boolean() }),
+  ),
+  /** cardId / articleId → when, ms. */
+  cards: z.record(z.string(), z.number()),
+  articlesRead: z.record(z.string(), z.number()),
+});
+
 /** GET /me/progress: only the parts tests read; zod drops the rest. */
 export const Progress = z.object({
   /** questionId → latest answer: lastResult 1 = correct; a skip is 0 with `skipped: true`. */
@@ -215,7 +232,16 @@ export const Progress = z.object({
       attempts: z.number().int().optional(),
     }),
   ),
-  stats: z.object({ totalXp: z.number().int().nonnegative() }),
+  /** cardId → review state; only the key set is read here. */
+  cards: z.record(z.string(), z.unknown()),
+  /** articleId → when, ms. */
+  articlesRead: z.record(z.string(), z.number()),
+  /** slug → the course's own record; a course appears on its first scoped write. */
+  courses: z.partialRecord(CourseSlug, CourseRecord),
+  stats: z.object({
+    totalXp: z.number().int().nonnegative(),
+    streak: z.number().int().nonnegative(),
+  }),
   /** sectionId → finished runs, newest first. */
   attempts: z.record(
     z.string(),
