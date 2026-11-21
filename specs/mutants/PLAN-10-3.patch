@@ -1,0 +1,15 @@
+The plan keeps the interview active one day after its date.
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+index 9a46ff2..5fff719 100644
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -636,7 +636,7 @@ export class ProgressService {
+     });
+     const today = localDate(now, user.timeZone);
+     const interview = await tx.interview.findFirst({
+-      where: { userId, date: { gte: today } },
++      where: { userId, date: { gte: addDays(today, -1) } },
+       orderBy: { date: 'asc' },
+     });
+     if (!interview) return null;

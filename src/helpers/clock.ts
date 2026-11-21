@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test';
+import type { ApiClient, Credentials } from '../api/client';
 import type { Catalog } from '../api/schemas';
 
 /**
@@ -30,3 +32,31 @@ export function topicChapters(catalog: Catalog, topics = 1): string[] {
 
 /** A count inside a text that also holds other digits: `60` but not `600` or `160`. */
 export const wholeNumber = (n: number): RegExp => new RegExp(`(^|\\D)${n}(\\D|$)`);
+
+/**
+ * Clock D0, an interview on D0+2 over one topic, `rate` of its recall cards rated 1 (the «Фініш»
+ * takes up to 8 of them). Returns a token valid until the next clock move.
+ */
+export async function interviewWithMistakes(
+  api: ApiClient,
+  catalog: Catalog,
+  serverClock: (at: string) => Promise<void>,
+  user: Credentials,
+  rate: number,
+): Promise<string> {
+  await serverClock(noon(0));
+  const token = (await api.login(user)).accessToken;
+  const chapterIds = topicChapters(catalog);
+  await api.createInterview(token, {
+    date: day(2),
+    level: 'middle',
+    chapterIds,
+    minutesPerDay: 15,
+  });
+  const cards = (await api.recallCards())
+    .filter((card) => chapterIds.includes(card.chapterId))
+    .slice(0, rate);
+  expect(cards, 'cards to rate badly').toHaveLength(rate);
+  for (const card of cards) await api.rateCard(token, card.id, 1);
+  return token;
+}

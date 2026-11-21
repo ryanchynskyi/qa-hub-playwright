@@ -1,0 +1,15 @@
+The warm-up ignores the finished «Фініш» and always takes the latest mistakes.
+
+diff --git a/packages/shared/src/engine/plan.ts b/packages/shared/src/engine/plan.ts
+index 114e560..37b463a 100644
+--- a/packages/shared/src/engine/plan.ts
++++ b/packages/shared/src/engine/plan.ts
+@@ -467,7 +467,7 @@ export function pickWarmup(input: {
+ }): WarmupPick | null {
+   const known = new Set([...input.cards, ...input.questions].map((x) => x.id));
+   const f = input.finish;
+-  if (f) {
++  if (f && false) {
+     const cardIds = f.cardIds
+       .filter((id, i) => (f.cardRatings[i] ?? 0) < RIGHT_RATING && known.has(id))
+       .slice(0, PLAN_WARMUP_SIZE);

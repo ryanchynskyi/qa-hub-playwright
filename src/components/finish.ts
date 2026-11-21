@@ -1,4 +1,8 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
+import type { ApiClient } from '../api/client';
+import { numberValue } from '../helpers/locators';
+import { QuizPage } from '../pages/quiz-page';
+import { RecallPage } from '../pages/recall-page';
 
 /**
  * «Фініш» the day before the interview (`dash` state `finish`) and the warm-up on the day (`day`).
@@ -17,8 +21,10 @@ export class Finish {
   readonly phase: Locator;
   /** `data-kind` finish|warmup. */
   readonly result: Locator;
-  /** `data-value` = right, `data-total` = items. */
+  /** `data-value` = right, `data-total` = items; on the result page and on the done card. */
   readonly score: Locator;
+  /** The done card's score only. */
+  readonly cardScore: Locator;
   readonly verdict: Locator;
   readonly confused: Locator;
   /** Cards first, then questions. */
@@ -30,8 +36,12 @@ export class Finish {
   readonly warmupCard: Locator;
   readonly warmupStart: Locator;
   readonly warmupScore: Locator;
+  private readonly recall: RecallPage;
+  private readonly quiz: QuizPage;
 
   constructor(readonly page: Page) {
+    this.recall = new RecallPage(page);
+    this.quiz = new QuizPage(page);
     this.card = page.getByTestId('finish-card');
     this.start = page.getByTestId('finish-start');
     this.parts = page.getByTestId('finish-parts');
@@ -40,6 +50,7 @@ export class Finish {
     this.phase = page.getByTestId('finish-phase');
     this.result = page.getByTestId('finish-result');
     this.score = page.getByTestId('finish-score');
+    this.cardScore = this.card.getByTestId('finish-score');
     this.verdict = page.getByTestId('finish-verdict');
     this.confused = page.getByTestId('finish-confused');
     this.confusedItems = page.getByTestId('finish-confused-item');
@@ -48,5 +59,35 @@ export class Finish {
     this.warmupCard = page.getByTestId('warmup-card');
     this.warmupStart = page.getByTestId('warmup-start');
     this.warmupScore = page.getByTestId('warmup-score');
+  }
+
+  /** The «Теорія» link of the `i`-th unclear row; `data-key` = its chapter. */
+  theoryOf(i: number): Locator {
+    return this.confusedItems.nth(i).getByTestId('finish-theory');
+  }
+
+  /**
+   * Plays the next steps of a started round, to its result after the last one: rates the cards
+   * in order (`RecallPage.rateCard` waits for `recall-progress`, which `plan-run` lacks), then
+   * answers the questions, `true` = right. Each step waits for `quiz-progress` to move on.
+   */
+  async play(api: ApiClient, ratings: number[], answers: boolean[] = []): Promise<void> {
+    const total = await numberValue(this.quiz.progress, 'data-total');
+    let step = await numberValue(this.quiz.progress);
+    const moveOn = async (): Promise<void> => {
+      await (step === total
+        ? expect(this.result).toBeVisible()
+        : expect(this.quiz.progress).toHaveAttribute('data-value', String(++step)));
+    };
+    for (const rating of ratings) {
+      await this.recall.showAnswer();
+      await this.recall.rate(rating).click();
+      await moveOn();
+    }
+    for (const right of answers) {
+      await (right ? this.quiz.answerCorrectly(api) : this.quiz.answerWrong(api));
+      await this.quiz.next.click();
+      await moveOn();
+    }
   }
 }
