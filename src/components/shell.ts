@@ -33,6 +33,8 @@ export class Shell {
   readonly moreSheet: Locator;
   readonly accountGuest: Locator;
   readonly account: Locator;
+  /** The top-bar streak pill: `data-value` = the streak as the client computes it (rest days count). */
+  readonly streak: Locator;
 
   constructor(
     readonly page: Page,
@@ -45,6 +47,7 @@ export class Shell {
     this.moreSheet = page.getByTestId('more-sheet');
     this.accountGuest = page.getByTestId('account-guest');
     this.account = page.getByTestId('account');
+    this.streak = page.getByTestId('streak');
   }
 
   get isPhone(): boolean {

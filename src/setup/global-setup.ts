@@ -19,7 +19,11 @@ export default async function globalSetup(): Promise<void> {
         const res = await api.get('health', { timeout: POLL_MS * 5 });
         if (res.ok()) {
           const body = (await res.json()) as { db?: string };
-          if (body.db === 'up') return;
+          if (body.db === 'up') {
+            // A killed clock test leaves the reused local server's clock moved: start on real time.
+            if (!env.isProd) await api.put('__e2e/clock', { data: { offsetMs: 0 } });
+            return;
+          }
           lastError = `db is ${body.db}`;
         } else {
           lastError = `HTTP ${res.status()}`;

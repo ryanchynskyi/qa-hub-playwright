@@ -68,6 +68,8 @@ export const Question = z.object({
   text: z.string().min(1),
   code: z.string(),
   options: z.array(z.string()).min(2).max(10),
+  /** «Реально питали»: users who marked it asked; null below 3 (PLAN-12). */
+  asked: z.number().int().min(3).nullable().optional(),
 });
 export type Question = z.infer<typeof Question>;
 
@@ -307,10 +309,15 @@ export const Interview = z.object({
   level: QuestionLevel,
   chapterIds: z.array(z.string()).min(1),
   minutesPerDay: z.union([z.literal(15), z.literal(30), z.literal(60)]),
-  outcome: z.string().nullable(),
+  outcome: z.enum(['offer', 'waiting', 'failed']).nullable(),
+  /** Frozen when the result is saved (×100), null before. */
+  readiness: z.number().int().nullable(),
   checklist: z.array(z.string()),
+  /** The first «Які питання ставили?» save, null before. */
+  askedAt: z.string().nullable(),
 });
 export type Interview = z.infer<typeof Interview>;
+export type InterviewOutcome = NonNullable<Interview['outcome']>;
 
 export const InterviewResponse = z.object({ interview: Interview });
 
@@ -340,9 +347,71 @@ export const Plan = z.object({
   perDay: z.number().int(),
   cardsPerDay: z.number().int(),
   todayQuestions: z.number().int(),
-  days: z.array(PlanDay).min(1),
+  /** «Сьогодні 1 год» is on for today. */
+  todayOverride: z.boolean(),
+  /** On the interview day every day is past, so `days` may be empty then. */
+  days: z.array(PlanDay),
+  /** A re-pack after this missed day happened today («Учора без плану»), else null. */
+  missed: z.object({ date: z.string(), topicIds: z.array(z.string()) }).nullable(),
+  /** Only on the «Фініш» date: the round's make-up. */
+  finish: z
+    .object({
+      cards: z.number().int().nonnegative(),
+      questions: z.number().int().nonnegative(),
+      chapterIds: z.array(z.string()),
+    })
+    .nullable(),
+  /** Only on the interview day: the warm-up, at most 5 items; null when nothing to repeat. */
+  warmup: z
+    .object({
+      size: z.number().int().min(0).max(5),
+      cards: z.number().int().nonnegative(),
+      questions: z.number().int().nonnegative(),
+      from: z.enum(['finish', 'recent']),
+      state: z.enum(['todo', 'done']),
+      correct: z.number().int().nonnegative().optional(),
+    })
+    .nullable(),
 });
 export type Plan = z.infer<typeof Plan>;
+
+/** A bank question as «Які питання ставили?» offers it. */
+const AskedQuestion = z.object({
+  id: z.string(),
+  text: z.string().min(1),
+  chapterId: z.string(),
+  sectionId: z.string(),
+});
+
+/** GET /me/interviews/:id/questions (PUT answers the same plus `interview`). */
+export const AskedQuestions = z.object({
+  picked: z.array(AskedQuestion),
+  texts: z.array(z.string()),
+  suggested: z.array(AskedQuestion).max(4),
+});
+export type AskedQuestions = z.infer<typeof AskedQuestions>;
+export const SavedAskedQuestions = AskedQuestions.extend({ interview: Interview });
+
+/** GET /quiz/search?q= (signed in): at most 20, bank order. */
+export const AskedSearch = z.object({ items: z.array(AskedQuestion).max(20) });
+
+/** GET /admin/asked: own questions, newest first; never the user's name, email or id. */
+export const AdminAsked = z.object({
+  open: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  items: z.array(
+    z.strictObject({
+      id: z.number().int(),
+      createdAt: z.string(),
+      text: z.string(),
+      level: QuestionLevel,
+      chapters: z.array(z.string()),
+      interviewDate: z.string(),
+      status: z.enum(['open', 'done']),
+    }),
+  ),
+});
+export type AdminAsked = z.infer<typeof AdminAsked>;
 
 /** POST /me/plan/days/:date/start: the round's ids; questions answer through `quiz/check`. */
 export const PlanStart = z.object({

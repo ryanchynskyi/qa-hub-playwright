@@ -10,6 +10,9 @@ import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
 import { BugDialog } from '../components/bug-dialog';
 import { Checklist } from '../components/checklist';
+import { AskCard } from '../components/ask-card';
+import { AskedCard } from '../components/asked-card';
+import { Finish } from '../components/finish';
 import { FeedbackDialog } from '../components/feedback-dialog';
 import { FocusWizard } from '../components/focus-wizard';
 import { ImportBanner } from '../components/import-banner';
@@ -24,6 +27,7 @@ import { AuthPage } from '../pages/auth-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
 import { InterviewPage } from '../pages/interview-page';
+import { InterviewsPage } from '../pages/interviews-page';
 import { KbPage } from '../pages/kb-page';
 import { LeaderboardPage } from '../pages/leaderboard-page';
 import { PlanPage } from '../pages/plan-page';
@@ -105,6 +109,19 @@ interface TestFixtures {
   interview: InterviewPage;
   plan: PlanPage;
   checklist: Checklist;
+  finish: Finish;
+  askCard: AskCard;
+  askedCard: AskedCard;
+  interviews: InterviewsPage;
+  /**
+   * Moves the e2e API's clock to `at` (ISO), back to real time after the test. Server-global:
+   * only in the `clock` project (one worker, after the others). A token minted before a jump looks
+   * expired after it, so log in after setting it; a page also needs `page.clock` at the same
+   * instant (the dashboard computes today itself).
+   */
+  serverClock: (at: string) => Promise<void>;
+  /** Signs `user` in on `page` (refresh cookie, then the app restores the session on load). */
+  signIn: (user: Credentials) => Promise<void>;
 }
 
 interface WorkerFixtures {
@@ -254,6 +271,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   interview: async ({ page }, use) => use(new InterviewPage(page)),
   plan: async ({ page }, use) => use(new PlanPage(page)),
   checklist: async ({ page }, use) => use(new Checklist(page)),
+  finish: async ({ page }, use) => use(new Finish(page)),
+  askCard: async ({ page }, use) => use(new AskCard(page)),
+  askedCard: async ({ page }, use) => use(new AskedCard(page)),
+  interviews: async ({ page }, use) => use(new InterviewsPage(page)),
+  serverClock: async ({ api }, use) => {
+    assertNotProd('serverClock');
+    await use(async (at) => {
+      await api.setClock({ at });
+    });
+    await api.setClock({ offsetMs: 0 });
+  },
+  signIn: async ({ page }, use) => use((user) => apiLogin(page.request, user)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),
   tour: async ({ page }, use) => use(new Tour(page)),
 });

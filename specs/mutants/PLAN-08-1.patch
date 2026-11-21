@@ -1,0 +1,15 @@
+«Фініш» takes up to 7 mistake cards instead of 8.
+
+diff --git a/packages/shared/src/engine/plan.ts b/packages/shared/src/engine/plan.ts
+index 114e560..c756b15 100644
+--- a/packages/shared/src/engine/plan.ts
++++ b/packages/shared/src/engine/plan.ts
+@@ -12,7 +12,7 @@ export const PLAN_QUESTIONS: Readonly<Record<number, number>> = { 15: 15, 30: 30
+ /** A regular day's card step: one recall card per this many questions (15/30/60 → 3/6/12). */
+ export const PLAN_CARD_EVERY = 5;
+ /** «Фініш» (15 minutes of repeating mistakes): up to this many mistake cards first… */
+-export const PLAN_FINISH_CARDS = 8;
++export const PLAN_FINISH_CARDS = 7;
+ /** …then questions up to this many items in all (the «Фініш» day's `size`). */
+ export const PLAN_FINISH_SIZE = 15;
+ /** The interview day's warm-up: at most this many cards and questions together. */

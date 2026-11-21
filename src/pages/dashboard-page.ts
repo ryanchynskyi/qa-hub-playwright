@@ -20,6 +20,19 @@ export class DashboardPage {
   readonly days: Locator;
   readonly planHow: Locator;
   readonly planHowOk: Locator;
+  /** Today's plan step; `data-state` = `rest` on a day done ahead. */
+  readonly planNext: Locator;
+  /** «День уже виконано» (a rest day); needs the browser clock on the server's day. */
+  readonly planRest: Locator;
+  readonly planAheadRow: Locator;
+  /** «Учора без плану» after a missed day, with «Сьогодні 1 год» and «Лишити». */
+  readonly planMissed: Locator;
+  readonly planMissedHour: Locator;
+  readonly planMissedKeep: Locator;
+  readonly planMissedClose: Locator;
+  readonly planMissedError: Locator;
+  /** The plan row of the daily list on a rest day. */
+  readonly planTaskResult: Locator;
   /** Signed in, no active interview: the «Додай дату співбесіди» tile; never for guests. */
   readonly addDate: Locator;
   readonly addDateLink: Locator;
@@ -43,6 +56,15 @@ export class DashboardPage {
     this.days = page.getByTestId('dash-days');
     this.planHow = page.getByTestId('dash-plan-how');
     this.planHowOk = page.getByTestId('dash-plan-how-ok');
+    this.planNext = page.getByTestId('plan-next');
+    this.planRest = page.getByTestId('plan-rest');
+    this.planAheadRow = page.getByTestId('plan-ahead-row');
+    this.planMissed = page.getByTestId('plan-missed');
+    this.planMissedHour = page.getByTestId('plan-missed-hour');
+    this.planMissedKeep = page.getByTestId('plan-missed-keep');
+    this.planMissedClose = page.getByTestId('plan-missed-close');
+    this.planMissedError = page.getByTestId('plan-missed-error');
+    this.planTaskResult = page.getByTestId('plan-task-result');
     this.addDate = page.getByTestId('dash-add-date');
     this.addDateLink = page.getByTestId('dash-add-date-link');
     this.tickerItems = page.getByTestId('ticker-item');
@@ -52,6 +74,11 @@ export class DashboardPage {
   /** A day block: `data-key` = date, `data-state` todo/done/missed, today `aria-current="date"`. */
   day(date: string): Locator {
     return byTestId(this.page, 'dash-day', date);
+  }
+
+  /** A ticker item: `interview`, `days`, `streak`, `ask`, … */
+  tickerItem(key: string): Locator {
+    return byTestId(this.page, 'ticker-item', key);
   }
 
   task(id: string): Locator {

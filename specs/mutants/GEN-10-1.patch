@@ -1,15 +1,15 @@
 A new visitor gets the focus wizard instead of the guest home (it opens without a finished first run).
 
 diff --git a/apps/web/src/Layout.tsx b/apps/web/src/Layout.tsx
-index 9ea1aaf..ee54e00 100644
+index 9f0b8a9..c652ad7 100644
 --- a/apps/web/src/Layout.tsx
 +++ b/apps/web/src/Layout.tsx
-@@ -1103,7 +1103,7 @@ export function Layout() {
+@@ -1175,7 +1175,7 @@ export function Layout() {
    const spotlight = useSpotlightOpen();
    // Only the focus wizard of a finished first run runs without the shell; the guest home has it.
    const wizard = useWizardFrom() !== null;
 -  const gate = useFocusGate(progress) && isDash(pathname) && wizard;
 +  const gate = useFocusGate(progress) && isDash(pathname);
+   // The interview form is full screen too (boards Interview, Desk-Interview): no menus.
+   const bare = pathname === '/profile/interview' || pathname === '/profile/interview/';
    const [moreOpen, setMoreOpen] = useState(false);
-   const bugOpen = useBugReportOpen();
-   const feedbackOpen = useFeedbackOpen();

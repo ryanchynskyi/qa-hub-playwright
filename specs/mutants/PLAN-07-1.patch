@@ -1,0 +1,15 @@
+A missed day is flagged but the plan is not re-packed: its topics never move to today.
+
+diff --git a/packages/shared/src/engine/plan.ts b/packages/shared/src/engine/plan.ts
+index 114e560..1b03a03 100644
+--- a/packages/shared/src/engine/plan.ts
++++ b/packages/shared/src/engine/plan.ts
+@@ -229,7 +229,7 @@ export function ensurePlan(
+   const last = missed.at(-1)!;
+   return {
+     plan: {
+-      ...repack(plan, f, openOrder(plan, f), plan.override),
++      ...plan,
+       missed: { date: last.date, topicIds: last.topicIds, on: f.today },
+     },
+     changed: true,

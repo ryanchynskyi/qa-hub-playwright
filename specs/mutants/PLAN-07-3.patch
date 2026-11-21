@@ -1,0 +1,15 @@
+«Сьогодні 1 год» is saved but ignored: today keeps the interview's size.
+
+diff --git a/packages/shared/src/engine/plan.ts b/packages/shared/src/engine/plan.ts
+index 114e560..e3a8abd 100644
+--- a/packages/shared/src/engine/plan.ts
++++ b/packages/shared/src/engine/plan.ts
+@@ -207,7 +207,7 @@ function repack(
+       order,
+       pools: topicPools(f),
+       keep: fixedDays(plan, f),
+-      ...(on && { todayCap: PLAN_QUESTIONS[PLAN_OVERRIDE_MINUTES] }),
++
+     }),
+     packedFrom: f.today,
+     override: on ? f.today : null,
