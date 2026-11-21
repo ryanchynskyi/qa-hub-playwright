@@ -16,6 +16,15 @@ export class DashboardPage {
   readonly ready: Locator;
   readonly quickstart: Locator;
   readonly topicsLock: Locator;
+  /** Plan mode (`dash` `data-state="plan"`): day blocks, `data-value` = today … «Фініш». */
+  readonly days: Locator;
+  readonly planHow: Locator;
+  readonly planHowOk: Locator;
+  /** Signed in, no active interview: the «Додай дату співбесіди» tile; never for guests. */
+  readonly addDate: Locator;
+  readonly addDateLink: Locator;
+  /** Ticker items in order; plan mode starts with keys `interview`, `days`. */
+  readonly tickerItems: Locator;
   /** Blocks a new visitor's short dashboard leaves out until the tour (DASH-020). */
   readonly fullOnly: Locator[];
 
@@ -31,7 +40,18 @@ export class DashboardPage {
     this.ready = page.getByTestId('dash-ready');
     this.quickstart = page.getByTestId('dash-quickstart');
     this.topicsLock = page.getByTestId('topics-lock');
+    this.days = page.getByTestId('dash-days');
+    this.planHow = page.getByTestId('dash-plan-how');
+    this.planHowOk = page.getByTestId('dash-plan-how-ok');
+    this.addDate = page.getByTestId('dash-add-date');
+    this.addDateLink = page.getByTestId('dash-add-date-link');
+    this.tickerItems = page.getByTestId('ticker-item');
     this.fullOnly = ['dash-ready', 'today', 'weak'].map((id) => page.getByTestId(id));
+  }
+
+  /** A day block: `data-key` = date, `data-state` todo/done/missed, today `aria-current="date"`. */
+  day(date: string): Locator {
+    return byTestId(this.page, 'dash-day', date);
   }
 
   task(id: string): Locator {

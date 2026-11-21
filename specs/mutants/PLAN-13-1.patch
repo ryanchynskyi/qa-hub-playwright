@@ -1,0 +1,14 @@
+The catalogue sends priority null for every question.
+
+diff --git a/apps/api/src/content/catalog.ts b/apps/api/src/content/catalog.ts
+--- a/apps/api/src/content/catalog.ts
++++ b/apps/api/src/content/catalog.ts
+@@ -52,7 +52,7 @@
+       .sort(byTopicThen),
+     // Stable sort keeps the per-section `order` from the query.
+     questions: questions
+-      .map(({ priority, ...q }) => (priority === null ? q : { ...q, priority }))
++      .map(({ priority, ...q }) => ({ ...q, priority: null }))
+       .sort((a, b) => (sectionOrder.get(a.sectionId) ?? 0) - (sectionOrder.get(b.sectionId) ?? 0)),
+     recallCards: cards.sort(
+       (a, b) => (topicOrder.get(a.topicId) ?? 0) - (topicOrder.get(b.topicId) ?? 0),

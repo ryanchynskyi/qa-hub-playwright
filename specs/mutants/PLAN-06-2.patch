@@ -1,0 +1,14 @@
+Finish accepts a day whose row holds only the card step (no test round started).
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -939,7 +939,7 @@
+   private openRun(ctx: PlanCtx, date: string) {
+     const run = ctx.runs.find((r) => r.date === date);
+     // A row the card step made alone holds no round.
+-    if (!run || (!run.questionIds.length && !run.cardIds.length)) {
++    if (!run) {
+       throw new HttpError(409, 'not_answered', 'This round was not started');
+     }
+     if (run.doneAt && run.doneAt >= run.startedAt) {

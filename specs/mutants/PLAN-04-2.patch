@@ -1,0 +1,13 @@
+Minutes per day are saved but the plan is not refetched: the days keep the old size until a reload.
+
+diff --git a/apps/web/src/views/Plan.tsx b/apps/web/src/views/Plan.tsx
+--- a/apps/web/src/views/Plan.tsx
++++ b/apps/web/src/views/Plan.tsx
+@@ -88,7 +88,6 @@
+     if (m === plan.interview.minutesPerDay) return Promise.resolve();
+     return change('minutes', async () => {
+       await api.updateInterview(plan.interview.id, { minutesPerDay: m });
+-      await qc.invalidateQueries({ queryKey: ['interviews'] });
+     });
+   };
+   const pickTasks = (n: number) =>

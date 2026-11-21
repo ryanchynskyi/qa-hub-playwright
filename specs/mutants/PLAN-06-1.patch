@@ -1,0 +1,13 @@
+The card step re-picks its cards on every start instead of keeping the first pick.
+
+diff --git a/apps/api/src/progress/service.ts b/apps/api/src/progress/service.ts
+--- a/apps/api/src/progress/service.ts
++++ b/apps/api/src/progress/service.ts
+@@ -1042,7 +1042,6 @@
+       const day = this.planDay(ctx, date);
+       if (day === 'warmup' || isFinishDay(day)) throw notFound('card step');
+       const run = ctx.runs.find((r) => r.date === date);
+-      if (run?.deckIds.length) return { cardIds: run.deckIds, ratings: run.deckRatings };
+       const cardIds = this.deckPick(ctx, day, userId, now);
+       if (!cardIds.length) throw notFound('card step');
+       const deck = { deckIds: cardIds, deckRatings: cardIds.map(() => 0) };

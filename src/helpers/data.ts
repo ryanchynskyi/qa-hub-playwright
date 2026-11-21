@@ -39,3 +39,13 @@ export const stripInlineCode = (markdown: string): string => markdown.replaceAll
 
 /** Cyrillic block: English pages must not contain it (docs/brief.md §11). */
 export const CYRILLIC = /[Ѐ-ӿ]/;
+
+/**
+ * The calendar date `days` after today in the user's zone, `YYYY-MM-DD` (test accounts register in
+ * Europe/Kyiv, like the browser context). Calendar maths, not `+ n * 24h`: a DST day is 23 or 25 h.
+ */
+export function localDate(days = 0, timeZone = 'Europe/Kyiv'): string {
+  const date = new Date(`${new Date().toLocaleDateString('en-CA', { timeZone })}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}

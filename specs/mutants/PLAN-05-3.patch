@@ -1,0 +1,14 @@
+Cards per day: one card per 4 questions instead of 5.
+
+diff --git a/packages/shared/src/engine/plan.ts b/packages/shared/src/engine/plan.ts
+--- a/packages/shared/src/engine/plan.ts
++++ b/packages/shared/src/engine/plan.ts
+@@ -10,7 +10,7 @@
+ /** Questions a day by the interview's minutes a day («1 питання ≈ 1 хвилина»). */
+ export const PLAN_QUESTIONS: Readonly<Record<number, number>> = { 15: 15, 30: 30, 60: 60 };
+ /** A regular day's card step: one recall card per this many questions (15/30/60 → 3/6/12). */
+-export const PLAN_CARD_EVERY = 5;
++export const PLAN_CARD_EVERY = 4;
+ /** «Фініш» (15 minutes of repeating mistakes): up to this many mistake cards first… */
+ export const PLAN_FINISH_CARDS = 8;
+ /** …then questions up to this many items in all (the «Фініш» day's `size`). */

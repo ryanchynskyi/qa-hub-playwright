@@ -11,6 +11,7 @@ export const Lang = z.enum(['uk', 'en']);
 export type Lang = z.infer<typeof Lang>;
 
 export const QuestionLevel = z.enum(['junior', 'middle', 'senior']);
+export type QuestionLevel = z.infer<typeof QuestionLevel>;
 
 export const ApiError = z.object({ error: z.string(), message: z.string() });
 export type ApiError = z.infer<typeof ApiError>;
@@ -51,6 +52,8 @@ export const Catalog = z.object({
       sectionId: z.string(),
       chapterId: z.string(),
       level: QuestionLevel,
+      /** Interview-plan weight, only on classified questions; never null (PLAN-13). */
+      priority: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
     }),
   ),
   recallCards: z.array(z.object({ id: z.string(), topicId: z.string(), chapterId: z.string() })),
@@ -161,9 +164,19 @@ export const DailyTask = z.object({
   id: z.string(),
   date: z.string(),
   slot: z.number().int().nonnegative(),
-  type: z.enum(['ANSWER_N', 'ACCURACY', 'REVIEW_DUE', 'READ_ARTICLE', 'CODE_REVIEW', 'WEAK_SPOT']),
+  type: z.enum([
+    'ANSWER_N',
+    'ACCURACY',
+    'REVIEW_DUE',
+    'READ_ARTICLE',
+    'CODE_REVIEW',
+    'WEAK_SPOT',
+    'PLAN_DAY',
+  ]),
   params: z.object({
     topicId: z.string().optional(),
+    topicIds: z.array(z.string()).optional(),
+    size: z.number().optional(),
     chapterId: z.string().optional(),
     sectionIds: z.array(z.string()).optional(),
     minAnswered: z.number().optional(),
@@ -286,3 +299,74 @@ export const ImportResult = z.object({
   levelUp: z.object({ from: z.number().int(), to: z.number().int() }).nullable(),
 });
 export type ImportResult = z.infer<typeof ImportResult>;
+
+/** An interview (POST/PATCH /me/interviews); `checklist` holds the ticked «Перед співбесідою» keys. */
+export const Interview = z.object({
+  id: z.string(),
+  date: z.string(),
+  level: QuestionLevel,
+  chapterIds: z.array(z.string()).min(1),
+  minutesPerDay: z.union([z.literal(15), z.literal(30), z.literal(60)]),
+  outcome: z.string().nullable(),
+  checklist: z.array(z.string()),
+});
+export type Interview = z.infer<typeof Interview>;
+
+export const InterviewResponse = z.object({ interview: Interview });
+
+/** GET /me/interviews: at most one active (date ≥ the user's today). */
+export const Interviews = z.object({ active: Interview.nullable(), past: z.array(Interview) });
+export type Interviews = z.infer<typeof Interviews>;
+
+/** One day of the plan; the last one («Фініш», the day before the interview) has no topics and cards. */
+export const PlanDay = z.object({
+  date: z.string(),
+  topicIds: z.array(z.string()),
+  size: z.number().int().nonnegative(),
+  state: z.enum(['todo', 'done', 'missed']),
+  ahead: z.boolean(),
+  cards: z.object({
+    size: z.number().int().nonnegative(),
+    rated: z.number().int().nonnegative(),
+    state: z.enum(['todo', 'done']),
+  }),
+});
+export type PlanDay = z.infer<typeof PlanDay>;
+
+/** GET /me/plan: only the parts tests read; `days` runs today … the «Фініш» day. */
+export const Plan = z.object({
+  interview: Interview,
+  today: z.string(),
+  perDay: z.number().int(),
+  cardsPerDay: z.number().int(),
+  todayQuestions: z.number().int(),
+  days: z.array(PlanDay).min(1),
+});
+export type Plan = z.infer<typeof Plan>;
+
+/** POST /me/plan/days/:date/start: the round's ids; questions answer through `quiz/check`. */
+export const PlanStart = z.object({
+  questionIds: z.array(z.string()),
+  cardIds: z.array(z.string()),
+});
+export type PlanStart = z.infer<typeof PlanStart>;
+
+/** POST /me/plan/days/:date/cards/start: frozen at the first call; `ratings[i]` 0 = not rated. */
+export const PlanCards = z.object({
+  cardIds: z.array(z.string()),
+  ratings: z.array(z.number().int().min(0).max(5)),
+});
+export type PlanCards = z.infer<typeof PlanCards>;
+
+/** Rating a plan card or finishing a plan day: the account's stats after it. */
+export const PlanUpdate = z.object({
+  result: z.object({
+    stats: z.object({
+      totalXp: z.number().int().nonnegative(),
+      streak: z.number().int().nonnegative(),
+      longestStreak: z.number().int().nonnegative(),
+      lastActiveDate: z.string().nullable(),
+    }),
+  }),
+});
+export type PlanUpdate = z.infer<typeof PlanUpdate>;

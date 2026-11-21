@@ -9,6 +9,7 @@ import {
 import { ApiClient, expectStatus, type Credentials } from '../api/client';
 import type { Catalog, Lang } from '../api/schemas';
 import { BugDialog } from '../components/bug-dialog';
+import { Checklist } from '../components/checklist';
 import { FeedbackDialog } from '../components/feedback-dialog';
 import { FocusWizard } from '../components/focus-wizard';
 import { ImportBanner } from '../components/import-banner';
@@ -22,8 +23,10 @@ import { AdminPage } from '../pages/admin-page';
 import { AuthPage } from '../pages/auth-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
+import { InterviewPage } from '../pages/interview-page';
 import { KbPage } from '../pages/kb-page';
 import { LeaderboardPage } from '../pages/leaderboard-page';
+import { PlanPage } from '../pages/plan-page';
 import { ProfilePage } from '../pages/profile-page';
 import { QuizPage } from '../pages/quiz-page';
 import { RecallPage } from '../pages/recall-page';
@@ -99,6 +102,9 @@ interface TestFixtures {
   profile: ProfilePage;
   leaderboard: LeaderboardPage;
   fakeGoogle: FakeGoogle;
+  interview: InterviewPage;
+  plan: PlanPage;
+  checklist: Checklist;
 }
 
 interface WorkerFixtures {
@@ -245,6 +251,9 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   profile: async ({ page }, use) => use(new ProfilePage(page)),
   leaderboard: async ({ page }, use) => use(new LeaderboardPage(page)),
   fakeGoogle: async ({ page }, use) => use(new FakeGoogle(page)),
+  interview: async ({ page }, use) => use(new InterviewPage(page)),
+  plan: async ({ page }, use) => use(new PlanPage(page)),
+  checklist: async ({ page }, use) => use(new Checklist(page)),
   focus: async ({ page }, use) => use(new FocusWizard(page)),
   tour: async ({ page }, use) => use(new Tour(page)),
 });

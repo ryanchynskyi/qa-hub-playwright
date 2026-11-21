@@ -14,16 +14,24 @@ import {
   FeedbackCreated,
   Health,
   ImportResult,
+  InterviewResponse,
+  Interviews,
   KbChapter,
   Leaderboard,
   MyFeedback,
+  Plan,
+  PlanCards,
+  PlanStart,
+  PlanUpdate,
   Progress,
   Question,
   RateResult,
   RecallCard,
   SearchHits,
   User,
+  type Interview,
   type Lang,
+  type QuestionLevel,
   type UploadStatus,
 } from './schemas';
 
@@ -39,6 +47,15 @@ export interface RegisterInput extends Credentials {
   displayName?: string;
   timeZone?: string;
   remember?: boolean;
+}
+
+/** Body of POST /me/interviews; `date` is the user's local `YYYY-MM-DD`, tomorrow … today + 7. */
+export interface InterviewInput {
+  date: string;
+  level: QuestionLevel;
+  chapterIds: string[];
+  minutesPerDay: 15 | 30 | 60;
+  replace?: boolean;
 }
 
 /** Body of POST /me/import ($APP_DIR packages/shared/src/import.schema.ts); unused parts stay `{}`. */
@@ -256,6 +273,40 @@ export class ApiClient {
     return (await this.getJson(`comments?${params}`, Comments)).items;
   }
 
+  /** 201; a second active interview needs `replace: true` (else 409 `interview_exists`, use `raw`). */
+  async createInterview(token: string, input: InterviewInput): Promise<Interview> {
+    return (await this.postJson('me/interviews', input, InterviewResponse, token, 201)).interview;
+  }
+
+  interviews(token: string): Promise<Interviews> {
+    return this.getJson('me/interviews', Interviews, token);
+  }
+
+  plan(token: string): Promise<Plan> {
+    return this.getJson('me/plan', Plan, token);
+  }
+
+  // The plan's body-less POSTs go without `data`: a JSON content-type with an empty body is a 400.
+
+  /** Starts the day's test round; answer its questions with `checkAnswer(id, choice, token)`. */
+  startPlanDay(token: string, date: string): Promise<PlanStart> {
+    return this.postEmpty(`me/plan/days/${date}/start`, PlanStart, token);
+  }
+
+  /** The day's card step: picked at the first call, the same cards (and ratings) after it. */
+  startPlanCards(token: string, date: string): Promise<PlanCards> {
+    return this.postEmpty(`me/plan/days/${date}/cards/start`, PlanCards, token);
+  }
+
+  ratePlanCard(token: string, date: string, cardId: string, rating: number): Promise<PlanUpdate> {
+    return this.postJson(`me/plan/days/${date}/cards/${cardId}`, { rating }, PlanUpdate, token);
+  }
+
+  /** 409 `not_answered` until every question of the started round is answered (use `raw`). */
+  finishPlanDay(token: string, date: string): Promise<PlanUpdate> {
+    return this.postEmpty(`me/plan/days/${date}/finish`, PlanUpdate, token);
+  }
+
   /** Deletes the account the token belongs to (DELETE /me, 204). */
   async deleteAccount(token: string, email: string): Promise<void> {
     const res = await this.raw.delete('me', {
@@ -284,6 +335,16 @@ export class ApiClient {
   ): Promise<z.infer<S>> {
     const res = await this.raw.post(path, { data, headers: bearer(token) });
     await expectStatus(res, status);
+    return schema.parse(await res.json());
+  }
+
+  private async postEmpty<S extends z.ZodType>(
+    path: string,
+    schema: S,
+    token: string,
+  ): Promise<z.infer<S>> {
+    const res = await this.raw.post(path, { headers: bearer(token) });
+    await expectStatus(res, 200);
     return schema.parse(await res.json());
   }
 }

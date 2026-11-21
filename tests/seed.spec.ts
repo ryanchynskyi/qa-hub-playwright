@@ -3,9 +3,10 @@ import { expect, test } from '../src/fixtures';
 /**
  * Seed for the Playwright test agents (.claude/agents/playwright-test-*.md): the planner and the
  * generator start every session from this test, so they get the framework's browser state (no
- * focus wizard, no tour, uk language) instead of a bare `page`.
+ * focus wizard, no tour, uk language) instead of a bare `page`. Tagged @responsive so the agents
+ * can also start on the tablet and phone projects.
  */
-test('seed', async ({ page, dashboard }) => {
+test('seed', { tag: '@responsive' }, async ({ page, dashboard }) => {
   await page.goto('dash');
   await expect(dashboard.root).toBeVisible();
 });

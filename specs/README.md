@@ -38,7 +38,8 @@ Rules: use the existing fixtures and page objects (src/fixtures/index.ts, src/pa
 first. No page.request, no CSS or text locators, no waitForTimeout, no test.skip, no retries. Test
 data through the `api` fixture (src/api/client.ts); never hard-code content. One @REQ tag per test,
 as the plan says. You cannot edit src/: if a locator or a method is missing, say so in the report
-and do not work around it inline.
+and do not work around it inline. generator_setup_page opens the guest seed: for a signed-in walk
+register a throwaway account through fetch in the page, then goto; delete it (DELETE me) at the end.
 
 <lessons footer, see below>
 ```
