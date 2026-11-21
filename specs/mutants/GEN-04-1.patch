@@ -1,0 +1,15 @@
+Section questions ignore lang: English requests get the Ukrainian text.
+
+diff --git a/apps/api/src/routes/content.ts b/apps/api/src/routes/content.ts
+index 2464fae..197ff03 100644
+--- a/apps/api/src/routes/content.ts
++++ b/apps/api/src/routes/content.ts
+@@ -58,7 +58,7 @@ export const contentRoutes: FastifyPluginAsync = async (app) => {
+     );
+     const tr = app.translation(lang);
+     reply.header('cache-control', 'public, max-age=300');
+-    return tr ? questions.map((q) => translateQuestion(q, tr)) : questions;
++    return questions;
+   });
+ 
+   app.get('/recall/cards', async (req, reply) => {

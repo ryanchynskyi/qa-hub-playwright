@@ -1,0 +1,14 @@
+Section questions leak the explanation (explanation in the quiz select).
+
+diff --git a/apps/api/src/routes/content.ts b/apps/api/src/routes/content.ts
+index 2464fae..b32373e 100644
+--- a/apps/api/src/routes/content.ts
++++ b/apps/api/src/routes/content.ts
+@@ -21,6 +21,7 @@ export const QUIZ_QUESTION_SELECT = {
+   text: true,
+   code: true,
+   options: true,
++  explanation: true,
+ } as const;
+ 
+ /** A recall card as the Recall runner gets it. */

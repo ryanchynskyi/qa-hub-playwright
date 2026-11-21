@@ -1,0 +1,15 @@
+Search accepts a one-character query (the minimum is 2).
+
+diff --git a/packages/shared/src/api.schema.ts b/packages/shared/src/api.schema.ts
+index f11c870..0e36d9f 100644
+--- a/packages/shared/src/api.schema.ts
++++ b/packages/shared/src/api.schema.ts
+@@ -27,7 +27,7 @@ export const checkAnswerSchema = z.object({
+ export type CheckAnswerRequest = z.infer<typeof checkAnswerSchema>;
+ 
+ export const searchQuerySchema = z.object({
+-  q: z.string().trim().min(2).max(100),
++  q: z.string().trim().min(1).max(100),
+   limit: z.coerce.number().int().min(1).max(50).default(40),
+ });
+ 

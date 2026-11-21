@@ -161,7 +161,13 @@ async function main() {
       const tests = spawnSync(
         process.execPath,
         [cli, 'test', '--grep', `@REQ-${req}\\b`, '--retries=0', '--reporter=line,json'],
-        { cwd: root, encoding: 'utf8', env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_FILE: json } },
+        {
+          cwd: root,
+          encoding: 'utf8',
+          env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_FILE: json },
+          // Soft asserts over the whole catalogue print megabytes; the 1 MB default kills the run.
+          maxBuffer: 256 * 1024 * 1024,
+        },
       );
       const output = tests.stdout + tests.stderr;
       if (/No tests found/.test(output)) {

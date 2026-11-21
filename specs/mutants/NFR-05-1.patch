@@ -1,0 +1,15 @@
+Invalid query or body answers 422 instead of 400 bad_request.
+
+diff --git a/apps/api/src/app.ts b/apps/api/src/app.ts
+index 3792069..614d953 100644
+--- a/apps/api/src/app.ts
++++ b/apps/api/src/app.ts
+@@ -237,7 +237,7 @@ export async function buildApp({
+       const message = err.issues
+         .map((i) => `${i.path.join('.') || 'body'}: ${i.message}`)
+         .join('; ');
+-      return reply.code(400).send({ error: 'bad_request', message });
++      return reply.code(422).send({ error: 'bad_request', message });
+     }
+     if (err instanceof HttpError) {
+       return reply
