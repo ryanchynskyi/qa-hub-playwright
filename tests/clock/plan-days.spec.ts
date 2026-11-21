@@ -1,19 +1,9 @@
-import { bearer, expectStatus, type ApiClient } from '../../src/api/client';
-import { ApiError } from '../../src/api/schemas';
+import { bearer, expectError } from '../../src/api/client';
 import { day, noon, topicChapters } from '../../src/helpers/clock';
 import { expect, test } from '../../src/fixtures';
 
 // spec: specs/phase2-plan-clock.md (scenarios 2.1–2.4)
 // seed: tests/seed.spec.ts
-
-async function expectError(
-  res: Awaited<ReturnType<ApiClient['raw']['post']>>,
-  status: number,
-  error: string,
-): Promise<void> {
-  await expectStatus(res, status);
-  expect(ApiError.parse(await res.json()).error, res.url()).toBe(error);
-}
 
 test.describe('PLAN-07 / PLAN-08 API tests (server clock)', () => {
   test(

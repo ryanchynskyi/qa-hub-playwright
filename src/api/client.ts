@@ -2,6 +2,7 @@ import { expect, type APIRequestContext, type APIResponse } from '@playwright/te
 import { z } from 'zod';
 import {
   AdminAsked,
+  ApiError,
   AdminBugReport,
   AdminBugReports,
   AdminFeedback,
@@ -430,4 +431,10 @@ export async function expectStatus(res: APIResponse, status: number): Promise<vo
   if (res.status() === status) return;
   const body = await res.text().catch(() => '<no body>');
   expect(res.status(), `${res.url()} returned ${res.status()}: ${body.slice(0, 500)}`).toBe(status);
+}
+
+/** A rejection in the common error format: the status, then the `error` code. */
+export async function expectError(res: APIResponse, status: number, error: string): Promise<void> {
+  await expectStatus(res, status);
+  expect(ApiError.parse(await res.json()).error, res.url()).toBe(error);
 }

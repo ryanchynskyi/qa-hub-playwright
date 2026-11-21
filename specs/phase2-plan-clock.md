@@ -101,6 +101,17 @@ These win over the rest of the plan.
 - 4.4: `dash-add-date` IS asserted: it renders only after the plan answered null, so it anchors
   the absences (before it, the plain dashboard of the loading state passes them all) and `dash`
   has no `data-state`.
+- 5.2, 5.6: a fresh account has no readiness (`ask-readiness` / `interview-row-readiness` empty);
+  the setup answers 3 questions of the D0 round right, and the UI value equals the API's
+  `readiness` of that interview.
+- 5.7 step 2: the history is opened with `goto`, not `interview-history-link`: that id has no row
+  of its own in test-ids.md (only a note), so `check:ids` rejects it. Restore the click once the
+  app's catalog lists it.
+- 5.2, 5.3: `ask-card` / ticker `ask` absences are checked on a dashboard opened through the
+  in-app link after the history page loaded (`dashAfterInterviews`): the card comes from GET
+  /me/interviews, not from the plan, so `dash-add-date` is no anchor for it.
+- 5.9 step 2: a move after a result reopens the interview with `outcome` null and nothing in
+  `past`; intended (the app's `move` route: «Result, frozen readiness and checklist are cleared»).
 
 ## Test Scenarios
 

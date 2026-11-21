@@ -1,5 +1,5 @@
-import { bearer, expectStatus, type ApiClient } from '../../src/api/client';
-import { ApiError, type Catalog, type Plan } from '../../src/api/schemas';
+import { bearer, expectError, expectStatus, type ApiClient } from '../../src/api/client';
+import type { Catalog, Plan } from '../../src/api/schemas';
 import { expect, test } from '../../src/fixtures';
 import { localDate } from '../../src/helpers/data';
 
@@ -65,15 +65,6 @@ async function threeDayPlan(
 async function answerTodaysRound(api: ApiClient, token: string): Promise<void> {
   const { questionIds } = await api.startPlanDay(token, today);
   for (const id of questionIds) await api.checkAnswer(id, 0, token);
-}
-
-async function expectError(
-  res: Awaited<ReturnType<ApiClient['raw']['post']>>,
-  status: number,
-  error: string,
-): Promise<void> {
-  await expectStatus(res, status);
-  expect(ApiError.parse(await res.json()).error, res.url()).toBe(error);
 }
 
 test.describe('plan days', () => {
