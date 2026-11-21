@@ -39,9 +39,13 @@ first. No page.request, no CSS or text locators, no waitForTimeout, no test.skip
 data through the `api` fixture (src/api/client.ts); never hard-code content. One @REQ tag per test,
 as the plan says. You cannot edit src/: if a locator or a method is missing, say so in the report
 and do not work around it inline. generator_setup_page opens the guest seed: for a signed-in walk
-register a throwaway account through fetch in the page, then goto; delete it (DELETE me) at the end.
+register a throwaway account through fetch in the page (POST /api/auth/register with `timeZone:
+'Europe/Kyiv'` and the password `correct-horse-battery`, else 400), then goto; delete it (DELETE
+me) at the end.
 Server-clock plans: the `dash` state (plan/finish/day) and the plan blocks follow the server's
 today; the client computes the rest (ask-card, streak, plan-rest), so tests still align page.clock.
+Your browser tools cannot set the browser clock: walk what the server decides (API, `dash`
+state), write the client-clock steps from the plan and test-ids, and list them as not walked.
 
 <lessons footer, see below>
 ```

@@ -12,3 +12,4 @@
 - [Extra claim fits the setup](extra-claim-fits-setup.md) — an expect beyond the plan must hold for the setup; walk it or leave it out
 - [Table, not if](table-not-if.md) — lint forbids conditionals; loops carry expected values in their table
 - [Shared steps to src](shared-steps-to-src.md) — missing locator or a flow two specs need → report it for src/, never inline or copy
+- [Survivor would show](survivor-would-show.md) — a gone/replaced claim needs setup where the survivor would win the read
