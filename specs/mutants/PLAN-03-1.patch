@@ -1,0 +1,14 @@
+Onboarding «Готово» with a date saves only the focus, no interview.
+
+diff --git a/apps/web/src/views/FocusCard.tsx b/apps/web/src/views/FocusCard.tsx
+--- a/apps/web/src/views/FocusCard.tsx
++++ b/apps/web/src/views/FocusCard.tsx
+@@ -151,7 +151,7 @@
+ 
+   const save = async () => {
+     if (!n || busy) return;
+-    if (withDate && date) {
++    if (withDate && date && minutes < 0) {
+       setBusy(true);
+       setError(null);
+       try {

@@ -1,0 +1,13 @@
+«Зрозуміло» hides «Як працює план» only in memory: it is back after a reload.
+
+diff --git a/apps/web/src/lib/plan.ts b/apps/web/src/lib/plan.ts
+--- a/apps/web/src/lib/plan.ts
++++ b/apps/web/src/lib/plan.ts
+@@ -194,7 +194,6 @@
+ export const useHowSeen = howSeen.use;
+ export function markHowSeen(): void {
+   try {
+-    localStorage.setItem(HOW_KEY, '1');
+   } catch {
+     // storage unavailable: the strip shows again after a reload
+   }

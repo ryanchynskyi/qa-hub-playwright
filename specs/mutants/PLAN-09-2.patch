@@ -1,0 +1,13 @@
+«Позначити зробленим» in the tips sheet closes it without ticking the item.
+
+diff --git a/apps/web/src/views/FinishParts.tsx b/apps/web/src/views/FinishParts.tsx
+--- a/apps/web/src/views/FinishParts.tsx
++++ b/apps/web/src/views/FinishParts.tsx
+@@ -222,7 +222,6 @@
+           className="dsheet-go"
+           data-testid="checklist-sheet-done"
+           onClick={() => {
+-            onToggle(!done);
+             onClose();
+           }}
+         >

@@ -1,0 +1,14 @@
+A second active interview without replace is saved over the first instead of 409 interview_exists.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -56,7 +56,7 @@
+     where: activeWhere(userId, today),
+     orderBy: { date: 'asc' },
+   });
+-  if (active && replace !== true) {
++  if (active && replace === false) {
+     throw new HttpError(409, 'interview_exists', 'An active interview exists', {
+       active: toDto(active),
+     });

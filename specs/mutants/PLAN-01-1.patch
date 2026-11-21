@@ -1,0 +1,14 @@
+Lower bound: an interview dated today is accepted (the minimum is tomorrow).
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -33,7 +33,7 @@
+ /** Tomorrow … today + INTERVIEW_MAX_DAYS, and a real calendar day (no 2026-02-30). */
+ function checkDate(date: string, today: string) {
+   const { min, max } = interviewDateRange(today);
+-  if (date < min || date > max || addDays(date, 0) !== date) {
++  if (date < today || date > max || addDays(date, 0) !== date) {
+     throw new HttpError(400, 'interview_date', 'Interview date out of range');
+   }
+ }

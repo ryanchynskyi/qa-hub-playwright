@@ -1,3 +1,4 @@
+import { expectStatus } from '../../src/api/client';
 import { expect, test } from '../../src/fixtures';
 
 test.describe('content API', { tag: ['@prod-safe'] }, () => {
@@ -48,6 +49,20 @@ test.describe('content API', { tag: ['@prod-safe'] }, () => {
           }
         });
       }
+    },
+  );
+
+  // Raw JSON: the Catalog schema would already refuse a bad value before the assertion.
+  // shortcut: every question of this build is classified, so "absent when unclassified" is unproven.
+  test(
+    'classified questions carry an interview priority of 1, 2 or 3',
+    { tag: ['@REQ-PLAN-13'] },
+    async ({ api }) => {
+      const res = await api.raw.get('content/catalog');
+      await expectStatus(res, 200);
+      const { questions } = (await res.json()) as { questions: Record<string, unknown>[] };
+      const priorities = questions.filter((q) => 'priority' in q).map((q) => q.priority);
+      expect(new Set(priorities)).toEqual(new Set([1, 2, 3]));
     },
   );
 

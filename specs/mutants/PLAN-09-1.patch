@@ -1,0 +1,14 @@
+A checklist tick only changes the screen: it never reaches the server.
+
+diff --git a/apps/web/src/views/FinishParts.tsx b/apps/web/src/views/FinishParts.tsx
+--- a/apps/web/src/views/FinishParts.tsx
++++ b/apps/web/src/views/FinishParts.tsx
+@@ -47,7 +47,7 @@
+         return next;
+       });
+     try {
+-      const res = await api.setChecklistItem(plan.interview.id, item, value);
++      const res = { checklist: value ? [...base, item] : base.filter((i) => i !== item) };
+       qc.setQueriesData<PlanResponse | null>({ queryKey: ['interviews', 'plan'] }, (p) =>
+         p ? { ...p, interview: { ...p.interview, checklist: res.checklist } } : p,
+       );

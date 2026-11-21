@@ -264,6 +264,8 @@ Umami під Playwright не шле нічого двічі: апка вимик
 `playwright-test` (`.mcp.json`), який дає їм браузер і раннер тестів.
 Planner і generator стартують з seed лише з `project: "desktop"`: без нього MCP бере перший
 проєкт конфігу (`api`), а там seed немає ("seed test not found", агент лишається без браузера).
+Для телефонного макета — `project: "phone"`: seed має тег `@responsive`, бо tablet і phone
+проганяють лише такі тести (у generator немає `browser_resize`, тож інакше макет не обійти).
 
 Planner, generator і healer отримують завдання за шаблоном зі [specs/README.md](../specs/README.md),
 а в кінці брифу — свої уроки з `.claude/agent-memory/<agent>/`. Це «донавчання»: агент нічого не
