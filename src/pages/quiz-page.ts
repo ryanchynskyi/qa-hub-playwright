@@ -179,6 +179,22 @@ export class QuizPage {
     return (await this.xpGain.count()) ? numberValue(this.xpGain) : 0;
   }
 
+  /**
+   * Skips questions of a started run until `questionId` is on screen (the order is random, so a
+   * loop over one known target, not a retry). Returns how many skipped questions showed
+   * `quiz-asked-tag`; throws if the run ends first.
+   */
+  async seek(questionId: string): Promise<number> {
+    let tagged = 0;
+    while ((await this.currentQuestionId()) !== questionId) {
+      tagged += await this.askedTag.count();
+      await this.skipQuestion();
+      await this.goNext();
+      if (await this.results.isVisible()) throw new Error(`${questionId} is not in the run`);
+    }
+    return tagged;
+  }
+
   /** Goes to the next question (or to the results after the last one) and waits for the change. */
   async goNext(): Promise<void> {
     const before = await numberValue(this.progress);

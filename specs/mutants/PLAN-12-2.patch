@@ -1,0 +1,15 @@
+Own questions are accepted but never stored (nothing reaches the admin inbox).
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..90ddefd 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -398,7 +398,7 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+           skipDuplicates: true,
+         });
+         // One row at a time: ids (the inbox and display order) follow the request order.
+-        for (const text of texts) {
++        for (const text of texts.slice(texts.length)) {
+           await tx.interviewAskedText.create({
+             data: { interviewId: current.id, text, createdAt: now },
+           });

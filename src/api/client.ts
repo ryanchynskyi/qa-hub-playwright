@@ -2,6 +2,7 @@ import { expect, type APIRequestContext, type APIResponse } from '@playwright/te
 import { z } from 'zod';
 import {
   AdminAsked,
+  AdminAskedItem,
   ApiError,
   AdminBugReport,
   AdminBugReports,
@@ -368,6 +369,20 @@ export class ApiClient {
 
   adminAsked(adminToken: string): Promise<AdminAsked> {
     return this.getJson('admin/asked', AdminAsked, adminToken);
+  }
+
+  /** The owner marks an own question done or open again (PATCH /admin/asked/:id). */
+  async setAskedStatus(
+    adminToken: string,
+    id: number,
+    status: 'open' | 'done',
+  ): Promise<z.infer<typeof AdminAskedItem>> {
+    const res = await this.raw.patch(`admin/asked/${id}`, {
+      data: { status },
+      headers: bearer(adminToken),
+    });
+    await expectStatus(res, 200);
+    return AdminAskedItem.parse(await res.json());
   }
 
   /**

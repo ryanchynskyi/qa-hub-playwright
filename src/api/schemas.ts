@@ -68,8 +68,8 @@ export const Question = z.object({
   text: z.string().min(1),
   code: z.string(),
   options: z.array(z.string()).min(2).max(10),
-  /** «Реально питали»: users who marked it asked; null below 3 (PLAN-12). */
-  asked: z.number().int().min(3).nullable().optional(),
+  /** «Реально питали»: users who marked it asked; null below 3 (PLAN-12, the tests assert it). */
+  asked: z.number().int().positive().nullable().optional(),
 });
 export type Question = z.infer<typeof Question>;
 
@@ -396,20 +396,19 @@ export const SavedAskedQuestions = AskedQuestions.extend({ interview: Interview 
 export const AskedSearch = z.object({ items: z.array(AskedQuestion).max(20) });
 
 /** GET /admin/asked: own questions, newest first; never the user's name, email or id. */
+export const AdminAskedItem = z.strictObject({
+  id: z.number().int(),
+  createdAt: z.string(),
+  text: z.string(),
+  level: QuestionLevel,
+  chapters: z.array(z.string()),
+  interviewDate: z.string(),
+  status: z.enum(['open', 'done']),
+});
 export const AdminAsked = z.object({
   open: z.number().int().nonnegative(),
   total: z.number().int().nonnegative(),
-  items: z.array(
-    z.strictObject({
-      id: z.number().int(),
-      createdAt: z.string(),
-      text: z.string(),
-      level: QuestionLevel,
-      chapters: z.array(z.string()),
-      interviewDate: z.string(),
-      status: z.enum(['open', 'done']),
-    }),
-  ),
+  items: z.array(AdminAskedItem),
 });
 export type AdminAsked = z.infer<typeof AdminAsked>;
 

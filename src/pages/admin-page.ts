@@ -81,4 +81,21 @@ export class AdminPage {
   feedbackImages(number: number): Locator {
     return this.feedbackItem(number).getByTestId('admin-feedback-image');
   }
+
+  /** A type chip of the inbox (`all|bug|feedback|comment|asked`), `data-state` active/idle. */
+  filter(key: string): Locator {
+    return byTestId(this.page, 'admin-inbox-filter', key);
+  }
+
+  /**
+   * An own question (PLAN-12). Bug and asked ids are both numbers, so the row is also matched by
+   * its kind; `body` (`admin-asked`, with `toggle`) exists only while the row is expanded.
+   */
+  asked(id: number) {
+    const row = this.page.locator(
+      `[data-testid="admin-inbox-item"][data-key="${id}"][data-value="asked"]`,
+    );
+    const body = byTestId(this.page, 'admin-asked', id);
+    return { row, body, toggle: body.getByTestId('admin-asked-toggle') };
+  }
 }

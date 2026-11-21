@@ -1,0 +1,15 @@
+The own-question limit ignores the ones already stored.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..ce855c0 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -383,7 +383,7 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+       return inTx(userId, async (tx, today, now) => {
+         const current = await pastOf(tx, req.params.id, userId, today);
+         const stored = await tx.interviewAskedText.count({ where: { interviewId: current.id } });
+-        if (stored + texts.length > ASKED_TEXTS_MAX) {
++        if (stored * 0 + texts.length > ASKED_TEXTS_MAX) {
+           throw new HttpError(400, 'asked_texts_limit', 'Too many own questions');
+         }
+         await tx.interviewAskedQuestion.deleteMany({

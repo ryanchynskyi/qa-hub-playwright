@@ -110,6 +110,34 @@ These win over the rest of the plan.
 - 5.2, 5.3: `ask-card` / ticker `ask` absences are checked on a dashboard opened through the
   in-app link after the history page loaded (`dashAfterInterviews`): the card comes from GET
   /me/interviews, not from the plan, so `dash-add-date` is no anchor for it.
+- Suite 6 (all in `tests/clock/asked.spec.ts`; 6.5, 6.6, 6.8 are API only, no page):
+  - Setup: `interviewThenJump(api, catalog, serverClock, user, 2)` (src/helpers/clock.ts:
+    interview on D0+1, clock D0+2), a fresh login, `api.setInterviewOutcome(token, id, 'offer')`
+    (the UI outcome path is PLAN-11's). UI: `signIn` → `page.clock.install({ time: noon(2) })` →
+    `dashAfterInterviews(...)`: `asked-card` comes from GET /me/interviews, so that is its anchor
+    for presence and absence (also after a reload in 6.2).
+  - 6.1: the `asked-option` keys equal `api.askedQuestions(..).suggested` ids. The search result
+    to mark is a question of the interview's chapters that is NOT suggested, its term taken from
+    its text through the API (`askedSearch` returns it); `asked-none` with a `newNonce()` term. The
+    1-character case is dropped (debounce detail, an absence without an anchor). No copy: no title
+    or thanks text; `asked-thanks-count` 2, `asked-section` keys = the picked questions' section ids;
+    the API read has `picked` = [suggestion, result] and `texts` = [own].
+  - 6.3: setup saves 1 mark + 1 own through `saveAskedQuestions`; after the edit the API read has
+    no `picked` and the own text kept.
+  - 6.4 / 6.5: accounts `user`, `otherUser`, the third through `api.register(uniqueEmail(..))` and
+    `deleteAccount` in `finally`. The target is `suggested[0]` of the first account; `asked` is read
+    with `api.questions(sectionId)`. The guest is `page` without `signIn` (a new context per test,
+    so no HTTP cache, A9); `QuizPage.goto(section)`, `startRun('all')`, `QuizPage.seek(id)` returns
+    the number of skipped questions that showed the tag (expect 0); then tag `data-value` 3 and the
+    note visible (no copy: plural and note text are UI words).
+  - 6.6: `api.setAskedStatus(adminToken, id, 'done')` (PATCH). The key set is asserted explicitly
+    (`AdminAskedItem` is strict too). Unauthenticated and plain-user GET /admin/asked: assert the
+    real status with `expectError` (record what the app returns).
+  - 6.7: `admin.reload()`, `admin.filter('asked')` → `data-state` active, `admin.asked(id)` (`row`
+    with `data-state` open; `expand(row)`; `body`, `toggle` → `body` `data-state` done, and the API
+    status done). «No author»: the row does not contain the user's email or display name. The owner
+    session exists only inside fixtures: write from the plan, the main session runs it first.
+  - 6.8: record the real `error` codes of each 400 with `expectError`; duplicates → one mark.
 - 5.9 step 2: a move after a result reopens the interview with `outcome` null and nothing in
   `past`; intended (the app's `move` route: «Result, frozen readiness and checklist are cleared»).
 

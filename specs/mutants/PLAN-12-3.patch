@@ -1,0 +1,14 @@
+The admin inbox item carries an extra key: any field beyond the anonymous set (stands for an identity leak).
+
+diff --git a/apps/api/src/routes/admin.ts b/apps/api/src/routes/admin.ts
+index ff61170..b399b29 100644
+--- a/apps/api/src/routes/admin.ts
++++ b/apps/api/src/routes/admin.ts
+@@ -160,6 +160,7 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
+       chapters: (await app.catalog()).chapters.filter((c) => ids.has(c.id)).map((c) => c.title),
+       interviewDate: r.interview.date,
+       status: r.status as AskedStatus,
++      userRef: r.id,
+     };
+   };
+ 

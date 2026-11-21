@@ -1,0 +1,14 @@
+«Пізніше» does nothing: the asked card stays on the dashboard.
+
+diff --git a/apps/web/src/lib/ask-later.ts b/apps/web/src/lib/ask-later.ts
+index 686d479..da9c4da 100644
+--- a/apps/web/src/lib/ask-later.ts
++++ b/apps/web/src/lib/ask-later.ts
+@@ -27,6 +27,7 @@ export const useAskLater = store.use;
+ 
+ /** Hides the card until tomorrow (per device: it is only a nudge). */
+ export function askLater(id: string, today: string): void {
++  return;
+   const next = { id, date: today };
+   try {
+     localStorage.setItem(KEY, JSON.stringify(next));

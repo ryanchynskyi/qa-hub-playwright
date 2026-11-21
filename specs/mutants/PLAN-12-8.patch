@@ -1,0 +1,15 @@
+«Які питання ставили?» suggests questions of any level, not the interview's.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..c53324d 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -317,7 +317,7 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+     const picked = new Set(marks.map((m) => m.questionId));
+     const chapters = new Set(interview.chapterIds);
+     const candidates = bank.filter(
+-      (q) => chapters.has(q.chapterId) && q.level === interview.level && !picked.has(q.id),
++      (q) => chapters.has(q.chapterId) && !picked.has(q.id),
+     );
+     const others = await askedCounts(
+       tx,

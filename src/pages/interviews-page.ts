@@ -7,7 +7,7 @@ export type InterviewTile = 'past' | 'offer' | 'waiting' | 'failed';
  * `/profile/interviews`: past interviews newest first (`interview-row`: `data-key` = id,
  * `data-value` = date, `data-state` offer/waiting/failed/none). A row opens the sheet
  * `interview-result` (radio rows, `aria-checked`; save is disabled until an answer) with the row
- * «Питання» (`interviews-questions`, `data-value` = marks). The same tiles sit on the profile.
+ * «Питання» (`interviews-questions`, `data-value` = marks + own questions). The same tiles sit on the profile.
  */
 export class InterviewsPage {
   readonly root: Locator;
