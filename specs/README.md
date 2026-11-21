@@ -42,7 +42,11 @@ and do not work around it inline. generator_setup_page opens the guest seed: for
 register a throwaway account through fetch in the page (POST /api/auth/register with `timeZone:
 'Europe/Kyiv'` and the password `correct-horse-battery`, else 400), then goto; delete it (DELETE
 me) at the end.
-Server-clock plans: the `dash` state (plan/finish/day) and the plan blocks follow the server's
+A test of the kept token (`qa-hub-rt`: remember-me, logout) signs in through the UI
+(`auth.login`): the API login sets the refresh cookie but never writes localStorage.
+`generator_write_test` takes a repo-relative path (`tests/clock/x.spec.ts`), not an absolute one.
+Server-clock plans: `adminToken` / `adminPage` are minted in real time before the test body, so
+reset the server clock (`api.setClock({ offsetMs: 0 })`) before the owner's steps. The `dash` state (plan/finish/day) and the plan blocks follow the server's
 today; the client computes the rest (ask-card, streak, plan-rest), so tests still align page.clock.
 Your browser tools cannot set the browser clock: walk what the server decides (API, `dash`
 state), write the client-clock steps from the plan and test-ids, and list them as not walked.

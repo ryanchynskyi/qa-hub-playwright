@@ -12,3 +12,4 @@ Both onboarding tests were titled «saves the focus» and asserted only the inte
 
 **Why:** «Готово» could have saved nothing for the focus and both tests would stay green; test-reviewer raised it.
 **How to apply:** before writing, list the effects in the title and in the requirement; each gets an expect (API read, `readStorage` for device-local state such as `qa-hub-focus`).
+A qualifier in an expected result is a claim on the value, not on presence: «suggestions taken from the interview's chapters», «chapters (Ukrainian titles)» need the chapter/level/title compared with the setup, not a count or a schema parse (2026-11-21, asked 6.1 BLOCKER, 6.6 SHOULD).
