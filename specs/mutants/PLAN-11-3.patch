@@ -1,0 +1,15 @@
+The interview history lists the oldest interview first.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..82f8a0e 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -127,7 +127,7 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+       app.db.interview.findFirst({ where: activeWhere(userId, today), orderBy: { date: 'asc' } }),
+       app.db.interview.findMany({
+         where: { userId, date: { lt: today } },
+-        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
++        orderBy: [{ date: 'asc' }, { createdAt: 'desc' }],
+         take: 50,
+       }),
+     ]);

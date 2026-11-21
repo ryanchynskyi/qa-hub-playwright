@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { APIResponse } from '@playwright/test';
-import { bearer, UPLOAD_CONTEXT, type ApiClient } from '../../src/api/client';
+import { bearer, expectError, UPLOAD_CONTEXT, type ApiClient } from '../../src/api/client';
 import { expect, test } from '../../src/fixtures';
 import { PNG_BASE64, uniqueText } from '../../src/helpers/data';
 
@@ -37,11 +37,6 @@ const adminItem = async (api: ApiClient, adminToken: string, id: string) => {
   const { items } = await api.adminFeedback(adminToken);
   return items.find((item) => item.id === id)!;
 };
-
-async function expectError(res: APIResponse, status: number, error: string): Promise<void> {
-  expect(res.status(), await res.text()).toBe(status);
-  expect(((await res.json()) as { error: string }).error).toBe(error);
-}
 
 test.describe('bug report text', { tag: ['@REQ-FB-02'] }, () => {
   test('5 to 4000 characters pass, the rest is refused', async ({ api, adminToken }) => {

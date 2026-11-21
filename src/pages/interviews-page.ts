@@ -18,6 +18,8 @@ export class InterviewsPage {
   readonly error: Locator;
   readonly questions: Locator;
   readonly questionsBack: Locator;
+  /** «Наступна» card (desktop): `data-state` set/none, `data-value` = the date. */
+  readonly next: Locator;
 
   constructor(readonly page: Page) {
     this.root = page.getByTestId('interviews-page');
@@ -28,9 +30,12 @@ export class InterviewsPage {
     this.error = page.getByTestId('interview-result-error');
     this.questions = page.getByTestId('interviews-questions');
     this.questionsBack = page.getByTestId('interviews-questions-back');
+    this.next = page.getByTestId('interviews-next');
   }
 
   row = (id: string) => byTestId(this.page, 'interview-row', id);
+  /** A row's readiness (desktop column): `data-value` = N, empty when unknown. */
+  rowReadiness = (id: string) => this.row(id).getByTestId('interview-row-readiness');
   option = (outcome: 'offer' | 'waiting' | 'failed') =>
     byTestId(this.page, 'interview-result-option', outcome);
   /** `data-value` = the count; on this page and on the profile. */

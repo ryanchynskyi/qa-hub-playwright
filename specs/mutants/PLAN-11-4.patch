@@ -1,0 +1,14 @@
+«Перенесли» keeps the old result on the moved interview.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..0cfecbe 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -277,7 +277,6 @@ export const interviewRoutes: FastifyPluginAsync = async (app) => {
+           where: { id: current.id },
+           data: {
+             date,
+-            outcome: null,
+             readiness: null,
+             checklist: Prisma.DbNull,
+             plan: Prisma.DbNull,
