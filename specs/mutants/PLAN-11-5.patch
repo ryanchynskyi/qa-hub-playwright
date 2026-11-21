@@ -1,0 +1,14 @@
+«Замінити» / `replace` keeps the other active interview instead of deleting it.
+
+diff --git a/apps/api/src/routes/interviews.ts b/apps/api/src/routes/interviews.ts
+index 1e7a5f9..2a4b771 100644
+--- a/apps/api/src/routes/interviews.ts
++++ b/apps/api/src/routes/interviews.ts
+@@ -63,7 +63,6 @@ async function freeActiveSlot(
+   }
+   if (!active) return [];
+   const rest = await progress.restOf(tx, activeWhere(userId, today));
+-  await tx.interview.deleteMany({ where: activeWhere(userId, today) });
+   return rest;
+ }
+ 

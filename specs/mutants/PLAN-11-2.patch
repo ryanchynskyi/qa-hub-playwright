@@ -1,0 +1,14 @@
+«Пізніше» / × do not hide the «Як пройшла?» card for the rest of the day.
+
+diff --git a/apps/web/src/hooks/interviews.ts b/apps/web/src/hooks/interviews.ts
+index 25091fc..0e191d7 100644
+--- a/apps/web/src/hooks/interviews.ts
++++ b/apps/web/src/hooks/interviews.ts
+@@ -50,7 +50,6 @@ export function useAskInterview(): { interview: InterviewDto; ago: number } | nu
+   if (!interview || interview.outcome !== null) return null;
+   const ago = daysBetween(interview.date, today);
+   if (ago < 1 || ago > ASK_DAYS) return null;
+-  if (later?.id === interview.id && later.date === today) return null;
+   return { interview, ago };
+ }
+ 
