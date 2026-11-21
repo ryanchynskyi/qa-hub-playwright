@@ -1,0 +1,16 @@
+The «Фініш» result lists the unclear questions before the cards.
+
+diff --git a/apps/web/src/views/FinishResult.tsx b/apps/web/src/views/FinishResult.tsx
+index 4b1c81b..d083966 100644
+--- a/apps/web/src/views/FinishResult.tsx
++++ b/apps/web/src/views/FinishResult.tsx
+@@ -82,8 +82,8 @@ function ResultView({
+   const wrongCards = result.cardIds.filter((id) => result.wrongCardIds.includes(id));
+   const wrongQs = result.questionIds.filter((id) => result.wrongIds.includes(id));
+   const confused = [
+-    ...wrongCards.map((id) => ({ id, kind: 'card' as const })),
+     ...wrongQs.map((id) => ({ id, kind: 'question' as const })),
++    ...wrongCards.map((id) => ({ id, kind: 'card' as const })),
+   ];
+   const checked = plan.interview.checklist.length;
+   const total = CHECKLIST_ITEMS.length;

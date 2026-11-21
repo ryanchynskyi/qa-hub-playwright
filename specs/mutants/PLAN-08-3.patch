@@ -1,0 +1,15 @@
+The day before the interview the dashboard stays the usual plan, never «Фініш».
+
+diff --git a/apps/web/src/lib/plan.ts b/apps/web/src/lib/plan.ts
+index 478e646..a3846ff 100644
+--- a/apps/web/src/lib/plan.ts
++++ b/apps/web/src/lib/plan.ts
+@@ -91,7 +91,7 @@ export type DashMode = 'plan' | 'finish' | 'day';
+ 
+ /** `finish`: today is the «Фініш» date; `day`: the interview day; else the usual plan dashboard. */
+ export const dashMode = (plan: PlanResponse): DashMode =>
+-  plan.today === plan.interview.date ? 'day' : plan.finish ? 'finish' : 'plan';
++  plan.today === plan.interview.date ? 'day' : 'plan';
+ 
+ /** Rows of the checklist's compact views. */
+ export const CHECKLIST_PHONE_EVE = 4;
