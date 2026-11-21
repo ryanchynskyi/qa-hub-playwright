@@ -19,10 +19,13 @@ export const noon = (n: number): string => `${day(n)}T10:00:00Z`;
 /** `YYYY-MM-DD` as the dashboard prints a date: `DD.MM`. */
 export const ddmm = (date: string): string => `${date.slice(8, 10)}.${date.slice(5, 7)}`;
 
-/** Every chapter of one topic: enough for a plan and for «Фініш» to fill 15 items. */
-export function topicChapters(catalog: Catalog): string[] {
-  const topicId = catalog.chapters[0]!.topicId;
-  return catalog.chapters.filter((c) => c.topicId === topicId).map((c) => c.id);
+/**
+ * Every chapter of the first `topics` topics. One topic is enough for a plan and for «Фініш» to
+ * fill 15 items; with one, every plan day has the same topic, so a move between days needs two.
+ */
+export function topicChapters(catalog: Catalog, topics = 1): string[] {
+  const ids = [...new Set(catalog.chapters.map((c) => c.topicId))].slice(0, topics);
+  return catalog.chapters.filter((c) => ids.includes(c.topicId)).map((c) => c.id);
 }
 
 /** A count inside a text that also holds other digits: `60` but not `600` or `160`. */

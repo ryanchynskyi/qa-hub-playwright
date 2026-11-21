@@ -16,22 +16,22 @@ async function answerAll(api: ApiClient, token: string, questionIds: string[]): 
 type ServerClock = (at: string) => Promise<void>;
 
 /**
- * Clock D0, interview on D0+`interviewIn` (30 min), clock D0+1: D0 went by untouched. Returns a
- * fresh token and the plan as it was on D0.
+ * Clock D0, interview on D0+`interviewIn` (30 min) over `topics` topics, clock D0+1: D0 went by
+ * untouched. Returns a fresh token and the plan as it was on D0.
  */
 async function missedDay(
   api: ApiClient,
   catalog: Catalog,
   serverClock: ServerClock,
   user: TestUser,
-  interviewIn = 3,
+  { interviewIn = 3, topics = 1 } = {},
 ): Promise<{ token: string; onD0: Plan }> {
   await serverClock(noon(0));
   let token = (await api.login(user)).accessToken;
   await api.createInterview(token, {
     date: day(interviewIn),
     level: 'middle',
-    chapterIds: topicChapters(catalog),
+    chapterIds: topicChapters(catalog, topics),
     minutesPerDay: 30,
   });
   const onD0 = await api.plan(token);
@@ -154,8 +154,9 @@ test.describe('PLAN-07 rest day and missed day (UI + server clock)', () => {
     'a missed day shows the «Учора без плану» notice and re-packs the plan',
     { tag: ['@REQ-PLAN-07'] },
     async ({ api, catalog, dashboard, page, serverClock, signIn, user }) => {
-      // 1. Clock D0, interview D0+3 (30 min), clock D0+1; open /dash on the same instant.
-      const { token, onD0 } = await missedDay(api, catalog, serverClock, user);
+      // 1. Clock D0, interview D0+3 (30 min) over two topics, so D0 and D0+1 get one each; clock
+      // D0+1; open /dash on the same instant.
+      const { token, onD0 } = await missedDay(api, catalog, serverClock, user, { topics: 2 });
       await openDash(page, signIn, user, noon(1));
 
       await expect(dashboard.planMissed).toBeVisible();
@@ -183,13 +184,17 @@ test.describe('PLAN-07 rest day and missed day (UI + server clock)', () => {
       expect(plan.days.find((d) => d.date === day(0))?.state).toBe('missed');
       expect(plan.todayOverride).toBe(false);
       expect(plan.todayQuestions).toBe(30);
-      // The re-pack: the missed day's open topics move to today.
-      const missedTopics = onD0.days.find((d) => d.date === day(0))!.topicIds;
+      // The re-pack: today held none of the missed day's topics on D0; now it holds them all.
+      const topicsOn = (p: Plan, date: string) =>
+        p.days.find((d) => d.date === date)?.topicIds ?? [];
+      const missedTopics = topicsOn(onD0, day(0));
       expect(missedTopics.length, 'D0 had topics').toBeGreaterThan(0);
+      expect(
+        topicsOn(onD0, day(1)).filter((t) => missedTopics.includes(t)),
+        'D0+1 before the miss',
+      ).toEqual([]);
       expect(plan.missed?.topicIds).toEqual(missedTopics);
-      expect(plan.days.find((d) => d.date === day(1))?.topicIds).toEqual(
-        expect.arrayContaining(missedTopics),
-      );
+      expect(topicsOn(plan, day(1))).toEqual(expect.arrayContaining(missedTopics));
     },
   );
 
@@ -198,7 +203,7 @@ test.describe('PLAN-07 rest day and missed day (UI + server clock)', () => {
     { tag: ['@REQ-PLAN-07'] },
     async ({ api, catalog, dashboard, page, serverClock, signIn, user }) => {
       // 1. A missed day with the interview on D0+5, so D0+2 and D0+3 stay regular days.
-      const { token } = await missedDay(api, catalog, serverClock, user, 5);
+      const { token } = await missedDay(api, catalog, serverClock, user, { interviewIn: 5 });
       const before = await api.plan(token);
       await openDash(page, signIn, user, noon(1));
       await expect(dashboard.planMissed).toBeVisible();
