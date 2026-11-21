@@ -45,6 +45,8 @@ me) at the end.
 A test of the kept token (`qa-hub-rt`: remember-me, logout) signs in through the UI
 (`auth.login`): the API login sets the refresh cookie but never writes localStorage.
 `generator_write_test` takes a repo-relative path (`tests/clock/x.spec.ts`), not an absolute one.
+tsconfig has `noUncheckedIndexedAccess`: `arr[0]` is `T | undefined` and fails `tsc` where a
+string is expected; write `arr[0]!`, `arr.at(-1)!` or a helper (`chapterAt`).
 Server-clock plans: `adminToken` / `adminPage` are minted in real time before the test body, so
 reset the server clock (`api.setClock({ offsetMs: 0 })`) before the owner's steps. The `dash` state (plan/finish/day) and the plan blocks follow the server's
 today; the client computes the rest (ask-card, streak, plan-rest), so tests still align page.clock.

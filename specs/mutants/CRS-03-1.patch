@@ -1,0 +1,14 @@
+Reading a course article no longer writes the course record.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..89e1284 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -428,7 +428,7 @@ function ArticleStep({
+   // Same call as the KB plus the course: XP once per article, the course record gets it too.
+   useEffect(() => {
+     if (shown && !read)
+-      store.readArticle(articleId, chapter.id, def.topicId, def.slug).catch(() => {});
++      store.readArticle(articleId, chapter.id, def.topicId).catch(() => {});
+   }, [shown, read, articleId, chapter.id, def.topicId, def.slug, store]);
+ 
+   if (error) return <LoadError error={error} retry={() => void refetch()} />;

@@ -70,6 +70,11 @@ slug)` (204). Negative cases (400, 401) go through `api.raw.post` + `expectError
 - 3.2 step 2: after `course-back` the URL is …/article/1, item 1 is `current` (aria-current=step)
   and item 2 is `done` (opening an article reads it, A7). If the walk shows another state,
   report it; do not adapt the expect.
+- 3.1 and 3.3: the text claims («Далі: …», «Далі: практика →» / «тест →») are dropped (bilingual
+  UI); `course-next` `data-key` is asserted instead. 3.3 also clicks a programme chip (CRS-010).
+- 4.2 step 1 also presses `s` and `0` (the quiz's skip keys, CRS-017): nothing happens. 4.5 step
+  1 ends with the last Enter (the run leaves to the next step); `me/quiz/finish` is counted after
+  step 2.
 - 5.3: read the session total from `recall-progress` before rating; never type 8 or 9.
 - 6.4 step 2: read `stats.totalXp` before the retry; after the right answer it is higher by the
   `+N XP` of the verdict. Step 4: reload …/result: `course-retry-fixed` is absent and
@@ -79,6 +84,30 @@ slug)` (204). Negative cases (400, 401) go through `api.raw.post` + `expectError
 - 7.4 is dropped: 8.5 proves «no second XP» through the API, and 7.3 already clicks the reset
   button (`pyramid-level`).
 - New 8.8 (below): a scoped read advances READ_ARTICLE (replaces the A5 doubt).
+- PR A is merged (#67). For PR B (suites 3, 4), done in src/, use it:
+  - fixture `courseStep` (`CourseStepPage`, src/pages/course-step-page.ts): `gotoArticle(chapterId,
+n)` (1-based), `gotoStep(chapterId, 'practice' | 'test' | 'cards' | 'result')`, `root`, `ctx`,
+    `outline`, `outlineItems`, `outlineItem(key)`, `outlineKeys()`, `article`, `back`, `next`,
+    `practice`, `test`, `counter`, `reread`, `theory`, `finish`, `code`, `levelLabel`,
+    `explanation`, `guestBox` / `guestLogin` / `guestRegister` (inside the step view);
+    `articleStep(articleId)` builds the `article-<id>` key.
+  - The question card of Практика and Тест is the quiz's: answer through the `quiz` fixture
+    (`question`, `options`, `optionAt(n)`, `verdict`, `next`, `skip`, `answer(index)`,
+    `answerCorrectly(api)`, `answerWrong(api)`, `currentQuestionId()`).
+  - `recordApiRequests(page, path)` (src/helpers/network.ts) for 4.5: start it before the
+    answers, then `expect(sent).toHaveLength(0)` for `me/quiz/finish` and read the `course` of
+    each body for `quiz/check`.
+  - `answerInCourse(api, token, id)` for scoped arrange; a wrong scoped answer is
+    `api.checkAnswer(id, wrongIndex, token, undefined, 'playwright')`.
+  - `coursePage.step(chapterId, key)`: the chips sit inside their row and only the open chapter
+    has them; in 3.3 step 3 and 4.4 step 2 open the `full` chapter first with
+    `coursePage.toggle(full.id)` (it is not the current one).
+- 3.3 steps 1–2 open articles of two chapters: a fresh signed-in account for both is fine (both
+  are open to it); the expects are on `course-next`.
+- 4.2 step 2: «the first displayed option» is `quiz.optionAt(1)`.
+- 4.4 step 1 (main session): answer the first plain question, skip the second, answer the rest;
+  expect counter 2 on the skipped one. With the plan's setup (skip the first) a counted skip makes
+  every question answered, which also starts at 1, so the expect could not fail.
 
 ## Ideas (not planned, the user decides)
 

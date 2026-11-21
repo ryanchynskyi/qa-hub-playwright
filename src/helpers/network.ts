@@ -25,3 +25,18 @@ export async function breakApi(
   // Only this handler: another route on the same URL stays and takes over.
   return () => page.unroute(url, handler);
 }
+
+/**
+ * Records every request this page sends to an API path from now on (`me/quiz/finish`), for "was
+ * it sent, and with what body" checks: `expect(sent).toHaveLength(0)`. The array fills as they go.
+ * A listener, not a `route`: nothing is mocked. JSON bodies only (every API body is JSON).
+ */
+export function recordApiRequests(page: Page, path: string): { method: string; body: unknown }[] {
+  const url = `${env.apiURL}${path}`;
+  const sent: { method: string; body: unknown }[] = [];
+  page.on('request', (request) => {
+    if (request.url().split('?')[0] !== url) return;
+    sent.push({ method: request.method(), body: request.postDataJSON() as unknown });
+  });
+  return sent;
+}

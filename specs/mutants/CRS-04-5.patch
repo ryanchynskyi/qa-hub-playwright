@@ -1,0 +1,14 @@
+Digit keys pick the next option on screen (key 1 = the second option).
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..27181e9 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -644,7 +644,7 @@ function RunStep({
+ 
+   useKeydown((e) => {
+     if (!run.answer) {
+-      if (/^[1-9]$/.test(e.key) && +e.key <= run.order.length) void choose(+e.key - 1);
++      if (/^[1-9]$/.test(e.key) && +e.key <= run.order.length) void choose(+e.key % run.order.length);
+     } else if (e.key === 'Enter') {
+       e.preventDefault();
+       goNext();
