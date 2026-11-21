@@ -15,3 +15,4 @@
 - [Server clock order](server-clock-order.md) — clock → login → data → browser Date at the same instant; reset to 0 at the end
 - [Setup shows the move](setup-shows-the-move.md) — a 'moves between days' claim needs data that differs between those days
 - [Copy key lists](copy-key-lists.md) — keys/ids in an expect come whole from test-ids or the walk
+- [Throwaway account cleanup](throwaway-account-cleanup.md) — keep email in localStorage, token via /auth/refresh; delete every account before the report
