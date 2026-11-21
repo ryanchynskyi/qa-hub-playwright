@@ -13,3 +13,4 @@
 - [Observed goes into steps](observed-goes-into-steps.md) — a behaviour worth proving goes into an expect, and an expect must be able to fail
 - [Probe the API from the browser](probe-api-from-browser.md) — rejections and shapes via fetch in browser_evaluate; body-less POST without JSON content-type
 - [Server clock order](server-clock-order.md) — clock → login → data → browser Date at the same instant; reset to 0 at the end
+- [Setup shows the move](setup-shows-the-move.md) — a 'moves between days' claim needs data that differs between those days
