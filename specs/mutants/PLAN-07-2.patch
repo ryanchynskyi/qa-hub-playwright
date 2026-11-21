@@ -1,0 +1,15 @@
+The displayed streak ignores rest days: a day done ahead no longer bridges the gap.
+
+diff --git a/packages/shared/src/engine/progress.ts b/packages/shared/src/engine/progress.ts
+index d6b3c33..12ca2e5 100644
+--- a/packages/shared/src/engine/progress.ts
++++ b/packages/shared/src/engine/progress.ts
+@@ -94,7 +94,7 @@ export function currentStreak(
+ ): number {
+   const last = stats.lastActiveDate;
+   if (!last || last > today) return 0;
+-  return last === today || bridged(last, today, rest) ? stats.streak : 0;
++  return last === today || bridged(last, today, NO_REST) ? stats.streak : 0;
+ }
+ 
+ /** Counts `date` as an active day. `grew` is false when it was already counted. */
