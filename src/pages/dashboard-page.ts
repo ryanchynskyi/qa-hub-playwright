@@ -30,6 +30,9 @@ export class DashboardPage {
   readonly planMissedHour: Locator;
   readonly planMissedKeep: Locator;
   readonly planMissedClose: Locator;
+  readonly planMissedError: Locator;
+  /** The plan row of the daily list on a rest day. */
+  readonly planTaskResult: Locator;
   /** Signed in, no active interview: the «Додай дату співбесіди» tile; never for guests. */
   readonly addDate: Locator;
   readonly addDateLink: Locator;
@@ -60,6 +63,8 @@ export class DashboardPage {
     this.planMissedHour = page.getByTestId('plan-missed-hour');
     this.planMissedKeep = page.getByTestId('plan-missed-keep');
     this.planMissedClose = page.getByTestId('plan-missed-close');
+    this.planMissedError = page.getByTestId('plan-missed-error');
+    this.planTaskResult = page.getByTestId('plan-task-result');
     this.addDate = page.getByTestId('dash-add-date');
     this.addDateLink = page.getByTestId('dash-add-date-link');
     this.tickerItems = page.getByTestId('ticker-item');
@@ -69,6 +74,11 @@ export class DashboardPage {
   /** A day block: `data-key` = date, `data-state` todo/done/missed, today `aria-current="date"`. */
   day(date: string): Locator {
     return byTestId(this.page, 'dash-day', date);
+  }
+
+  /** A ticker item: `interview`, `days`, `streak`, `ask`, … */
+  tickerItem(key: string): Locator {
+    return byTestId(this.page, 'ticker-item', key);
   }
 
   task(id: string): Locator {

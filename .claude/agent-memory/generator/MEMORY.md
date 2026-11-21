@@ -9,3 +9,5 @@
 - [Absence needs an anchor](absence-needs-anchor.md) — assert the state rendered before `toHaveCount(0)`
 - [The title is a claim](title-is-a-claim.md) — every effect in the title or requirement gets an expect
 - [Device branch in a page object](device-branch-in-page-object.md) — no `if (device)` in a test; ask for a `method(device)` in src/
+- [Extra claim fits the setup](extra-claim-fits-setup.md) — an expect beyond the plan must hold for the setup; walk it or leave it out
+- [Table, not if](table-not-if.md) — lint forbids conditionals; loops carry expected values in their table

@@ -72,8 +72,28 @@ These win over the rest of the plan.
   Take `(await api.login(user)).accessToken` after every jump.
 - Instants: build them from one base date in the spec (a constant far from DST changes and
   midnight, e.g. `2026-12-01T10:00:00Z`), never from the real today.
-- A2, A4, A6, A7, A8: questions to the app owner are open; generate what the plan states and
-  mark each such expect with a one-line comment naming the ambiguity.
+- Answers of the app owner (2026-11-21), they replace A2, A3, A6, A7, A8, A10:
+  - A2: the server never writes 0 (`stats.streak` is stale by design); the lapse is computed in
+    the client. Assert the streak in the UI. Last activity D0: 1 on D0+1, 0 from D0+2; with D0+1
+    a rest day: 1 through D0+2, 0 from D0+3.
+  - A3: «Сьогодні 1 год» = PUT /me/plan/today {minutes: 60}; only today's size changes, later
+    days keep perDay, `missed` stays (the notice hides through todayOverride). «Re-packed» means
+    the GET re-pack after a miss, not the button.
+  - A6: the warm-up holds at most 5 (cards + questions). After «Фініш»: up to 5 cards, questions
+    fill the rest. No «Фініш» (`from: recent`): the latest mistakes (cards and wrong questions,
+    by recency), up to 5. No mistakes at all: `warmup` null and start → 404.
+  - A7: rating on a «Фініш» day: no started round → 409 `not_answered`; card outside the round →
+    404 `card`; after finish → 409 `already_finished`. Only `cards/start` is 404 (`card step`).
+  - A8: `asked` is an inbox filter key (test-ids.md is stale there); 6.7 is a normal scenario.
+  - A10: intended — the card shows for the newest past interview even with an active one; only
+    the ticker item goes. It is hidden on the «Фініш» and interview-day dashboards.
+- A4 (`plan-missed-close` / «Лишити»): generate what the plan states with a one-line comment.
+- 1.1: D0 is done too (not `missed`): a missed D0 raises `plan-missed`, which contradicts the
+  step's own «plan-missed absent»; the rest day alone is under test. Step 3 (browser clock not
+  aligned) is dropped: the owner's A2 answer makes the client-side «today» a known design, not a
+  defect to pin.
+- 1.2: the streak is read from the top-bar pill (`Shell.streak`, `data-value`), not ticker text.
+- 1.4: the interview is on D0+5, so D0+2 and D0+3 are regular days whose size must stay perDay.
 
 ## Test Scenarios
 
