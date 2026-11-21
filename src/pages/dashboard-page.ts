@@ -33,6 +33,8 @@ export class DashboardPage {
   readonly planMissedError: Locator;
   /** The plan row of the daily list on a rest day. */
   readonly planTaskResult: Locator;
+  /** Interview day (`dash` `data-state=day`): the date line of the hero, text only. */
+  readonly dayDate: Locator;
   /** Signed in, no active interview: the «Додай дату співбесіди» tile; never for guests. */
   readonly addDate: Locator;
   readonly addDateLink: Locator;
@@ -65,6 +67,7 @@ export class DashboardPage {
     this.planMissedClose = page.getByTestId('plan-missed-close');
     this.planMissedError = page.getByTestId('plan-missed-error');
     this.planTaskResult = page.getByTestId('plan-task-result');
+    this.dayDate = page.getByTestId('dash-day-date');
     this.addDate = page.getByTestId('dash-add-date');
     this.addDateLink = page.getByTestId('dash-add-date-link');
     this.tickerItems = page.getByTestId('ticker-item');

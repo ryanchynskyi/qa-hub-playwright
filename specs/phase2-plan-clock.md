@@ -70,8 +70,10 @@ These win over the rest of the plan.
     `askedNote`; fixtures `finish`, `askCard`, `askedCard`, `interviews`.
 - The `user` fixture registers before the clock moves: its `token` is stale after `serverClock`.
   Take `(await api.login(user)).accessToken` after every jump.
-- Instants: build them from one base date in the spec (a constant far from DST changes and
-  midnight, e.g. `2026-12-01T10:00:00Z`), never from the real today.
+- Instants: from `src/helpers/clock.ts` (base 2030-12-03): `day(n)` = D0+n, `noon(n)` its
+  12:00 Kyiv instant, `ddmm`, `topicChapters(catalog, topics)`, `wholeNumber`; never the real
+  today. Order in a test: `serverClock(noon(n))` → `api.login(user)` → data → `signIn(user)` →
+  `page.clock.install({ time: noon(n) })` → `goto`.
 - Answers of the app owner (2026-11-21), they replace A2, A3, A6, A7, A8, A10:
   - A2: the server never writes 0 (`stats.streak` is stale by design); the lapse is computed in
     the client. Assert the streak in the UI. Last activity D0: 1 on D0+1, 0 from D0+2; with D0+1
@@ -94,6 +96,11 @@ These win over the rest of the plan.
   defect to pin.
 - 1.2: the streak is read from the top-bar pill (`Shell.streak`, `data-value`), not ticker text.
 - 1.4: the interview is on D0+5, so D0+2 and D0+3 are regular days whose size must stay perDay.
+- 3.3: each row's `finish-theory` key is one of the interview's chapters; the verdict also names
+  the warm-up cap 5. 3.4: «Ще раз» is clicked and a new `finish` round opens (`&run=1`).
+- 4.4: `dash-add-date` IS asserted: it renders only after the plan answered null, so it anchors
+  the absences (before it, the plain dashboard of the loading state passes them all) and `dash`
+  has no `data-state`.
 
 ## Test Scenarios
 
@@ -198,7 +205,7 @@ These win over the rest of the plan.
 **Steps:**
 
 1. Clock D0, register, interview D0+2, rate 10 cards of its chapters with rating 1. Clock D0+1 12:00, log in, page.clock the same instant, open /dash. - expect: `dash` data-state is `finish` (turns red if the day before is shown as a normal plan day) - expect: `finish-card` data-state `todo`, `finish-parts` data-cards 8 and data-questions 7; text «Фініш · 15 хв … 8 карток з помилками + 7 питань»; `finish-paused` («на паузі») and `finish-note` («Напередодні … нових тем не даємо») are visible
-2. Look for the usual plan elements. - expect: no `dash-day` blocks, no `plan-missed`, no daily-task list (count of `dash-task` is 0) - expect: `checklist` data-state `eve`, data-value 0, six items as on the app: «Перечитати вакансію», «Розповідь про себе за 2 хв», … - expect: ticker item keys are `interview`, `when`, `finish`, `mistakes` (test-ids)
+2. Look for the usual plan elements. - expect: no `dash-day` blocks, no `plan-missed`, no daily-task list (count of `dash-task` is 0) - expect: `checklist` data-state `eve`, data-value 0, six items as on the app: «Перечитати вакансію», «Розповідь про себе за 2 хв», … - expect: ticker item keys are `interview`, `when`, `finish`, `streak`, `mistakes` in this order (test-ids; the first plan left out `streak`)
 
 #### 3.2. @REQ-PLAN-08 the round runs cards first, then questions
 
