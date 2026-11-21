@@ -1,6 +1,9 @@
 import { expect } from '@playwright/test';
-import type { ApiClient, Credentials } from '../api/client';
-import type { Catalog } from '../api/schemas';
+import type { ApiClient, Credentials, InterviewInput } from '../api/client';
+import type { Catalog, Interview } from '../api/schemas';
+import type { Shell } from '../components/shell';
+import type { DashboardPage } from '../pages/dashboard-page';
+import type { InterviewsPage } from '../pages/interviews-page';
 
 /**
  * Base date of the server-clock tests (project `clock`): years ahead, so a jump never goes back
@@ -29,6 +32,14 @@ export function topicChapters(catalog: Catalog, topics = 1): string[] {
   const ids = [...new Set(catalog.chapters.map((c) => c.topicId))].slice(0, topics);
   return catalog.chapters.filter((c) => ids.includes(c.topicId)).map((c) => c.id);
 }
+
+/** A middle-level interview on `date` over one topic, 15 minutes a day. */
+export const interviewInput = (catalog: Catalog, date: string): InterviewInput => ({
+  date,
+  level: 'middle',
+  chapterIds: topicChapters(catalog),
+  minutesPerDay: 15,
+});
 
 /** A count inside a text that also holds other digits: `60` but not `600` or `160`. */
 export const wholeNumber = (n: number): RegExp => new RegExp(`(^|\\D)${n}(\\D|$)`);
@@ -59,4 +70,36 @@ export async function interviewWithMistakes(
   expect(cards, 'cards to rate badly').toHaveLength(rate);
   for (const card of cards) await api.rateCard(token, card.id, 1);
   return token;
+}
+
+/** Clock D0, an interview on D0+1 over one topic, then the clock on D0+`jump` (log in again). */
+export async function interviewThenJump(
+  api: ApiClient,
+  catalog: Catalog,
+  serverClock: (at: string) => Promise<void>,
+  user: Credentials,
+  jump: number,
+): Promise<Interview> {
+  await serverClock(noon(0));
+  const token = (await api.login(user)).accessToken;
+  const interview = await api.createInterview(token, interviewInput(catalog, day(1)));
+  await serverClock(noon(jump));
+  return interview;
+}
+
+/**
+ * A fresh page load of the history (its row proves GET /me/interviews answered), then the dashboard
+ * through the in-app link: `ask-card`, `asked-card` and the ticker item `ask` come from that cached
+ * answer, so they are decided on the dashboard's first render and an absence check cannot run early.
+ */
+export async function dashAfterInterviews(
+  interviews: InterviewsPage,
+  shell: Shell,
+  dashboard: DashboardPage,
+  id: string,
+): Promise<void> {
+  await interviews.goto();
+  await expect(interviews.row(id)).toBeVisible();
+  await shell.open('dash');
+  await expect(dashboard.root).toBeVisible();
 }

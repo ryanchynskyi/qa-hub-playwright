@@ -1,39 +1,18 @@
-import type { ApiClient, InterviewInput } from '../../src/api/client';
+import type { ApiClient } from '../../src/api/client';
 import { bearer, expectError } from '../../src/api/client';
-import type { Catalog, Interview } from '../../src/api/schemas';
-import { day, ddmm, noon, topicChapters } from '../../src/helpers/clock';
-import type { Shell } from '../../src/components/shell';
+import {
+  dashAfterInterviews,
+  day,
+  ddmm,
+  interviewInput,
+  interviewThenJump,
+  noon,
+} from '../../src/helpers/clock';
 import { readStorage } from '../../src/helpers/storage';
-import type { DashboardPage } from '../../src/pages/dashboard-page';
-import type { InterviewsPage } from '../../src/pages/interviews-page';
-import { expect, test, type TestUser } from '../../src/fixtures';
+import { expect, test } from '../../src/fixtures';
 
 // spec: specs/phase2-plan-clock.md (scenarios 5.1–5.9)
 // seed: tests/seed.spec.ts
-
-type ServerClock = (at: string) => Promise<void>;
-
-const interviewInput = (catalog: Catalog, date: string): InterviewInput => ({
-  date,
-  level: 'middle',
-  chapterIds: topicChapters(catalog),
-  minutesPerDay: 15,
-});
-
-/** Clock D0, an interview on D0+1, then the clock on D0+`jump` (a fresh login is up to the test). */
-async function interviewThenJump(
-  api: ApiClient,
-  catalog: Catalog,
-  serverClock: ServerClock,
-  user: TestUser,
-  jump: number,
-): Promise<Interview> {
-  await serverClock(noon(0));
-  const token = (await api.login(user)).accessToken;
-  const interview = await api.createInterview(token, interviewInput(catalog, day(1)));
-  await serverClock(noon(jump));
-  return interview;
-}
 
 /** Answers 3 questions of today's plan round right, so the account has a readiness. */
 async function answerThreeRight(api: ApiClient, token: string, date: string): Promise<void> {
@@ -42,23 +21,6 @@ async function answerThreeRight(api: ApiClient, token: string, date: string): Pr
     const result = await api.checkAnswer(id, await api.correctIndex(id), token);
     expect(result.outcome).toBe('correct');
   }
-}
-
-/**
- * A fresh page load of the history (its row proves GET /me/interviews answered), then the dashboard
- * through the in-app link: `ask-card` and the ticker item `ask` come from that cached answer, so
- * they are decided on the dashboard's first render and an absence check cannot run too early.
- */
-async function dashAfterInterviews(
-  interviews: InterviewsPage,
-  shell: Shell,
-  dashboard: DashboardPage,
-  id: string,
-): Promise<void> {
-  await interviews.goto();
-  await expect(interviews.row(id)).toBeVisible();
-  await shell.open('dash');
-  await expect(dashboard.root).toBeVisible();
 }
 
 test.describe('PLAN-11 «Як пройшла?», move, history, profile tiles (UI + server clock)', () => {
