@@ -1,0 +1,14 @@
+A skipped question counts as answered when choosing where to re-enter.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..0503413 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -574,7 +574,7 @@ function RunStep({
+       ? 0
+       : ids.findIndex((id) => {
+           const p = progress.questions[id];
+-          return !p || p.skipped;
++          return !p;
+         });
+     const i = Math.max(first, 0);
+     const order = ids.length ? optionOrder(byId.get(ids[i]!)!) : [];

@@ -70,6 +70,11 @@ slug)` (204). Negative cases (400, 401) go through `api.raw.post` + `expectError
 - 3.2 step 2: after `course-back` the URL is …/article/1, item 1 is `current` (aria-current=step)
   and item 2 is `done` (opening an article reads it, A7). If the walk shows another state,
   report it; do not adapt the expect.
+- 3.1 and 3.3: the text claims («Далі: …», «Далі: практика →» / «тест →») are dropped (bilingual
+  UI); `course-next` `data-key` is asserted instead. 3.3 also clicks a programme chip (CRS-010).
+- 4.2 step 1 also presses `s` and `0` (the quiz's skip keys, CRS-017): nothing happens. 4.5 step
+  1 ends with the last Enter (the run leaves to the next step); `me/quiz/finish` is counted after
+  step 2.
 - 5.3: read the session total from `recall-progress` before rating; never type 8 or 9.
 - 6.4 step 2: read `stats.totalXp` before the retry; after the right answer it is higher by the
   `+N XP` of the verdict. Step 4: reload …/result: `course-retry-fixed` is absent and

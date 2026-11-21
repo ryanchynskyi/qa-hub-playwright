@@ -29,6 +29,7 @@ export async function breakApi(
 /**
  * Records every request this page sends to an API path from now on (`me/quiz/finish`), for "was
  * it sent, and with what body" checks: `expect(sent).toHaveLength(0)`. The array fills as they go.
+ * A listener, not a `route`: nothing is mocked. JSON bodies only (every API body is JSON).
  */
 export function recordApiRequests(page: Page, path: string): { method: string; body: unknown }[] {
   const url = `${env.apiURL}${path}`;

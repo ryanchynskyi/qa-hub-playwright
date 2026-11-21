@@ -1,0 +1,14 @@
+Course quiz answers are sent without the course, so the course record never gets them.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..82ace7f 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -607,7 +607,7 @@ function RunStep({
+     const choice = run.order[k]!;
+     setRun((r) => ({ ...r, pending: true, error: null, removed: false }));
+     try {
+-      const { check, result } = await store.answer(q, def.topicId, choice, def.slug);
++      const { check, result } = await store.answer(q, def.topicId, choice);
+       // Only the answer's own XP here; task/streak bonuses get their own notifications.
+       const xp = result.grants
+         .filter((g) => g.reason === 'answer_first_correct' || g.reason === 'answer_repeat')

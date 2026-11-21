@@ -41,7 +41,7 @@ test.describe('CRS-04 Практика and Тест', () => {
   test(
     'Тест: no code, keys 1-9 pick the option, Enter moves on, finish goes to result',
     { tag: '@REQ-CRS-04' },
-    async ({ courseStep, quiz, course, user, signIn, page }) => {
+    async ({ courseStep, quiz, api, course, user, signIn, page }) => {
       const full = chapterOf(course, 'full');
       await signIn(user);
 
@@ -55,13 +55,23 @@ test.describe('CRS-04 Практика and Тест', () => {
       await expect(courseStep.code).toHaveCount(0);
       await expect(quiz.skip).toHaveCount(0);
       const first = await quiz.currentQuestionId();
+      // the quiz skips on s / 0; the course run has no skip keys (CRS-017)
+      await page.keyboard.press('s');
+      await page.keyboard.press('0');
+      await expect(courseStep.finish).toBeVisible();
+      await expect(quiz.verdict).toHaveCount(0);
+      await expect(courseStep.counter).toHaveAttribute('data-value', '1');
+      await expect(quiz.question).toHaveAttribute('data-key', first);
 
-      // 2. Press key 1
+      // 2. Press key 1: it picks the first option on screen (stored keys are shuffled)
+      const picked = Number(await quiz.optionAt(1).getAttribute('data-key'));
+      const expected = (['wrong', 'correct'] as const)[
+        Number(picked === (await api.correctIndex(first)))
+      ]!;
       await page.keyboard.press('1');
-      await expect(quiz.verdict).toBeVisible();
-      await expect(quiz.optionAt(1)).toHaveAttribute('data-state', /^(correct|wrong)$/);
-      // the picked option is the only one that can be wrong; the rest are idle or the revealed correct one
-      expect(await quiz.optionsInState('wrong').count()).toBeLessThanOrEqual(1);
+      await expect(quiz.verdict).toHaveAttribute('data-state', expected);
+      await expect(quiz.optionAt(1)).toHaveAttribute('data-state', expected);
+      await expect(quiz.optionsInState('wrong')).toHaveCount(Number(expected === 'wrong'));
       await expect(quiz.next).toBeVisible();
       await expect(courseStep.finish).toHaveCount(0);
 
@@ -130,7 +140,7 @@ test.describe('CRS-04 Практика and Тест', () => {
       await coursePage.goto();
       await expect(coursePage.chapter(full.id)).toBeVisible();
       await coursePage.toggle(full.id).click();
-      // the open row is drawn (every other step is listed); only the skipped step is not done
+      // `cards` is the anchor that the row is drawn; the test step is not done
       await expect(coursePage.step(full.id, 'cards')).toHaveAttribute('data-state', 'todo');
       await expect(coursePage.step(full.id, 'test')).toHaveAttribute(
         'data-state',
@@ -164,7 +174,9 @@ test.describe('CRS-04 Практика and Тест', () => {
       const bodies = checks.map((c) => c.body as { questionId: string; course?: string });
       expect(bodies.map((b) => b.course)).toEqual(full.plain.map(() => 'playwright'));
       expect(bodies.map((b) => b.questionId).sort()).toEqual([...full.plain].sort());
-      expect(finishes).toHaveLength(0);
+      // the last Enter leaves the run for the next step (A9): where the quiz would send its finish
+      await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(new RegExp(`/${full.id}/cards$`));
 
       // 2. Open /course/playwright
       await coursePage.goto();
@@ -175,13 +187,15 @@ test.describe('CRS-04 Практика and Тест', () => {
         'data-state',
         /^(todo|current)$/,
       );
+      // the spy kept recording across the leave and the reload
+      expect(finishes).toHaveLength(0);
 
       // 3. Read the course record through the ApiClient
       const answered = Object.keys(
         (await api.progress(user.token)).courses.playwright?.questions ?? {},
       );
+      // exact: the plain questions and none of the code ones
       expect(answered.sort()).toEqual([...full.plain].sort());
-      expect(answered.filter((id) => full.code.includes(id))).toEqual([]);
     },
   );
 });

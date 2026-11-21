@@ -1,0 +1,14 @@
+Everything answered re-enters at the last question, not the first.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..729a088 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -576,7 +576,7 @@ function RunStep({
+           const p = progress.questions[id];
+           return !p || p.skipped;
+         });
+-    const i = Math.max(first, 0);
++    const i = first < 0 ? ids.length - 1 : first;
+     const order = ids.length ? optionOrder(byId.get(ids[i]!)!) : [];
+     return { ids, i, order, answer: null, pending: false, error: null, removed: false };
+   });

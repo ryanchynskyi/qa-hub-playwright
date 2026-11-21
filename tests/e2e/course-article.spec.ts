@@ -2,7 +2,7 @@
 // seed: tests/seed.spec.ts
 import { expect, test } from '../../src/fixtures';
 import { articleStep, type StepKey } from '../../src/pages/course-step-page';
-import { chapterAt, chapterOf } from '../../src/helpers/course';
+import { chapterAt, chapterOf, GUEST_CHAPTERS } from '../../src/helpers/course';
 
 const COURSE_PATH = '/course/playwright';
 const onCoursePage = (url: URL) => url.pathname === COURSE_PATH;
@@ -23,7 +23,7 @@ test.describe('CRS-03 Article step', () => {
       await expect(courseStep.ctx).toHaveAttribute('data-key', full.id);
       await expect(courseStep.article).toHaveAttribute('data-key', full.articles[0]!);
       await expect(courseStep.outline).toHaveAttribute('data-key', full.id);
-      expect(await courseStep.outlineKeys()).toEqual(steps);
+      await expect.poll(() => courseStep.outlineKeys()).toEqual(steps);
       // table per item: [key, state]; the first is the open step, the rest are not done
       const items = steps.map((key, i) => [key, i === 0 ? 'current' : 'todo'] as const);
       for (const [key, state] of items) {
@@ -92,7 +92,7 @@ test.describe('CRS-03 Article step', () => {
   test(
     'Last article continues to the next existing step; programme shows the article steps done',
     { tag: '@REQ-CRS-03' },
-    async ({ courseStep, coursePage, course, user, signIn }) => {
+    async ({ courseStep, coursePage, course, user, signIn, page }) => {
       const full = chapterOf(course, 'full');
       const noCode = chapterOf(course, 'noCode');
       const lastFull = full.articles.at(-1)!;
@@ -113,9 +113,12 @@ test.describe('CRS-03 Article step', () => {
       await coursePage.goto();
       await expect(coursePage.chapters).toHaveCount(course.length);
       await coursePage.toggle(full.id).click();
-      // table per chip: [key, state]; only the opened article is done
+      // table per chip: [key, state]; only the opened (last) article is done
       const chips: [StepKey, string][] = [
-        [articleStep(lastFull), 'done'],
+        ...full.articles.map((a): [StepKey, string] => [
+          articleStep(a),
+          a === lastFull ? 'done' : 'todo',
+        ]),
         ['practice', 'todo'],
         ['test', 'todo'],
         ['cards', 'todo'],
@@ -123,6 +126,11 @@ test.describe('CRS-03 Article step', () => {
       for (const [key, state] of chips) {
         await expect(coursePage.step(full.id, key)).toHaveAttribute('data-state', state);
       }
+
+      // 4. A chip opens its step: the first article's chip lands on article 1 (CRS-010)
+      await coursePage.step(full.id, articleStep(full.articles[0]!)).click();
+      await expect(page).toHaveURL(new RegExp(`/${full.id}/article/1$`));
+      await expect(courseStep.article).toHaveAttribute('data-key', full.articles[0]!);
     },
   );
 
@@ -130,8 +138,8 @@ test.describe('CRS-03 Article step', () => {
     'Guest on chapter 3 gets the guest box, not the article; chapters 1-2 stay open',
     { tag: '@REQ-CRS-03' },
     async ({ courseStep, course }) => {
-      // 1. As a guest open /course/playwright/<chapter at position 3>/article/1
-      await courseStep.gotoArticle(chapterAt(course, 3).id, 1);
+      // 1. As a guest open /course/playwright/<first locked chapter>/article/1
+      await courseStep.gotoArticle(chapterAt(course, GUEST_CHAPTERS + 1).id, 1);
       await expect(courseStep.root).toBeVisible();
       await expect(courseStep.guestBox).toBeVisible();
       await expect(courseStep.guestLogin).toBeVisible();
@@ -139,8 +147,8 @@ test.describe('CRS-03 Article step', () => {
       await expect(courseStep.article).toHaveCount(0);
       await expect(courseStep.outlineItems).toHaveCount(0);
 
-      // 2. As a guest open /course/playwright/<chapter at position 2>/article/1
-      await courseStep.gotoArticle(chapterAt(course, 2).id, 1);
+      // 2. As a guest open /course/playwright/<last open chapter>/article/1
+      await courseStep.gotoArticle(chapterAt(course, GUEST_CHAPTERS).id, 1);
       await expect(courseStep.article).toBeVisible();
       await expect(courseStep.guestBox).toHaveCount(0);
     },

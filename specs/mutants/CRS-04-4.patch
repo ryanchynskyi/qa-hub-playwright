@@ -1,0 +1,16 @@
+Leaving a course run sends the quiz finish, as the plain quiz does.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..b53b9eb 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -596,8 +596,8 @@ function RunStep({
+   const resultHref = `${def.base}/${chapter.id}/result`;
+   const exitHref = next && !retry ? stepHref(chapter.id, next, def.base) : resultHref;
+   // The result tells how many of the retried mistakes are fixed.
+-  const leave = (ids: string[]) =>
+-    void navigate(exitHref, retry ? { state: { retried: ids } } : undefined);
++  const leave = (ids: string[]) => (void store.finishQuiz(def.topicId, ids).catch(() => {}),
++    void navigate(exitHref, retry ? { state: { retried: ids } } : undefined));
+   const article = chapter.steps.find((s) => s.kind === 'article');
+   const theoryHref = article ? stepHref(chapter.id, article, def.base) : null;
+   const q = byId.get(run.ids[run.i] ?? '');
