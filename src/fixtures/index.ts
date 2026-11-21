@@ -27,6 +27,7 @@ import { AdminPage } from '../pages/admin-page';
 import { AuthPage } from '../pages/auth-page';
 import { CourseCatalogPage } from '../pages/course-catalog-page';
 import { CoursePage } from '../pages/course-page';
+import { CourseStepPage } from '../pages/course-step-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { FakeGoogle } from '../pages/fake-google-page';
 import { InterviewPage } from '../pages/interview-page';
@@ -118,6 +119,7 @@ interface TestFixtures {
   interviews: InterviewsPage;
   courses: CourseCatalogPage;
   coursePage: CoursePage;
+  courseStep: CourseStepPage;
   /**
    * Moves the e2e API's clock to `at` (ISO), back to real time after the test. Server-global:
    * only in the `clock` project (one worker, after the others). A token minted before a jump looks
@@ -293,6 +295,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   interviews: async ({ page }, use) => use(new InterviewsPage(page)),
   courses: async ({ page }, use) => use(new CourseCatalogPage(page)),
   coursePage: async ({ page }, use) => use(new CoursePage(page)),
+  courseStep: async ({ page }, use) => use(new CourseStepPage(page)),
   serverClock: async ({ api }, use) => {
     assertNotProd('serverClock');
     await use(async (at) => {
