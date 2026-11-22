@@ -1,0 +1,14 @@
+Recall sessions stop requeueing a card rated 1.
+diff --git a/apps/web/src/views/RecallSession.tsx b/apps/web/src/views/RecallSession.tsx
+index e7ab258..b883cf4 100644
+--- a/apps/web/src/views/RecallSession.tsx
++++ b/apps/web/src/views/RecallSession.tsx
+@@ -428,7 +428,7 @@ function RunView({ idx, s, scope }: { idx: CatalogIndex; s: Session; scope: stri
+     try {
+       const r = await store.rate(card, rating);
+       // «Не знаю» (1) comes back later in the same session, once.
+-      const requeue = rating === 1 && !s.requeued.includes(card.id);
++      const requeue = rating === 0 && !s.requeued.includes(card.id);
+       const at = Math.min(s.i + 4, s.items.length);
+       const items = requeue ? [...s.items.slice(0, at), card, ...s.items.slice(at)] : s.items;
+       sessionStore.set({

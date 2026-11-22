@@ -1,0 +1,14 @@
+The course Картки step uses Recall's board layout (comments and the bar).
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..46ed4ac 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -965,7 +965,7 @@ function CardsStep({
+             pending={run.pending}
+             error={run.error}
+             chapter={{ id: chapter.id, topicId: def.topicId, title: chapter.title }}
+-            variant="course"
++            variant="board"
+             hint
+             onReveal={reveal}
+             onRate={(r) => void rate(r)}

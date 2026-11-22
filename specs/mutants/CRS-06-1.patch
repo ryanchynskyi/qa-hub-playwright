@@ -1,0 +1,14 @@
+Result rows show the step's total as its done count.
+diff --git a/apps/web/src/views/CourseResult.tsx b/apps/web/src/views/CourseResult.tsx
+index c473738..56e9eb2 100644
+--- a/apps/web/src/views/CourseResult.tsx
++++ b/apps/web/src/views/CourseResult.tsx
+@@ -129,7 +129,7 @@ function ResultView({
+         const sc = graded
+           ? scoreOf(s.ids, progress.questions)
+           : { correct: stepCounts(s, progress).done, total: s.ids.length };
+-        return { value: n.value + sc.correct, total: n.total + sc.total };
++        return { value: n.value + sc.total, total: n.total + sc.total };
+       },
+       { value: 0, total: 0 },
+     );

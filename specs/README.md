@@ -40,8 +40,9 @@ data through the `api` fixture (src/api/client.ts); never hard-code content. One
 as the plan says. You cannot edit src/: if a locator or a method is missing, say so in the report
 and do not work around it inline. generator_setup_page opens the guest seed: for a signed-in walk
 register a throwaway account through fetch in the page (POST /api/auth/register with `timeZone:
-'Europe/Kyiv'` and the password `correct-horse-battery`, else 400), then goto; delete it (DELETE
-me) at the end.
+'Europe/Kyiv'` and the password `correct-horse-battery`, else 400), then goto; delete it at the end:
+log in again with the same credentials, then DELETE /api/me with the JSON body `{ confirmEmail }`
+(without it, 400).
 A test of the kept token (`qa-hub-rt`: remember-me, logout) signs in through the UI
 (`auth.login`): the API login sets the refresh cookie but never writes localStorage.
 `generator_write_test` takes a repo-relative path (`tests/clock/x.spec.ts`), not an absolute one.

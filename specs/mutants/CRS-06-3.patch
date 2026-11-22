@@ -1,0 +1,14 @@
+The next-chapter button skips the following chapter.
+diff --git a/apps/web/src/views/CourseResult.tsx b/apps/web/src/views/CourseResult.tsx
+index c473738..45d46d8 100644
+--- a/apps/web/src/views/CourseResult.tsx
++++ b/apps/web/src/views/CourseResult.tsx
+@@ -92,7 +92,7 @@ function ResultView({
+   }, [done, def.slug, chapter.id, chapter.position, score?.correct, score?.total]);
+ 
+   const undone = chapter.steps.find((s) => !stepDone(s, progress));
+-  const nextChapter = course.chapters[chapter.position] ?? null;
++  const nextChapter = course.chapters[chapter.position + 1] ?? null;
+   const nextLocked = !!nextChapter && chapterLocked(nextChapter, guest);
+ 
+   const stepName = (s: CourseStep) =>

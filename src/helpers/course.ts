@@ -98,6 +98,17 @@ export async function answerInCourse(
   return (await api.checkAnswer(questionId, choice, token, undefined, course)).outcome;
 }
 
+/** A wrong answer inside a course: option 1 when 0 is correct, else 0 (as `QuizPage.answerWrong`). */
+export async function missInCourse(
+  api: ApiClient,
+  token: string,
+  questionId: string,
+  course: CourseSlug = 'playwright',
+): Promise<string> {
+  const choice = (await api.correctIndex(questionId)) === 0 ? 1 : 0;
+  return (await api.checkAnswer(questionId, choice, token, undefined, course)).outcome;
+}
+
 /** Does every step of a chapter inside the course: reads, right answers, ratings. */
 export async function completeChapter(
   api: ApiClient,
