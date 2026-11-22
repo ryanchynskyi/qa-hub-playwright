@@ -92,7 +92,7 @@ test.describe('guest quiz', () => {
         const restore = await breakApi(page, 'quiz/check', fault);
 
         await quiz.option(0).click();
-        await expect(page.getByTestId('quiz-error')).toBeVisible();
+        await expect(quiz.error).toBeVisible();
         await expect(quiz.verdict).toBeHidden();
         await expect(quiz.optionsInState('idle')).toHaveCount(optionCount);
 

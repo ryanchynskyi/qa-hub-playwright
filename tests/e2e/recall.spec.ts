@@ -193,7 +193,7 @@ test.describe('Recall: rating', () => {
       // Nothing is due but a card is reviewed: the page is the caught-up one, the setup is a click away
       await authedPage.goto('recall');
       await expect(recall.caughtUp).toBeVisible();
-      await authedPage.getByTestId('recall-caught-setup').click();
+      await recall.caughtSetup.click();
       // A is reviewed and not due (14 days): it moved from "new" to "later" for this account.
       await expect(recall.pool).toHaveAttribute('data-later', '1');
       await expect(recall.pool).toHaveAttribute('data-due', '0');

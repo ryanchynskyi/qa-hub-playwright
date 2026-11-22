@@ -73,6 +73,18 @@ export default defineConfig(
           selector: 'CallExpression[callee.property.name=/^route(FromHAR|WebSocket)?$/]',
           message: 'No network mocks in specs: use src/helpers/network.ts or a page object.',
         },
+        // Locators live in page objects and components: a spec that builds its own locator
+        // (getByTestId, getByRole, byTestId) bypasses the layer (class `layer-bypass`).
+        {
+          selector:
+            'CallExpression[callee.property.name=/^getBy(TestId|Role|Text|Label|Placeholder|AltText|Title)$/]',
+          message: 'No locators in specs: use or add a page-object member in src/.',
+        },
+        {
+          selector:
+            "CallExpression:matches([callee.name='byTestId'], [callee.property.name='byTestId'])",
+          message: 'No locators in specs: use or add a page-object member in src/.',
+        },
       ],
     },
   },

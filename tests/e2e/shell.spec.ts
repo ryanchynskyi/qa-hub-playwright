@@ -11,13 +11,13 @@ test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => 
   test(
     'main links open their pages and mark themselves active',
     { tag: ['@REQ-GEN-01'] },
-    async ({ page, shell }) => {
+    async ({ shell, quiz, kb }) => {
       await shell.open('quiz');
-      await expect(page.getByTestId('quiz-view')).toBeVisible();
+      await expect(quiz.root).toBeVisible();
       await shell.expectActive('quiz');
 
       await shell.open('kb');
-      await expect(page.getByTestId('kb-home')).toBeVisible();
+      await expect(kb.home).toBeVisible();
       await shell.expectActive('kb');
 
       await shell.open('dash');
@@ -28,10 +28,10 @@ test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => 
   test(
     'secondary links are reachable on every layout',
     { tag: ['@REQ-GEN-01'] },
-    async ({ page, shell }) => {
+    async ({ page, shell, leaderboard }) => {
       await shell.open('leaderboard');
       await expect(page).toHaveURL(/\/leaderboard\/?$/);
-      await expect(page.getByTestId('leaderboard')).toBeVisible();
+      await expect(leaderboard.root).toBeVisible();
     },
   );
 
@@ -56,20 +56,25 @@ test.describe('shell navigation', { tag: ['@responsive', '@prod-safe'] }, () => 
 // Routing, not layout: one viewport is enough. Checklist SHELL-016 (no REQ row): prod serves a
 // prerendered shell for every route, never a 404 page.
 test.describe('deep links', { tag: ['@prod-safe'] }, () => {
-  test('deep links load their view directly and after a reload', async ({ page }) => {
+  test('deep links load their view directly and after a reload', async ({
+    page,
+    kb,
+    quiz,
+    leaderboard,
+  }) => {
     const views = [
-      { path: 'kb/sql', testId: 'kb' }, // redirects to a chapter: the reload hits that deep link
-      { path: 'quiz/sql', testId: 'quiz-view' },
-      { path: 'leaderboard', testId: 'leaderboard' },
+      { path: 'kb/sql', view: kb.root }, // redirects to a chapter: the reload hits that deep link
+      { path: 'quiz/sql', view: quiz.root },
+      { path: 'leaderboard', view: leaderboard.root },
     ];
-    for (const { path, testId } of views) {
+    for (const { path, view } of views) {
       await test.step(path, async () => {
         await page.goto(path);
-        await expect(page.getByTestId(testId)).toBeVisible();
+        await expect(view).toBeVisible();
         // GitHub Pages adds a trailing slash on reload (a directory redirect); same route.
         const route = page.url().replace(/\/$/, '');
         await page.reload();
-        await expect(page.getByTestId(testId)).toBeVisible();
+        await expect(view).toBeVisible();
         expect(page.url().replace(/\/$/, '')).toBe(route);
       });
     }

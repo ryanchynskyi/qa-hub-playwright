@@ -8,7 +8,7 @@ test.describe('app smoke', { tag: ['@smoke', '@prod-safe', '@responsive'] }, () 
       await page.goto('./');
       await expect(dashboard.root).toBeVisible();
       await expect(dashboard.title).not.toBeEmpty();
-      await expect(shell.page.getByTestId('topbar')).toBeVisible();
+      await expect(shell.topbar).toBeVisible();
       await shell.expectLanguage('uk');
     },
   );

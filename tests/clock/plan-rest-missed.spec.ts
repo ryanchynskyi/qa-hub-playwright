@@ -86,10 +86,7 @@ test.describe('PLAN-07 rest day and missed day (UI + server clock)', () => {
       await expect(dashboard.day(day(0))).toHaveAttribute('data-state', 'done');
       await expect(dashboard.day(day(2))).toHaveAttribute('data-state', 'todo');
       // The last block is «Фініш» on D0+3.
-      await expect(dashboard.days.getByTestId('dash-day').last()).toHaveAttribute(
-        'data-key',
-        day(3),
-      );
+      await expect(dashboard.dayBlocks.last()).toHaveAttribute('data-key', day(3));
 
       await expect(dashboard.planNext).toHaveAttribute('data-state', 'rest');
       await expect(dashboard.planNext).toContainText(ddmm(day(2)));
@@ -173,10 +170,7 @@ test.describe('PLAN-07 rest day and missed day (UI + server clock)', () => {
       await expect(today).toHaveAttribute('aria-current', 'date');
       await expect(today).toContainText(wholeNumber(plan.todayQuestions));
       // The last block is «Фініш» on D0+2.
-      await expect(dashboard.days.getByTestId('dash-day').last()).toHaveAttribute(
-        'data-key',
-        day(2),
-      );
+      await expect(dashboard.dayBlocks.last()).toHaveAttribute('data-key', day(2));
 
       expect(plan.today).toBe(day(1));
       expect(plan.missed?.date).toBe(day(0));

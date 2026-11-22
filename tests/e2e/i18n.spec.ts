@@ -34,7 +34,7 @@ test.describe('language', { tag: ['@prod-safe'] }, () => {
     test('quiz questions have no Cyrillic text', { tag: ['@REQ-GEN-04'] }, async ({ quiz }) => {
       await quiz.goto('sql');
       await quiz.startRun('10');
-      await expect(quiz.question.getByTestId('quiz-question-text')).not.toHaveText(CYRILLIC);
+      await expect(quiz.questionText).not.toHaveText(CYRILLIC);
       for (const option of await quiz.options.all()) {
         await expect(option).not.toHaveText(CYRILLIC);
       }

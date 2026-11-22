@@ -18,6 +18,8 @@ export class DashboardPage {
   readonly topicsLock: Locator;
   /** Plan mode (`dash` `data-state="plan"`): day blocks, `data-value` = today … «Фініш». */
   readonly days: Locator;
+  /** Every `dash-day` block, in date order. */
+  readonly dayBlocks: Locator;
   readonly planHow: Locator;
   readonly planHowOk: Locator;
   /** Today's plan step; `data-state` = `rest` on a day done ahead. */
@@ -56,6 +58,7 @@ export class DashboardPage {
     this.quickstart = page.getByTestId('dash-quickstart');
     this.topicsLock = page.getByTestId('topics-lock');
     this.days = page.getByTestId('dash-days');
+    this.dayBlocks = this.days.getByTestId('dash-day');
     this.planHow = page.getByTestId('dash-plan-how');
     this.planHowOk = page.getByTestId('dash-plan-how-ok');
     this.planNext = page.getByTestId('plan-next');
@@ -77,6 +80,11 @@ export class DashboardPage {
   /** A day block: `data-key` = date, `data-state` todo/done/missed, today `aria-current="date"`. */
   day(date: string): Locator {
     return byTestId(this.page, 'dash-day', date);
+  }
+
+  /** Track switch of the quick start, key `manual|auto|all`; `aria-pressed` = chosen. */
+  quickstartTrack(key: 'manual' | 'auto' | 'all'): Locator {
+    return byTestId(this.page, 'dash-quickstart-track', key);
   }
 
   /** A ticker item: `interview`, `days`, `streak`, `ask`, … */

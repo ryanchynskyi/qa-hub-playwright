@@ -1,5 +1,5 @@
 import { expect, test } from '../../src/fixtures';
-import { byTestId, numberValue } from '../../src/helpers/locators';
+import { numberValue } from '../../src/helpers/locators';
 import { readStorage } from '../../src/helpers/storage';
 
 // spec: specs/phase2-onboarding.md
@@ -193,10 +193,7 @@ test.describe('short dashboard and tour', () => {
       await expect(dashboard.title).toBeVisible();
       await expect(dashboard.quickstart).toBeVisible();
       // A skipped focus keeps the track switch, set to all tracks.
-      await expect(byTestId(page, 'dash-quickstart-track', 'all')).toHaveAttribute(
-        'aria-pressed',
-        'true',
-      );
+      await expect(dashboard.quickstartTrack('all')).toHaveAttribute('aria-pressed', 'true');
       await expect(dashboard.topics).toHaveAttribute('data-state', 'locked');
       await expect(dashboard.topicsLock).toBeVisible();
 

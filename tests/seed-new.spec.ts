@@ -7,7 +7,7 @@ import { expect, test } from '../src/fixtures';
  */
 test.use({ visitor: 'new' });
 
-test('seed new visitor', async ({ page }) => {
+test('seed new visitor', async ({ page, focus }) => {
   await page.goto('dash');
-  await expect(page.getByTestId('guest-home')).toBeVisible();
+  await expect(focus.home).toBeVisible();
 });
