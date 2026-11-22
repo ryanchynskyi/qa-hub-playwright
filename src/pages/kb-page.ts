@@ -3,6 +3,9 @@ import { byTestId } from '../helpers/locators';
 
 /** Knowledge base, `/kb/:topicId/:chapterId`. Opening an article counts as reading it (+2 XP once). */
 export class KbPage {
+  /** `/kb` itself is the home (`home`); chapter pages have `root` (`kb`). */
+  readonly home: Locator;
+  readonly root: Locator;
   readonly search: Locator;
   readonly searchResults: Locator;
   readonly searchHits: Locator;
@@ -11,6 +14,8 @@ export class KbPage {
   readonly articles: Locator;
 
   constructor(readonly page: Page) {
+    this.home = page.getByTestId('kb-home');
+    this.root = page.getByTestId('kb');
     this.search = page.getByTestId('kb-search');
     this.searchResults = page.getByTestId('search-results');
     this.searchHits = page.getByTestId('search-hit');

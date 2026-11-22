@@ -38,7 +38,8 @@ Rules: use the existing fixtures and page objects (src/fixtures/index.ts, src/pa
 first. No page.request, no CSS or text locators, no waitForTimeout, no test.skip, no retries. Test
 data through the `api` fixture (src/api/client.ts); never hard-code content. One @REQ tag per test,
 as the plan says. You cannot edit src/: if a locator or a method is missing, say so in the report
-and do not work around it inline. generator_setup_page opens the guest seed: for a signed-in walk
+and do not work around it inline: lint rejects any getBy* or byTestId call in tests/, so a spec
+only uses page-object and component members. generator_setup_page opens the guest seed: for a signed-in walk
 register a throwaway account through fetch in the page (POST /api/auth/register with `timeZone:
 'Europe/Kyiv'` and the password `correct-horse-battery`, else 400), then goto; delete it at the end:
 log in again with the same credentials, then DELETE /api/me with the JSON body `{ confirmEmail }`
@@ -53,6 +54,10 @@ reset the server clock (`api.setClock({ offsetMs: 0 })`) before the owner's step
 today; the client computes the rest (ask-card, streak, plan-rest), so tests still align page.clock.
 Your browser tools cannot set the browser clock: walk what the server decides (API, `dash`
 state), write the client-clock steps from the plan and test-ids, and list them as not walked.
+
+Walk report: for each scenario, list the steps generator_read_log recorded, then the plan steps
+you wrote without walking them and why. A scenario with unwalked steps and no reason makes the run
+partial.
 
 <lessons footer, see below>
 ```

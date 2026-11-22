@@ -47,9 +47,9 @@ test.describe('sign-in and sign-up', () => {
   test(
     'a signed-in user can open the profile',
     { tag: ['@REQ-AUTH-13'] },
-    async ({ authedPage, shell }) => {
+    async ({ authedPage: _signedIn, shell, profile }) => {
       await shell.open('profile');
-      await expect(authedPage.getByTestId('profile')).toHaveAttribute('data-state', 'user');
+      await expect(profile.card).toHaveAttribute('data-state', 'user');
     },
   );
 

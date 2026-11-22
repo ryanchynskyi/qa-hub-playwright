@@ -9,33 +9,31 @@ test.describe('Admin access and bug reports', () => {
     // 1. As a guest open /admin
     const admin = new AdminPage(page);
     await page.goto('admin');
-    await expect(page.getByTestId('admin-signin')).toBeVisible();
-    await expect(page.getByTestId('admin-signin-link')).toHaveAttribute(
-      'href',
-      '/login?next=/admin',
-    );
+    await expect(admin.signIn).toBeVisible();
+    await expect(admin.signInLink).toHaveAttribute('href', '/login?next=/admin');
     await expect(admin.root).toHaveCount(0);
-    await expect(page.getByTestId('admin-kpis')).toHaveCount(0);
-    await expect(page.getByTestId('admin-forbidden')).toHaveCount(0);
+    await expect(admin.kpis).toHaveCount(0);
+    await expect(admin.forbidden).toHaveCount(0);
   });
 
   test(
     'a regular account on /admin sees admin-forbidden and no data',
     { tag: ['@REQ-ADM-01'] },
-    async ({ authedPage }) => {
+    async ({ authedPage, shell }) => {
       // 1. With `authedPage` open /admin
+      const admin = new AdminPage(authedPage);
       await authedPage.goto('admin');
-      await expect(authedPage.getByTestId('admin-forbidden')).toBeVisible();
+      await expect(admin.forbidden).toBeVisible();
 
       // 2. Look for data
       for (const absent of [
-        'admin-kpis',
-        'admin-bugs',
-        'admin-feedback',
-        'admin-signin',
-        'nav-admin',
+        admin.kpis,
+        admin.bugsCard,
+        admin.feedbackCard,
+        admin.signIn,
+        shell.link('admin'),
       ]) {
-        await expect(authedPage.getByTestId(absent)).toHaveCount(0);
+        await expect(absent).toHaveCount(0);
       }
     },
   );

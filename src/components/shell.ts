@@ -35,6 +35,9 @@ export class Shell {
   readonly account: Locator;
   /** The top-bar streak pill: `data-value` = the streak as the client computes it (rest days count). */
   readonly streak: Locator;
+  readonly topbar: Locator;
+  /** `xp-total`: an account's XP in the top bar; guests have none. */
+  readonly xpTotal: Locator;
 
   constructor(
     readonly page: Page,
@@ -48,13 +51,16 @@ export class Shell {
     this.accountGuest = page.getByTestId('account-guest');
     this.account = page.getByTestId('account');
     this.streak = page.getByTestId('streak');
+    this.topbar = page.getByTestId('topbar');
+    this.xpTotal = page.getByTestId('xp-total');
   }
 
   get isPhone(): boolean {
     return this.device === 'phone';
   }
 
-  link(target: NavTarget | 'logout'): Locator {
+  /** `admin` is not a NavTarget: the link exists for admins only, tests check its absence. */
+  link(target: NavTarget | 'logout' | 'admin'): Locator {
     return this.page.getByTestId(`nav-${target}`);
   }
 
@@ -85,8 +91,7 @@ export class Shell {
    * right after a sign-in: until the account renders, the guest branch answers.
    */
   async totalXp(): Promise<number> {
-    const xp = this.page.getByTestId('xp-total');
-    if ((await xp.count()) > 0) return numberValue(xp);
+    if ((await this.xpTotal.count()) > 0) return numberValue(this.xpTotal);
     return (await readGuest(this.page))?.stats?.totalXp ?? 0;
   }
 

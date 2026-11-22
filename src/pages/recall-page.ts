@@ -10,6 +10,8 @@ export class RecallPage {
   readonly start: Locator;
   readonly hero: Locator;
   readonly caughtUp: Locator;
+  /** «Налаштувати» on the caught-up page: opens the setup for this visit. */
+  readonly caughtSetup: Locator;
   readonly know: Locator;
   readonly pool: Locator;
   readonly progress: Locator;
@@ -30,6 +32,7 @@ export class RecallPage {
     this.start = page.getByTestId('recall-start');
     this.hero = page.getByTestId('recall-hero');
     this.caughtUp = page.getByTestId('recall-caught-up');
+    this.caughtSetup = page.getByTestId('recall-caught-setup');
     this.know = page.getByTestId('recall-know');
     this.pool = page.getByTestId('recall-pool');
     this.progress = page.getByTestId('recall-progress');

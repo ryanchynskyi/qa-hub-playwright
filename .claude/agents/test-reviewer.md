@@ -40,6 +40,8 @@ Then the conventions:
 2. **Locators.** Only `getByTestId` / `byTestId(scope, id, key)` with ids that exist in
    `$APP_DIR/docs/test-ids.md`. No visible text, CSS classes or XPath: the UI is bilingual.
    Numbers come from `data-value` via `numberValue`, never from text.
+   Locators are built in `src/` only: specs use page-object and component members (lint rejects
+   `getBy*` / `byTestId` in `tests/`); a role locator in a page object says why there is no test id.
 3. **Waiting.** No `waitForTimeout`, no `page.waitForSelector` + manual checks, no
    `expect(await x.isVisible())`. Web-first assertions only.
 4. **Layers.** Specs use fixtures from `src/fixtures` (not `@playwright/test`), page objects for

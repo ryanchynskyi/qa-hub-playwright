@@ -11,9 +11,13 @@ export type Verdict = 'correct' | 'wrong' | 'skipped';
  * answers, then the verdict appears.
  */
 export class QuizPage {
+  readonly root: Locator;
   readonly setupToggle: Locator;
   readonly start: Locator;
   readonly question: Locator;
+  readonly questionText: Locator;
+  /** The check failed (`role=alert`). */
+  readonly error: Locator;
   readonly options: Locator;
   readonly verdict: Locator;
   readonly xpGain: Locator;
@@ -43,9 +47,12 @@ export class QuizPage {
   readonly askedNote: Locator;
 
   constructor(readonly page: Page) {
+    this.root = page.getByTestId('quiz-view');
     this.setupToggle = page.getByTestId('quiz-setup-toggle');
     this.start = page.getByTestId('quiz-start');
     this.question = page.getByTestId('question');
+    this.questionText = this.question.getByTestId('quiz-question-text');
+    this.error = page.getByTestId('quiz-error');
     this.options = this.question.getByTestId('quiz-option');
     this.verdict = this.question.getByTestId('quiz-verdict');
     this.xpGain = this.question.getByTestId('quiz-xp-gain');
@@ -93,6 +100,13 @@ export class QuizPage {
 
   resultMiss(questionId: string): Locator {
     return byTestId(this.page, 'quiz-result-miss', questionId);
+  }
+
+  /** Only the first review item starts open (`data-open`); its head button has no test id. */
+  async openMiss(questionId: string): Promise<void> {
+    const miss = this.resultMiss(questionId);
+    await miss.getByRole('button').first().click();
+    await expect(miss).toHaveAttribute('data-open', 'true');
   }
 
   /** Options of the current question in a state: `idle` before the verdict, then `correct|wrong`. */

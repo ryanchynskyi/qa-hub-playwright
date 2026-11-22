@@ -11,12 +11,26 @@ export class AdminPage {
   readonly bugs: Locator;
   readonly bugsCount: Locator;
   readonly bugError: Locator;
+  /** Guest prompt and its link; `forbidden` is the 403 alert for a signed-in non-admin. */
+  readonly signIn: Locator;
+  readonly signInLink: Locator;
+  readonly forbidden: Locator;
+  readonly kpis: Locator;
+  /** Inbox counter cards. */
+  readonly bugsCard: Locator;
+  readonly feedbackCard: Locator;
 
   constructor(readonly page: Page) {
     this.root = page.getByTestId('admin');
     this.bugs = page.getByTestId('admin-bug');
     this.bugsCount = page.getByTestId('admin-bugs-count');
     this.bugError = page.getByTestId('admin-bug-error');
+    this.signIn = page.getByTestId('admin-signin');
+    this.signInLink = page.getByTestId('admin-signin-link');
+    this.forbidden = page.getByTestId('admin-forbidden');
+    this.kpis = page.getByTestId('admin-kpis');
+    this.bugsCard = page.getByTestId('admin-bugs');
+    this.feedbackCard = page.getByTestId('admin-feedback');
   }
 
   /**
@@ -35,6 +49,11 @@ export class AdminPage {
     const toggle = row.getByTestId('admin-inbox-toggle');
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  }
+
+  /** A KPI tile, key `users-total`, `dau`, …; `data-value` = the raw number. */
+  kpi(key: string): Locator {
+    return byTestId(this.page, 'admin-kpi', key);
   }
 
   bug(id: number): Locator {

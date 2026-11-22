@@ -77,8 +77,7 @@ test.describe('Quiz: results screen and redo', () => {
       await expect(wrongMiss).toContainText(optionText(wrongId, chosenKey));
       await expect(wrongMiss).toContainText(optionText(wrongId, await api.correctIndex(wrongId)));
       // Only the first item starts open: open the skipped one to see its answers
-      await skippedMiss.getByRole('button').first().click();
-      await expect(skippedMiss).toHaveAttribute('data-open', 'true');
+      await quiz.openMiss(skippedId);
       await expect(skippedMiss).toContainText(
         optionText(skippedId, await api.correctIndex(skippedId)),
       );

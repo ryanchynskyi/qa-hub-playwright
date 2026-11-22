@@ -108,7 +108,7 @@ test.describe('AUTH-08 Logout', () => {
       // 2. Sign out
       await shell.logout();
       await expect(shell.account).toHaveCount(0);
-      await expect(page.getByTestId('xp-total')).toHaveCount(0);
+      await expect(shell.xpTotal).toHaveCount(0);
       // Before any navigation: a later page load's failed refresh would drop the token anyway
       await expect.poll(() => readStorage(page, REFRESH_KEY)).toBeNull();
 
@@ -119,7 +119,7 @@ test.describe('AUTH-08 Logout', () => {
       await page.reload();
       await expect(profile.card).toHaveAttribute('data-state', 'guest');
       await expect(shell.accountGuest).toBeAttached();
-      await expect(page.getByTestId('xp-total')).toHaveCount(0);
+      await expect(shell.xpTotal).toHaveCount(0);
       await expect(importBanner.banner).toHaveCount(0);
     },
   );
