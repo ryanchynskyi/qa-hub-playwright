@@ -1,0 +1,14 @@
+Cancel in the reset dialog resets the course.
+diff --git a/apps/web/src/views/course-parts.tsx b/apps/web/src/views/course-parts.tsx
+index 13abd41..6493343 100644
+--- a/apps/web/src/views/course-parts.tsx
++++ b/apps/web/src/views/course-parts.tsx
+@@ -358,7 +358,7 @@ export function CourseReset({ slug }: { slug: CourseDef['slug'] }) {
+                 className="btn ghost"
+                 data-testid="course-reset-cancel"
+                 disabled={busy}
+-                onClick={close}
++                onClick={() => void confirm()}
+               >
+                 {t.reset.cancel}
+               </button>

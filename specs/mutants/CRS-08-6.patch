@@ -1,0 +1,14 @@
+The reset clears the course on screen only; the server keeps the record.
+diff --git a/apps/web/src/progress/server-store.ts b/apps/web/src/progress/server-store.ts
+index a60c257..6a9f51c 100644
+--- a/apps/web/src/progress/server-store.ts
++++ b/apps/web/src/progress/server-store.ts
+@@ -238,7 +238,7 @@ export class ServerStore implements ProgressRepo {
+   }
+ 
+   async resetCourse(slug: CourseSlug): Promise<void> {
+-    await this.deps.api.resetCourse(slug);
++    void slug;
+     const s = this.getSnapshot();
+     const courses = { ...s.courses };
+     delete courses[slug];

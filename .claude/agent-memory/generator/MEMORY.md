@@ -13,3 +13,4 @@
 - [Shared steps to src](shared-steps-to-src.md) — missing locator or a flow two specs need → report it for src/, never inline or copy
 - [Survivor would show](survivor-would-show.md) — a gone/replaced claim needs setup where the survivor would win the read
 - [Exact, not a range](exact-not-range.md) — an input→target claim asserts the state computed for that target, not any-of
+- [Use the named member](use-the-named-member.md) — a locator or helper from src/ is used as declared there: the page-object member, the module import
