@@ -1,0 +1,14 @@
+Course card ratings are sent without the course, so the course record never gets them.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..5b3206e 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -927,7 +927,7 @@ function CardsStep({
+     if (!run.shown || run.pending) return;
+     setRun((r) => ({ ...r, pending: true, error: null }));
+     try {
+-      await store.rate(card, rating, def.slug);
++      await store.rate(card, rating);
+       if (run.i + 1 >= ids.length) {
+         void navigate(`${def.base}/${chapter.id}/result`);
+         return;

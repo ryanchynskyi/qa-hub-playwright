@@ -109,6 +109,45 @@ n)` (1-based), `gotoStep(chapterId, 'practice' | 'test' | 'cards' | 'result')`, 
   expect counter 2 on the skipped one. With the plan's setup (skip the first) a counted skip makes
   every question answered, which also starts at 1, so the expect could not fail.
 
+- PR B is merged (#68). For PR C (suites 5, 6), done in src/, use it:
+  - `courseStep` adds `cards`, `score`, `xp`, `scoreBar`, `scoreSegments` (one `span` per
+    question), `resultStep(key)` (`article` / `practice` / `test` / `cards`), `failRetry`,
+    `failRetryCount()`, `retry`, `retrySkip`, `retryFinish`, `retryFixed`; `gotoStep(id, 'retry')`.
+  - The card of Картки is Recall's: the `recall` fixture (`card`, `reveal`, `answer`, `rates`,
+    `rate(n)`, `showAnswer()`, `currentCardId()`, `kbLink`, `commentsOpen`, `bar`, `progress`,
+    `topic(id)`, `start`).
+  - `missInCourse(api, token, id)` is the scoped wrong answer (next to `answerInCourse`).
+- No UI words (bilingual UI): drop the text claims «2/N», «Правильно 2 з N», «+N XP», «· помилка»,
+  «Повторити помилки · W», «Помилки виправлено · 1 з W», «Далі:», «Наступний розділ →». Assert the
+  data attributes instead; W of `course-fail-retry` is `failRetryCount()`.
+- 6.1 step 2: `scoreSegments` has N items. Which segment is wrong has no attribute (A15): not
+  asserted; `course-score` carries the numbers.
+- 6.3: a row with a mistake is `done` with `data-value` < `data-total`; the «· помилка» marker has
+  no attribute (A15).
+- 6.4 step 2: read `stats.totalXp` before the retry; after the right answer it is higher by
+  `quiz.shownXpGain()`. The retry card is the quiz's: `quiz.answerCorrectly(api)`, `quiz.next`.
+- 5.3: `recall.goto()`, `recall.topic('playwright').click()`, then `recall.start`; read the total
+  from `recall-progress` before rating, never type 8 or 9.
+- 5.4 and 6.6 step 3: the first locked chapter is `chapterAt(course, GUEST_CHAPTERS + 1)`. 6.6
+  step 2: the following chapter is `chapterAt(course, full.position + 1)`.
+- 6.2 step 2 (user decision, 2026-11-22): `course-xp` equals the sum of `xpLog` grants with
+  reason `answer_first_correct`, not `stats.totalXp`. The healer showed the A4 difference is the
+  day's `streak` grant (+10 with the day's first non-skip activity, a wrong answer too), not a first-read bonus: answers only,
+  no reads, gave chip 30 and totalXp 40.
+- 6.4 step 4 (user decision, 2026-11-22): the fresh visit is `courseStep.gotoStepFresh` (leave
+  the page, then open …/result), not a reload: a reload keeps `history.state` and the fixed line
+  (A16). This replaces "reload …/result" in the older 6.4 correction.
+- 6.6 step 1 (user decision, 2026-11-22): read the articles too, so the first undone step is
+  `practice`, not the chapter's first step. Step 2 opens …/<following>/article/1.
+- Added by the main session after review: `course-xp` includes `article_read` grants; the last
+  chapter's result has `course-next` `done` and `course-summary-link` → /done; an unknown chapter
+  on …/result lands on the course page; a guest on …/retry of a locked chapter gets the box.
+- A16 (main session): after a Fail run, a reload of …/result keeps `course-retry-fixed` (the
+  retried ids live in the router's `history.state`); test-ids says it is absent on a plain visit.
+  Question for the app owner.
+- A15 (main session): `course-score-bar` segments and the «· помилка» marker have only classes,
+  `course-fail-retry` has no `data-value`. Question for the app owner.
+
 ## Ideas (not planned, the user decides)
 
 - Scoped read of an article that is a daily READ_ARTICLE task advances that task (A5); needs a plan day shaped by the weak topics.

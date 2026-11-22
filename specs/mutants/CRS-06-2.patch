@@ -1,0 +1,14 @@
+The fixed line counts the retried questions that are still wrong.
+diff --git a/apps/web/src/views/CourseResult.tsx b/apps/web/src/views/CourseResult.tsx
+index c473738..7261d9a 100644
+--- a/apps/web/src/views/CourseResult.tsx
++++ b/apps/web/src/views/CourseResult.tsx
+@@ -75,7 +75,7 @@ function ResultView({
+   const retriedState = (state as { retried?: unknown } | null)?.retried;
+   const retried = Array.isArray(retriedState) ? (retriedState as string[]) : null;
+   const fixed = retried
+-    ? retried.filter((id) => progress.questions[id]?.lastResult === 1).length
++    ? retried.filter((id) => progress.questions[id]?.lastResult === 0).length
+     : 0;
+   const scored =
+     chapter.steps.find((s) => s.kind === 'test') ??

@@ -31,6 +31,23 @@ export class CourseStepPage {
   readonly guestBox: Locator;
   readonly guestLogin: Locator;
   readonly guestRegister: Locator;
+  /** Картки screen, key = chapter id; the card inside is Recall's (`RecallPage`). */
+  readonly cards: Locator;
+  /** Result: score of the Тест (v correct, t total), its XP chip (v, absent at 0), the bar. */
+  readonly score: Locator;
+  readonly xp: Locator;
+  readonly scoreBar: Locator;
+  /** One segment per question of the scored step (they carry no test id or state). */
+  readonly scoreSegments: Locator;
+  /** «Повторити помилки · N» (→ `…/retry`), absent when nothing is wrong. */
+  readonly failRetry: Locator;
+  /** Fail run wrapper (key = chapter id), its skip and finish, and the fixed line on the result. */
+  readonly retry: Locator;
+  readonly retrySkip: Locator;
+  readonly retryFinish: Locator;
+  readonly retryFixed: Locator;
+  /** «До підсумку курсу» link of the result → `/course/<slug>/done`. */
+  readonly summaryLink: Locator;
 
   constructor(readonly page: Page) {
     this.root = page.getByTestId('course-step-view');
@@ -53,6 +70,17 @@ export class CourseStepPage {
     this.guestBox = this.root.getByTestId('course-guest-box');
     this.guestLogin = this.root.getByTestId('course-guest-login');
     this.guestRegister = this.root.getByTestId('course-guest-register');
+    this.cards = page.getByTestId('course-cards');
+    this.score = page.getByTestId('course-score');
+    this.xp = page.getByTestId('course-xp');
+    this.scoreBar = page.getByTestId('course-score-bar');
+    this.scoreSegments = this.scoreBar.locator('span');
+    this.failRetry = page.getByTestId('course-fail-retry');
+    this.retry = page.getByTestId('course-retry');
+    this.retrySkip = page.getByTestId('course-retry-skip');
+    this.retryFinish = page.getByTestId('course-retry-finish');
+    this.retryFixed = page.getByTestId('course-retry-fixed');
+    this.summaryLink = page.getByTestId('course-summary-link');
   }
 
   /** Article `n` (1-based, as the route has it) of a Playwright chapter. */
@@ -60,8 +88,33 @@ export class CourseStepPage {
     await this.page.goto(`course/playwright/${chapterId}/article/${n}`);
   }
 
-  async gotoStep(chapterId: string, step: 'practice' | 'test' | 'cards' | 'result'): Promise<void> {
+  async gotoStep(
+    chapterId: string,
+    step: 'practice' | 'test' | 'cards' | 'result' | 'retry',
+  ): Promise<void> {
     await this.page.goto(`course/playwright/${chapterId}/${step}`);
+  }
+
+  /**
+   * A visit with an empty router state. A reload or a goto to the URL already open keeps
+   * `history.state` (the retried ids of a Fail run), so the page is left first.
+   */
+  async gotoStepFresh(chapterId: string, step: 'result'): Promise<void> {
+    await this.page.goto('about:blank');
+    await this.gotoStep(chapterId, step);
+  }
+
+  /** A row of «По кроках» on the result: state done/todo, v, t. */
+  resultStep(key: 'article' | 'practice' | 'test' | 'cards'): Locator {
+    return byTestId(this.page, 'course-result-step', key);
+  }
+
+  /** N of «Повторити помилки · N»: the button has no data-value, the number is its only digits. */
+  // shortcut: parses the only digits of the label; ask the app for data-value on course-fail-retry.
+  async failRetryCount(): Promise<number> {
+    const digits = /\d+/.exec((await this.failRetry.textContent()) ?? '');
+    if (!digits) throw new Error('course-fail-retry shows no number');
+    return Number(digits[0]);
   }
 
   outlineItem(key: StepKey): Locator {

@@ -1,0 +1,14 @@
+The XP chip shows at zero XP.
+diff --git a/apps/web/src/views/CourseResult.tsx b/apps/web/src/views/CourseResult.tsx
+index c473738..51980da 100644
+--- a/apps/web/src/views/CourseResult.tsx
++++ b/apps/web/src/views/CourseResult.tsx
+@@ -162,7 +162,7 @@ function ResultView({
+               </span>
+               <small>
+                 {r.correct}
+-                {xp > 0 && (
++                {xp >= 0 && (
+                   <>
+                     <br />
+                     <span className="stamp" data-testid="course-xp" data-value={xp}>

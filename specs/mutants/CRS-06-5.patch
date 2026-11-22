@@ -1,0 +1,14 @@
+The result's next-step button always points at the chapter's first step.
+diff --git a/apps/web/src/views/CourseResult.tsx b/apps/web/src/views/CourseResult.tsx
+index c473738..72eb5f7 100644
+--- a/apps/web/src/views/CourseResult.tsx
++++ b/apps/web/src/views/CourseResult.tsx
+@@ -91,7 +91,7 @@ function ResultView({
+     });
+   }, [done, def.slug, chapter.id, chapter.position, score?.correct, score?.total]);
+ 
+-  const undone = chapter.steps.find((s) => !stepDone(s, progress));
++  const undone = chapter.steps.find((s) => !stepDone(s, progress)) && chapter.steps[0];
+   const nextChapter = course.chapters[chapter.position] ?? null;
+   const nextLocked = !!nextChapter && chapterLocked(nextChapter, guest);
+ 

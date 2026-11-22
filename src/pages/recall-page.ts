@@ -22,6 +22,9 @@ export class RecallPage {
   readonly rates: Locator;
   readonly finish: Locator;
   readonly done: Locator;
+  /** «Детальніше: … →» link of the shown answer (key = chapter id). */
+  readonly kbLink: Locator;
+  readonly commentsOpen: Locator;
 
   constructor(readonly page: Page) {
     this.start = page.getByTestId('recall-start');
@@ -39,6 +42,13 @@ export class RecallPage {
     this.rates = page.getByTestId('recall-rate');
     this.finish = page.getByTestId('recall-finish');
     this.done = page.getByTestId('recall-done');
+    this.kbLink = page.getByTestId('recall-kb-link');
+    this.commentsOpen = page.getByTestId('comments-open');
+  }
+
+  /** A topic row of the setup (wide screens): key = topic id or `all`, `aria-pressed`. */
+  topic(topicId: string): Locator {
+    return byTestId(this.page, 'recall-topic', topicId);
   }
 
   rate(rating: number): Locator {

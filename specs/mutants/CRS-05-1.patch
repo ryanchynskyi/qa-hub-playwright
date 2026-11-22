@@ -1,0 +1,14 @@
+The last card rating of a course chapter does not leave for the result.
+diff --git a/apps/web/src/views/CourseStep.tsx b/apps/web/src/views/CourseStep.tsx
+index 39e4ffc..6501c53 100644
+--- a/apps/web/src/views/CourseStep.tsx
++++ b/apps/web/src/views/CourseStep.tsx
+@@ -928,7 +928,7 @@ function CardsStep({
+     setRun((r) => ({ ...r, pending: true, error: null }));
+     try {
+       await store.rate(card, rating, def.slug);
+-      if (run.i + 1 >= ids.length) {
++      if (run.i + 1 > ids.length) {
+         void navigate(`${def.base}/${chapter.id}/result`);
+         return;
+       }
