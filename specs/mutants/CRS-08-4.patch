@@ -1,0 +1,14 @@
+The desktop panel shows the reset button before the course is started.
+diff --git a/apps/web/src/views/Course.tsx b/apps/web/src/views/Course.tsx
+index 5e8b442..12515a3 100644
+--- a/apps/web/src/views/Course.tsx
++++ b/apps/web/src/views/Course.tsx
+@@ -413,7 +413,7 @@ export function CoursePage() {
+         <CourseProgress summary={summary} variant="segments" title={t.panel} />
+         {cta && <CourseCta cta={cta} testId="course-panel-cta" />}
+         {cta?.state === 'continue' && <p className="cpanel-next">{cta.long}</p>}
+-        {started && <CourseReset slug={def.slug} />}
++        {<CourseReset slug={def.slug} />}
+       </aside>
+       {programme}
+       <div className="cside">

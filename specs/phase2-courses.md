@@ -148,6 +148,34 @@ n)` (1-based), `gotoStep(chapterId, 'practice' | 'test' | 'cards' | 'result')`, 
 - A15 (main session): `course-score-bar` segments and the «· помилка» marker have only classes,
   `course-fail-retry` has no `data-value`. Question for the app owner.
 
+- PR C is merged (#70). For PR D (suite 7, `tests/e2e/course-progress.spec.ts`), done in src/,
+  use it: `coursePage` (`panelCta`, `progress`, `reset`, `resetDialog`, `resetConfirm`,
+  `resetCancel`, `chapter(id)`, `chapters`, `toggle(id)`, `step(chapterId, key)`), `courses`
+  (`cta(slug)`, `progress(slug)`, `bar(slug)`, `chapters(slug)`), `quiz` (`answerCorrectly(api)`,
+  `verdict`, `shownXpGain()`), `courseStep.gotoStep(id, 'test')`, the `catalog` fixture,
+  `answerInCourse(api, token, id, course)`, `completeChapter`, `articleStep(id)`. Unscoped arrange:
+  `api.readArticle(token, id)`, `api.checkAnswer(id, await api.correctIndex(id), token)`,
+  `api.rateCard(token, id, 3)`. Signed in = `signIn(user)` (no UI login, as above).
+- 7.1 step 2: also `course-reset` is absent (only when started; anchored by `course-panel-cta`
+  `start`). Whether the `full` chapter's chips are shown on a fresh account (only the open chapter
+  has them) is for the walk: write the steps it needs (`toggle(full.id)` or none), no conditionals.
+  The chip is not `done`; no `course-chapter` is `done`.
+- 7.1 step 3: «the count line stays» = `courses.bar('playwright')` has count 0 after the `cta`
+  `start` anchor (the not-started line has no bar).
+- 7.2 step 1 (fresh account, so the day's `streak` grant is paid by this answer, see 6.2): N =
+  `quiz.shownXpGain()` (> 0). `xpLog` has exactly one `answer_first_correct` grant, with `refId`
+  = the first plain question and amount N; `stats.totalXp` = N + the `streak` grants of `xpLog`.
+  `courses.playwright.questions[<id>]` is `{ lastResult: 1, skipped: false }` (the step counts).
+- 7.3: the API-course question as in 8.4 (`catalog.chapters` with `topicId === 'api'`, its first
+  question, `answerInCourse(…, 'api')`). Read progress after the arrange as "before". Step 1 also
+  anchors the `full` row `done` and `course-progress` 1. Step 3 «the chapter is current again»:
+  no `course-chapter` is `done` and `chapterAt(course, 1)` is `current` (`full` is not always
+  chapter 1). The dialog has `role=alertdialog`; "closes" = count 0 after it was visible.
+- Added by the main session after review (PR D): 7.1 also reads the first Playwright article in
+  `/kb` through the UI (the KB view sends no `course`); the chapter states are positive (chapter 1
+  `current`, the rest `todo`); 7.3 step 2 also reads the server record after cancel. That `/quiz`
+  and Recall send no `course` is proved only by the unscoped API calls (noted in COVERAGE).
+
 ## Ideas (not planned, the user decides)
 
 - Scoped read of an article that is a daily READ_ARTICLE task advances that task (A5); needs a plan day shaped by the weak topics.

@@ -1,0 +1,15 @@
+The course page counts the global KB, quiz and Recall records as the course's own.
+diff --git a/apps/web/src/views/course-parts.tsx b/apps/web/src/views/course-parts.tsx
+index 13abd41..892ea54 100644
+--- a/apps/web/src/views/course-parts.tsx
++++ b/apps/web/src/views/course-parts.tsx
+@@ -49,7 +49,8 @@ export function useCourseData(explicit?: CourseDef) {
+   const { state } = useAuth();
+   const guest = state.status !== 'user';
+   // The course's own record: KB reads and quiz answers outside the course never count here.
+-  const progress = useProgress().courses[def.slug] ?? EMPTY_COURSE;
++  const { questions, cards, articlesRead } = useProgress();
++  const progress = { questions, cards, articlesRead } as typeof EMPTY_COURSE;
+   const catalogQ = useCatalog();
+   const catalog = catalogQ.data;
+   const sectionIds = catalog
