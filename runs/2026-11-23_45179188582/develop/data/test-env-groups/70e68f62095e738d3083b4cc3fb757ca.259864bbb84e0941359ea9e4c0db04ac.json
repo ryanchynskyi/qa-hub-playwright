@@ -1,0 +1,1 @@
+{"id":"70e68f62095e738d3083b4cc3fb757ca.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/interviews.spec.ts › POST /me/interviews › the date must be tomorrow … today + 7, chapters non-empty, minutes 15/30/60","name":"the date must be tomorrow … today + 7, chapters non-empty, minutes 15/30/60","status":"passed","testResultsByEnv":{"default":"d86e96e22f05c05aafadaa88d2fd697a"}}
