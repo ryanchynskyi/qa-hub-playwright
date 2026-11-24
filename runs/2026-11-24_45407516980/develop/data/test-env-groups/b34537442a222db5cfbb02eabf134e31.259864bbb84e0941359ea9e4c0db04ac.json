@@ -1,0 +1,1 @@
+{"id":"b34537442a222db5cfbb02eabf134e31.259864bbb84e0941359ea9e4c0db04ac","fullName":"api/security.spec.ts › admin endpoints: 401 for a guest, 403 for a regular account","name":"admin endpoints: 401 for a guest, 403 for a regular account","status":"passed","testResultsByEnv":{"default":"a4df5c8ba2aa660c1a2c4d30eb2dd108"}}
